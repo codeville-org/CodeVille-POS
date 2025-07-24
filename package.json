@@ -1,8 +1,8 @@
 {
-  "name": "pg-elite",
-  "productName": "pg-elite",
+  "name": "codeville-pos",
+  "productName": "CodeVille POS",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "",
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start",
