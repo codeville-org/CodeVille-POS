@@ -2,7 +2,11 @@
   "name": "codeville-pos",
   "productName": "CodeVille POS",
   "version": "1.0.0",
-  "description": "",
+  "author": {
+    "name": "iamVihangaSilva",
+    "email": "vihangarashansilva@codeville.uk"
+  },
+  "description": "CodeVille POS - Point of Sale System that simplifies retail operations.",
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start",
@@ -12,16 +16,12 @@
     "lint": "eslint --ext .ts,.tsx ."
   },
   "keywords": [],
-  "author": {
-    "name": "iamVihanga",
-    "email": "vihangarashansilva@gmail.com"
-  },
   "license": "MIT",
   "devDependencies": {
     "@electron-forge/cli": "^7.8.1",
     "@electron-forge/maker-deb": "^7.8.1",
     "@electron-forge/maker-rpm": "^7.8.1",
-    "@electron-forge/maker-squirrel": "^7.8.1",
+    "@electron-forge/maker-squirrel": "^7.8.3",
     "@electron-forge/maker-zip": "^7.8.1",
     "@electron-forge/plugin-auto-unpack-natives": "^7.8.1",
     "@electron-forge/plugin-fuses": "^7.8.1",
