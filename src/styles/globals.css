@@ -3,6 +3,23 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Font face declarations */
+@font-face {
+  font-family: "DM Sans";
+  src: url("../lib/fonts/DMSans.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Noto Sans";
+  src: url("../lib/fonts/NotoSans.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.1363 0.0364 259.201);
@@ -37,7 +54,9 @@
   --sidebar-border: oklch(0.9288 0.0126 255.5078);
   --sidebar-ring: oklch(0.5413 0.2466 293.009);
 
-  --font-sans: Inter;
+  /* Font family variables */
+  --font-sans: "DM Sans", system-ui, -apple-system, sans-serif;
+  --font-sinhala: "Noto Sans", system-ui, -apple-system, sans-serif;
   --font-serif: serif;
   --font-mono: monospace;
 
@@ -93,7 +112,9 @@
   --sidebar-border: oklch(0.2739 0.0055 286.0326);
   --sidebar-ring: oklch(0.709 0.1592 293.5412);
 
-  --font-sans: Inter;
+  /* Font family variables */
+  --font-sans: "DM Sans", system-ui, -apple-system, sans-serif;
+  --font-sinhala: "Noto Sans", system-ui, -apple-system, sans-serif;
   --font-serif: serif;
   --font-mono: monospace;
 
@@ -148,6 +169,7 @@
   --color-sidebar-ring: var(--sidebar-ring);
 
   --font-sans: var(--font-sans);
+  --font-sinhala: var(--font-sinhala);
   --font-mono: var(--font-mono);
   --font-serif: var(--font-serif);
 
