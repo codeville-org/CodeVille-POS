@@ -42,7 +42,7 @@ export function NavMain({
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
-      <SidebarMenu className="space-y-2">
+      <SidebarMenu>
         {items.map((item) => {
           const hasSubItems = item.items && item.items.length > 0;
           const isCurrentPath = location.pathname === item.url;

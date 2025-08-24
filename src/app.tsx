@@ -1,6 +1,7 @@
-import { loadFonts } from "@/lib/fonts";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
+import { MemoryRouter } from "react-router-dom";
+
+import { loadFonts } from "@/lib/fonts";
 import { Wrapper } from "./components/layouts/wrapper";
 import { ThemeProvider } from "./components/providers/theme-provider";
 
@@ -17,8 +18,8 @@ const root = createRoot(document.body);
 
 root.render(
   <ThemeProvider defaultTheme="system">
-    <BrowserRouter>
+    <MemoryRouter initialEntries={["/"]} initialIndex={0}>
       <Wrapper />
-    </BrowserRouter>
+    </MemoryRouter>
   </ThemeProvider>
 );
