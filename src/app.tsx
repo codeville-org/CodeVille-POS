@@ -1,8 +1,9 @@
 import { createRoot } from "react-dom/client";
-import { Button } from "./components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { MemoryRouter } from "react-router-dom";
+
 import { loadFonts } from "@/lib/fonts";
 import { Wrapper } from "./components/layouts/wrapper";
+import { ThemeProvider } from "./components/providers/theme-provider";
 
 // Load fonts when the app starts
 loadFonts()
@@ -15,4 +16,10 @@ loadFonts()
 
 const root = createRoot(document.body);
 
-root.render(<Wrapper />);
+root.render(
+  <ThemeProvider defaultTheme="system">
+    <MemoryRouter initialEntries={["/"]} initialIndex={0}>
+      <Wrapper />
+    </MemoryRouter>
+  </ThemeProvider>
+);

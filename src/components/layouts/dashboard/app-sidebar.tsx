@@ -1,15 +1,18 @@
 "use client";
 
-import * as React from "react";
 import {
-  BookOpen,
-  Bot,
+  BarChart3,
   CodeSquareIcon,
-  Settings2,
-  SquareTerminal
+  LayoutDashboard,
+  Package,
+  Settings,
+  ShoppingCart,
+  Users,
+  Warehouse
 } from "lucide-react";
+import * as React from "react";
 
-import { NavMain } from "./nav-main";
+import { ThemeToggle } from "@/components/elements/theme-toggle";
 import {
   Sidebar,
   SidebarContent,
@@ -18,105 +21,90 @@ import {
   SidebarMenuButton,
   SidebarRail
 } from "@/components/ui/sidebar";
-
-// This is sample data.
-const data = {
-  navMain: [
-    {
-      title: "Playground",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: "History",
-          url: "#"
-        },
-        {
-          title: "Starred",
-          url: "#"
-        },
-        {
-          title: "Settings",
-          url: "#"
-        }
-      ]
-    },
-    {
-      title: "Models",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          url: "#"
-        },
-        {
-          title: "Explorer",
-          url: "#"
-        },
-        {
-          title: "Quantum",
-          url: "#"
-        }
-      ]
-    },
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#"
-        },
-        {
-          title: "Get Started",
-          url: "#"
-        },
-        {
-          title: "Tutorials",
-          url: "#"
-        },
-        {
-          title: "Changelog",
-          url: "#"
-        }
-      ]
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "#"
-        },
-        {
-          title: "Team",
-          url: "#"
-        },
-        {
-          title: "Billing",
-          url: "#"
-        },
-        {
-          title: "Limits",
-          url: "#"
-        }
-      ]
-    }
-  ]
-};
+import { CONSTANTS } from "@/lib/constants";
+import { usePersistStore } from "@/lib/zustand/persist-store";
+import { NavMain } from "./nav-main";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { language } = usePersistStore();
+
+  // Dynamic navigation data based on current language
+  const navMainData = [
+    {
+      key: "dashboard",
+      title: CONSTANTS.SIDEBAR.dashboard.text[language],
+      url: "/",
+      icon: LayoutDashboard,
+      isActive: true
+    },
+    {
+      key: "pos",
+      title: CONSTANTS.SIDEBAR.pos.text[language],
+      url: "/pos",
+      icon: ShoppingCart
+    },
+    {
+      key: "products",
+      title: CONSTANTS.SIDEBAR.products.text[language],
+      url: "/products",
+      icon: Package,
+      items: [
+        {
+          title: CONSTANTS.SIDEBAR.products.items.allProducts[language],
+          url: "/products"
+        },
+        {
+          title: CONSTANTS.SIDEBAR.products.items.newProduct[language],
+          url: "/products/new"
+        },
+        {
+          title: CONSTANTS.SIDEBAR.products.items.categories[language],
+          url: "/products/categories"
+        }
+      ]
+    },
+    {
+      key: "inventory",
+      title: CONSTANTS.SIDEBAR.inventory.text[language],
+      url: "/inventory",
+      icon: Warehouse
+    },
+    {
+      key: "customers",
+      title: CONSTANTS.SIDEBAR.customers.text[language],
+      url: "/customers",
+      icon: Users,
+      items: [
+        {
+          title: CONSTANTS.SIDEBAR.customers.items.allCustomers[language],
+          url: "/customers"
+        },
+        {
+          title: CONSTANTS.SIDEBAR.customers.items.newCustomer[language],
+          url: "/customers/new"
+        }
+      ]
+    },
+    {
+      key: "reports",
+      title: CONSTANTS.SIDEBAR.reports.text[language],
+      url: "/reports",
+      icon: BarChart3
+    },
+    {
+      key: "settings",
+      title: CONSTANTS.SIDEBAR.settings.text[language],
+      url: "/settings",
+      icon: Settings
+    }
+  ];
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenuButton
           size="lg"
-          className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-transparent focus:bg-transparent"
+          className="data-[state=open]:bg-sidebar-accent hover:bg-transparent focus:bg-transparent hover:text-foreground"
         >
           <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
             <CodeSquareIcon className="size-4" />
@@ -128,9 +116,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenuButton>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={navMainData} />
       </SidebarContent>
-      <SidebarFooter>{/* <NavUser user={data.user} /> */}</SidebarFooter>
+      <SidebarFooter className="pb-5">
+        <ThemeToggle />
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );

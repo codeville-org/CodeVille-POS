@@ -1,5 +1,5 @@
-import { ipcMain } from "electron";
 import { ElectronAPI } from "@/shared/types/ipc";
+import { ipcMain } from "electron";
 
 // Helper function for type-safe IPC handler registration
 export function createHandler<T extends keyof ElectronAPI>(channel: T) {
@@ -9,7 +9,7 @@ export function createHandler<T extends keyof ElectronAPI>(channel: T) {
       handler: ElectronAPI[T][K]
     ) {
       const channelName = `${channel}:${String(method)}`;
-      ipcMain.handle(channelName, async (event, ...args: any[]) => {
+      ipcMain.handle(channelName, async (_, ...args: any[]) => {
         try {
           // @ts-ignore - TypeScript can't infer the complex handler type
           return await handler(...args);

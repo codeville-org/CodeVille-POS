@@ -1,11 +1,3 @@
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator
-} from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
@@ -13,11 +5,17 @@ import {
   SidebarTrigger
 } from "@/components/ui/sidebar";
 
-import { AppSidebar } from "./dashboard/app-sidebar";
 import { CONSTANTS } from "@/lib/constants";
+import { cn } from "@/lib/utils";
+import { usePersistStore } from "@/lib/zustand/persist-store";
+import { LanguageSelector } from "../elements/language-selector";
+import { AppSidebar } from "./dashboard/app-sidebar";
 import { WindowActions } from "./dashboard/window-actions";
+import { AppRouter } from "./router";
 
 export function Wrapper() {
+  const { language } = usePersistStore();
+
   return (
     <main className="min-h-screen w-screen">
       <SidebarProvider>
@@ -37,24 +35,35 @@ export function Wrapper() {
                 {/* NOTE: Add "app-dragger" if dragging feature needed */}
                 <div className="flex-1 ">
                   <h2 className="font-semibold text-foreground/80 text-sm">
-                    {CONSTANTS.STORE_NAME["en"]}
+                    <span
+                      className={cn(
+                        language === "si" ? "font-sinhala text-xs" : "font-sans"
+                      )}
+                    >
+                      {CONSTANTS.STORE_NAME[language]}
+                    </span>
+
                     <span className="font-light text-xs">
                       {" - Point of Sales System"}
                     </span>
                   </h2>
                 </div>
 
-                <WindowActions />
+                <div className="flex items-center gap-2 h-full">
+                  <LanguageSelector />
+
+                  <Separator
+                    className="mx-2 data-[orientation=vertical]:h-4"
+                    orientation="vertical"
+                  />
+
+                  <WindowActions />
+                </div>
               </div>
             </div>
           </header>
-          <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-            <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-              <div className="bg-muted/50 aspect-video rounded-xl" />
-              <div className="bg-muted/50 aspect-video rounded-xl" />
-              <div className="bg-muted/50 aspect-video rounded-xl" />
-            </div>
-            <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
+          <div className="flex flex-1 flex-col gap-4 p-4">
+            <AppRouter />
           </div>
         </SidebarInset>
       </SidebarProvider>
