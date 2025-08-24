@@ -2,5 +2,46 @@ export const CONSTANTS = {
   STORE_NAME: {
     en: "Dewmali Stores",
     si: "දෙව්මාලි ස්ටෝර්ස්"
+  },
+  SIDEBAR: {
+    dashboard: {
+      text: {
+        en: "Dashboard",
+        si: "පද්ධති පුවරුව"
+      }
+    },
+    pos: {
+      text: {
+        en: "Point of Sale",
+        si: "අලෙවි කවුළුව"
+      }
+    },
+    products: {
+      text: {
+        en: "Products",
+        si: "නිශ්පාදන"
+      },
+      items: {
+        allProducts: { en: "All Products", si: "සියළු නිශ්පාදන" },
+        newProduct: { en: "New Product", si: "නව නිශ්පාදන" },
+        categories: { en: "Categories", si: "ප්‍රවර්ග" }
+      }
+    },
+    inventory: {
+      text: { en: "Inventory", si: "ගබඩා" }
+    },
+    customers: {
+      text: { en: "Customers", si: "පාරිභෝගිකයන්" },
+      items: {
+        allCustomers: { en: "All Customers", si: "සියළු පාරිභෝගිකයන්" },
+        newCustomer: { en: "New Customer", si: "නව පාරිභෝගිකයන්" }
+      }
+    },
+    reports: {
+      text: { en: "Reports", si: "අලෙවි වාර්තා" }
+    },
+    settings: {
+      text: { en: "Settings", si: "සැකසුම්" }
+    }
   }
 };

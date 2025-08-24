@@ -10,6 +10,7 @@ import { TEXTS } from "@/lib/language";
 import { cn } from "@/lib/utils";
 import { usePersistStore } from "@/lib/zustand/persist-store";
 import { Language } from "@/shared/types/global";
+import { GlobeIcon } from "lucide-react";
 
 type Props = {
   className?: string;
@@ -27,11 +28,12 @@ export function LanguageSelector({ className }: Props) {
       <DropdownMenuTrigger>
         <button
           className={cn(
-            "bg-transparent text-foreground text-xs hover:bg-transparent cursor-pointer hover:underline",
+            "bg-transparent flex items-center gap-2 text-foreground text-xs hover:bg-transparent cursor-pointer hover:underline",
             language === "si" ? "font-sinhala" : "font-sans",
             className
           )}
         >
+          <GlobeIcon className="size-4 text-muted-foreground" />
           {TEXTS.language[language]}
         </button>
       </DropdownMenuTrigger>

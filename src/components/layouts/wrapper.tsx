@@ -11,6 +11,7 @@ import { usePersistStore } from "@/lib/zustand/persist-store";
 import { LanguageSelector } from "../elements/language-selector";
 import { AppSidebar } from "./dashboard/app-sidebar";
 import { WindowActions } from "./dashboard/window-actions";
+import { AppRouter } from "./router";
 
 export function Wrapper() {
   const { language } = usePersistStore();
@@ -61,7 +62,9 @@ export function Wrapper() {
               </div>
             </div>
           </header>
-          <div className="flex flex-1 flex-col gap-4 p-4"></div>
+          <div className="flex flex-1 flex-col gap-4 p-4">
+            <AppRouter />
+          </div>
         </SidebarInset>
       </SidebarProvider>
     </main>
