@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "types": ["./electron"],
     "target": "ES6",
     "allowJs": true,
     "module": "commonjs",
@@ -17,5 +18,5 @@
     },
     "jsx": "react-jsx"
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "fonts.d.ts"]
 }
