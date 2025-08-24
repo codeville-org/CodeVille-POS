@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import {
   BookOpen,
   Bot,
@@ -8,8 +7,9 @@ import {
   Settings2,
   SquareTerminal
 } from "lucide-react";
+import * as React from "react";
 
-import { NavMain } from "./nav-main";
+import { ThemeToggle } from "@/components/elements/theme-toggle";
 import {
   Sidebar,
   SidebarContent,
@@ -18,6 +18,7 @@ import {
   SidebarMenuButton,
   SidebarRail
 } from "@/components/ui/sidebar";
+import { NavMain } from "./nav-main";
 
 // This is sample data.
 const data = {
@@ -116,7 +117,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenuButton
           size="lg"
-          className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-transparent focus:bg-transparent"
+          className="data-[state=open]:bg-sidebar-accent hover:bg-transparent focus:bg-transparent hover:text-foreground"
         >
           <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
             <CodeSquareIcon className="size-4" />
@@ -130,7 +131,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain items={data.navMain} />
       </SidebarContent>
-      <SidebarFooter>{/* <NavUser user={data.user} /> */}</SidebarFooter>
+      <SidebarFooter className="pb-5">
+        <ThemeToggle />
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );
