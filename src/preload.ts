@@ -5,11 +5,19 @@ import type { ElectronAPI } from "./shared/types/ipc";
 import { createInvoker } from "./shared/utils/ipc-invoker";
 
 const windowInvoker = createInvoker("window");
+const categoriesInvoker = createInvoker("categories");
 
 const electronAPI: ElectronAPI = {
   window: {
     close: windowInvoker("close"),
     minimize: windowInvoker("minimize")
+  },
+  categories: {
+    getAll: categoriesInvoker("getAll"),
+    getById: categoriesInvoker("getById"),
+    create: categoriesInvoker("create"),
+    update: categoriesInvoker("update"),
+    delete: categoriesInvoker("delete")
   }
 };
 

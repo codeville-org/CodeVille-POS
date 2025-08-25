@@ -1,5 +1,5 @@
 type Props = {};
 
 export function ProductsPage({}: Props) {
-  return <div>ProductsPage</div>;
+  return <div className="">Products Page</div>;
 }
