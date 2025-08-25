@@ -3,6 +3,7 @@ import { MemoryRouter } from "react-router-dom";
 
 import { loadFonts } from "@/lib/fonts";
 import { Wrapper } from "./components/layouts/wrapper";
+import { QueryProvider } from "./components/providers/query-provider";
 import { ThemeProvider } from "./components/providers/theme-provider";
 
 // Load fonts when the app starts
@@ -18,8 +19,10 @@ const root = createRoot(document.body);
 
 root.render(
   <ThemeProvider defaultTheme="system">
-    <MemoryRouter initialEntries={["/"]} initialIndex={0}>
-      <Wrapper />
-    </MemoryRouter>
+    <QueryProvider>
+      <MemoryRouter initialEntries={["/"]} initialIndex={0}>
+        <Wrapper />
+      </MemoryRouter>
+    </QueryProvider>
   </ThemeProvider>
 );
