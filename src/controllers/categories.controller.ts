@@ -25,43 +25,30 @@ export async function getAllCategoriesController(
     const limitNum = Math.max(1, Math.min(100, parseInt(limit))); // Cap at 100 items
     const offset = (pageNum - 1) * limitNum;
 
-    // Build Query Conditions
-    const categoriesQuery = db.query.categories.findMany({
-      limit: limitNum,
-      offset,
-      where: (fields, { ilike, and }) => {
-        const conditions = [];
+    // Build where conditions
+    const whereConditions = [];
+    if (search) {
+      whereConditions.push(ilike(categories.name, `%${search}%`));
+    }
 
-        // Add search condition if search parameter is provided
-        if (search) {
-          conditions.push(ilike(fields.name, `%${search}%`));
-        }
-
-        return conditions.length ? and(...conditions) : undefined;
-      },
-      orderBy: (fields) => {
-        // Handle sorting direction
-        if (sort.toLowerCase() === "asc") {
-          return fields.createdAt;
-        }
-        return desc(fields.createdAt);
-      }
-    });
+    // Build the query
+    const categoriesQuery = db
+      .select()
+      .from(categories)
+      .where(whereConditions.length ? and(...whereConditions) : undefined)
+      .orderBy(
+        sort.toLowerCase() === "asc"
+          ? categories.createdAt
+          : desc(categories.createdAt)
+      )
+      .limit(limitNum)
+      .offset(offset);
 
     // Get total count for pagination metadata
     const totalCountQuery = db
       .select({ count: sql<number>`count(*)` })
       .from(categories)
-      .where(() => {
-        const conditions = [];
-
-        // Add search condition if search parameter is provided
-        if (search) {
-          conditions.push(ilike(categories.name, `%${search}%`));
-        }
-
-        return conditions.length ? and(...conditions) : undefined;
-      });
+      .where(whereConditions.length ? and(...whereConditions) : undefined);
 
     const [categoryEntries, _totalCount] = await Promise.all([
       categoriesQuery,

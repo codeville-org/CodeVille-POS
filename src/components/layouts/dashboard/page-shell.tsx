@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import React from "react";
 
 type Props = {
@@ -10,10 +11,18 @@ export function AppPageShell({ actionComponent, description, title }: Props) {
   return (
     <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:items-start md:justify-between">
       <div className="min-w-0 flex-1">
-        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight mb-1 break-words">
+        <h2
+          className={cn(
+            "text-xl sm:text-2xl md:text-3xl font-bold tracking-tight mb-1 break-words"
+          )}
+        >
           {title}
         </h2>
-        <p className="text-sm md:text-base text-muted-foreground break-words">
+        <p
+          className={cn(
+            "text-sm md:text-base text-muted-foreground break-words"
+          )}
+        >
           {description}
         </p>
       </div>

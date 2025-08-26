@@ -17,7 +17,12 @@ export function Wrapper() {
   const { language } = usePersistStore();
 
   return (
-    <main className="min-h-screen w-screen">
+    <main
+      className={cn(
+        "min-h-screen w-screen overflow-hidden",
+        language === "si" && "font-sinhala"
+      )}
+    >
       <SidebarProvider>
         <AppSidebar />
 
@@ -62,7 +67,7 @@ export function Wrapper() {
               </div>
             </div>
           </header>
-          <div className="flex flex-1 flex-col p-6">
+          <div className="flex flex-1 flex-col h-[calc(100vh-2.5rem)] overflow-hidden">
             <AppRouter />
           </div>
         </SidebarInset>

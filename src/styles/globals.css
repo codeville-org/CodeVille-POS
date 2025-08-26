@@ -199,6 +199,17 @@
   outline: none;
 }
 
+/* Hide scrollbars globally */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+/* Hide scrollbars for webkit browsers */
+*::-webkit-scrollbar {
+  display: none;
+}
+
 body {
   letter-spacing: var(--tracking-normal);
   user-select: none;
