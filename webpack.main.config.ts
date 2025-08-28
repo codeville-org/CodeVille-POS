@@ -20,6 +20,11 @@ export const mainConfig: Configuration = {
     alias: {
       "@": path.resolve(__dirname, "src")
     }
-  }
+  },
   // externals: ["better-sqlite3"]
+  // Add this to copy migration files
+  node: {
+    __dirname: false,
+    __filename: false
+  }
 };
