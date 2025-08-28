@@ -10,7 +10,7 @@ import {
   UpdateCategorySchema
 } from "@/lib/zod/categories.zod";
 import { QueryParamsSchema } from "@/lib/zod/helpers";
-import { and, desc, eq, ilike, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 
 // ================= Get all Categories Controller =================
 export async function getAllCategoriesController(
@@ -28,7 +28,9 @@ export async function getAllCategoriesController(
     // Build where conditions
     const whereConditions = [];
     if (search) {
-      whereConditions.push(ilike(categories.name, `%${search}%`));
+      whereConditions.push(
+        sql`LOWER(${categories.name}) LIKE LOWER(${`%${search}%`})`
+      );
     }
 
     // Build the query

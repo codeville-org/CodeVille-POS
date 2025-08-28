@@ -21,7 +21,7 @@ export const products = sqliteTable(
     name: text("name").notNull(),
     barcode: text("barcode").unique(),
     price: real("price").notNull(),
-    cost: real("cost").notNull().default(0),
+    discountedPrice: real("discounted_price").notNull().default(0),
     categoryId: text("category_id").references(() => categories.id, {
       onDelete: "set null"
     }),

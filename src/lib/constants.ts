@@ -24,7 +24,7 @@ export const CONSTANTS = {
       items: {
         allProducts: { en: "All Products", si: "සියළු නිශ්පාදන" },
         newProduct: { en: "New Product", si: "නව නිශ්පාදන" },
-        categories: { en: "Categories", si: "ප්‍රවර්ග" }
+        categories: { en: "Categories", si: "වර්ග" }
       }
     },
     inventory: {
