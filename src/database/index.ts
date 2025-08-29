@@ -73,6 +73,17 @@ export class DatabaseManager {
     }
   }
 
+  getMigrationsPath() {
+    if (app.isPackaged) {
+      // In packaged app, migrations are bundled in the resources folder
+      // The exact path may vary based on your build configuration
+      return path.join(process.resourcesPath, "migrations");
+    } else {
+      // Development mode
+      return path.join(process.cwd(), "src", "database", "migrations");
+    }
+  }
+
   async runMigrations() {
     try {
       if (!this.db) {
@@ -80,12 +91,7 @@ export class DatabaseManager {
       }
 
       // Check if migrations directory exists
-      const migrationsPath = path.join(
-        process.cwd(),
-        "src",
-        "database",
-        "migrations"
-      );
+      const migrationsPath = this.getMigrationsPath();
 
       if (fs.existsSync(migrationsPath)) {
         console.log("Running database migrations...");

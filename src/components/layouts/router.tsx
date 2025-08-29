@@ -4,6 +4,7 @@ import { CategoriesPage } from "../pages/categories";
 import { DashboardPage } from "../pages/dashboard";
 import { PosPage } from "../pages/pos";
 import { ProductsPage } from "../pages/products";
+import { NewProductPage } from "../pages/products/new-product";
 
 type Props = {};
 
@@ -14,6 +15,7 @@ export function AppRouter({}: Props) {
       <Route path="/dashboard" element={<Navigate to="/" replace />} />
       <Route path="/pos" element={<PosPage />} />
       <Route path="/products" element={<ProductsPage />} />
+      <Route path="/products/new" element={<NewProductPage />} />
       <Route path="/products/categories" element={<CategoriesPage />} />
       {/* <Route path="/products/:id" element={<ProductDetail />} /> */}
       {/* <Route path="/customers" element={<Customers />} /> */}

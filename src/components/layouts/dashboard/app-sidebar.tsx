@@ -4,7 +4,6 @@ import {
   BarChart3,
   CodeSquareIcon,
   LayoutDashboard,
-  Package,
   Settings,
   ShoppingCart,
   Users,
@@ -44,10 +43,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       icon: ShoppingCart
     },
     {
-      key: "products",
-      title: CONSTANTS.SIDEBAR.products.text[language],
+      key: "inventory",
+      title: CONSTANTS.SIDEBAR.inventory.text[language],
       url: "/products",
-      icon: Package,
+      icon: Warehouse,
       items: [
         {
           title: CONSTANTS.SIDEBAR.products.items.allProducts[language],
@@ -62,12 +61,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: "/products/categories"
         }
       ]
-    },
-    {
-      key: "inventory",
-      title: CONSTANTS.SIDEBAR.inventory.text[language],
-      url: "/inventory",
-      icon: Warehouse
     },
     {
       key: "customers",

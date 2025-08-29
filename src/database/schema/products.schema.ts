@@ -1,6 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
 import {
-  blob,
   index,
   integer,
   real,
@@ -21,14 +20,14 @@ export const products = sqliteTable(
     name: text("name").notNull(),
     barcode: text("barcode").unique(),
     price: real("price").notNull(),
-    cost: real("cost").notNull().default(0),
+    discountedPrice: real("discounted_price").notNull().default(0),
     categoryId: text("category_id").references(() => categories.id, {
       onDelete: "set null"
     }),
     stockQuantity: integer("stock_quantity").notNull().default(0),
     unit: text("unit").default("pcs"), // pcs, kg, liter, etc.
     description: text("description"),
-    image: blob("image"), // Store small images as blob
+    imageFilename: text("image_filename"),
     isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
     ...timestamps
   },
