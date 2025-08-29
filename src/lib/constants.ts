@@ -28,7 +28,7 @@ export const CONSTANTS = {
       }
     },
     inventory: {
-      text: { en: "Inventory", si: "ගබඩා" }
+      text: { en: "Inventory", si: "ගබඩාව" }
     },
     customers: {
       text: { en: "Customers", si: "පාරිභෝගිකයන්" },
@@ -43,5 +43,12 @@ export const CONSTANTS = {
     settings: {
       text: { en: "Settings", si: "සැකසුම්" }
     }
-  }
+  },
+  PRODUCT_UNITS: [
+    { value: "kg", label: { en: "Kilogram", si: "කිලෝග්‍රෑම්" } },
+    { value: "g", label: { en: "Gram", si: "ග්‍රෑම්" } },
+    { value: "l", label: { en: "Liter", si: "ලීටර්" } },
+    { value: "ml", label: { en: "Milliliter", si: "මිලිලීටර්" } },
+    { value: "pcs", label: { en: "Pieces", si: "කොටස්" } }
+  ]
 };

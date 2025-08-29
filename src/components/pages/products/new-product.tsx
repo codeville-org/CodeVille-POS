@@ -3,7 +3,7 @@ import { AppPageShell } from "@/components/layouts/dashboard/page-shell";
 import { Separator } from "@/components/ui/separator";
 import { TEXTS } from "@/lib/language";
 import { usePersistStore } from "@/lib/zustand/persist-store";
-import { AddNewProductForm } from "@/modules/products/components/add-new-form";
+import { ProductForm } from "@/modules/products/components/product-form";
 
 type Props = {};
 
@@ -21,7 +21,7 @@ export function NewProductPage({}: Props) {
 
         <Separator />
 
-        <AddNewProductForm />
+        <ProductForm mode="create" />
       </div>
     </PageContainer>
   );
