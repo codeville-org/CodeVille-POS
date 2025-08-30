@@ -3,6 +3,7 @@ import React, { useCallback, useRef, useState } from "react";
 
 type Props = {
   onUploaded: (filename: string) => void;
+  initialImage?: string; // filename from database
 };
 
 type UploadStatus = "idle" | "uploading" | "success" | "error";
@@ -15,13 +16,44 @@ interface UploadState {
   filename?: string;
 }
 
-export function ImageUploader({ onUploaded }: Props) {
+export function ImageUploader({ onUploaded, initialImage }: Props) {
   const [uploadState, setUploadState] = useState<UploadState>({
     status: "idle",
     progress: 0
   });
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load initial image preview when component mounts or initialImage changes
+  React.useEffect(() => {
+    if (initialImage) {
+      // Here you would call imageManager.getImageAsBase64(initialImage)
+      // For demo, we'll simulate it
+      const loadInitialImage = async () => {
+        try {
+          // const preview = await imageManager.getImageAsBase64(initialImage);
+          // Simulated data URL for demo
+          const preview = `data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=`;
+
+          setUploadState({
+            status: "success",
+            progress: 100,
+            preview,
+            filename: initialImage
+          });
+        } catch (error) {
+          console.warn("Failed to load initial image:", error);
+          // Reset to idle state if image can't be loaded
+          setUploadState({
+            status: "idle",
+            progress: 0
+          });
+        }
+      };
+
+      loadInitialImage();
+    }
+  }, [initialImage]);
 
   const validateFile = (file: File): string | null => {
     const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -57,23 +89,26 @@ export function ImageUploader({ onUploaded }: Props) {
       });
 
       try {
-        // Create preview
-        const preview = URL.createObjectURL(file);
-        setUploadState((prev) => ({ ...prev, preview }));
-
-        // Simulate upload progress
-        for (let i = 0; i <= 90; i += 10) {
-          setUploadState((prev) => ({ ...prev, progress: i }));
-          await new Promise((resolve) => setTimeout(resolve, 50));
-        }
-
-        // Convert file to base64
+        // Convert file to base64 for preview (CSP-safe)
         const base64 = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = () => resolve(reader.result as string);
           reader.onerror = reject;
           reader.readAsDataURL(file);
         });
+
+        // Set preview using data URL (CSP-safe)
+        setUploadState((prev) => ({
+          ...prev,
+          preview: base64,
+          progress: 30
+        }));
+
+        // Simulate upload progress
+        for (let i = 40; i <= 90; i += 10) {
+          setUploadState((prev) => ({ ...prev, progress: i }));
+          await new Promise((resolve) => setTimeout(resolve, 50));
+        }
 
         setUploadState((prev) => ({ ...prev, progress: 95 }));
 
@@ -91,7 +126,7 @@ export function ImageUploader({ onUploaded }: Props) {
         setUploadState({
           status: "success",
           progress: 100,
-          preview,
+          preview: base64,
           filename
         });
 
@@ -147,9 +182,7 @@ export function ImageUploader({ onUploaded }: Props) {
   }, [uploadState.status]);
 
   const resetUpload = useCallback(() => {
-    if (uploadState.preview) {
-      URL.revokeObjectURL(uploadState.preview);
-    }
+    // No need to revoke data URLs, they're garbage collected automatically
     setUploadState({
       status: "idle",
       progress: 0
@@ -157,7 +190,7 @@ export function ImageUploader({ onUploaded }: Props) {
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-  }, [uploadState.preview]);
+  }, []);
 
   const getStatusIcon = () => {
     switch (uploadState.status) {
@@ -258,7 +291,7 @@ export function ImageUploader({ onUploaded }: Props) {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className="w-full">
       <div
         onDrop={handleDrop}
         onDragOver={handleDragOver}

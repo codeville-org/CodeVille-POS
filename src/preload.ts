@@ -6,6 +6,7 @@ import { createInvoker } from "./shared/utils/ipc-invoker";
 
 const windowInvoker = createInvoker("window");
 const categoriesInvoker = createInvoker("categories");
+const productsInvoker = createInvoker("products");
 
 const electronAPI: ElectronAPI = {
   window: {
@@ -18,6 +19,14 @@ const electronAPI: ElectronAPI = {
     create: categoriesInvoker("create"),
     update: categoriesInvoker("update"),
     delete: categoriesInvoker("delete")
+  },
+  products: {
+    getAll: productsInvoker("getAll"),
+    getById: productsInvoker("getById"),
+    getByBarcode: productsInvoker("getByBarcode"),
+    create: productsInvoker("create"),
+    update: productsInvoker("update"),
+    delete: productsInvoker("delete")
   }
 };
 

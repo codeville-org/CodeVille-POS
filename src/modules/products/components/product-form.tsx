@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PlusCircleIcon } from "lucide-react";
+import { EditIcon, PlusCircleIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -26,7 +26,9 @@ import {
 } from "@/lib/zod/products.zod";
 import { CategoryDropdown } from "@/modules/categories/components/category-dropdown";
 import { ImageUploader } from "@/modules/image-manager/components/image-uploader";
+import { useCreateProduct } from "../queries/use-create";
 import { useGetProductByIdMutated } from "../queries/use-mutated-get-by-id";
+import { useUpdateProduct } from "../queries/use-update";
 import { UnitsDropdown } from "./units-dropdown";
 
 type FormMode = "create" | "edit";
@@ -41,6 +43,11 @@ export function ProductForm({ className, mode, productId }: Props) {
   const [formMode, setFormMode] = useState<FormMode>(mode);
   const [currentProduct, setCurrentProduct] =
     useState<SelectProductSchema | null>(null);
+
+  const { mutateAsync: createProduct, isPending: creatingProduct } =
+    useCreateProduct();
+  const { mutateAsync: updateProduct, isPending: updatingProduct } =
+    useUpdateProduct(productId || currentProduct?.id || "");
   const { mutateAsync: getProductById, isPending: fetchingProduct } =
     useGetProductByIdMutated();
 
@@ -61,7 +68,11 @@ export function ProductForm({ className, mode, productId }: Props) {
   });
 
   useEffect(() => {
-    if (formMode === "edit") handleFetchProduct(productId);
+    if (formMode === "edit") {
+      if (productId) {
+        handleFetchProduct(productId);
+      }
+    }
   }, [formMode, productId]);
 
   useEffect(() => {
@@ -88,13 +99,16 @@ export function ProductForm({ className, mode, productId }: Props) {
   };
 
   const handleCreateProduct = async (data: InsertProductSchema) => {
-    // Call your create product mutation here
-    console.log(data);
+    await createProduct(data, {
+      onSuccess: ({ id }) => {
+        handleFetchProduct(id);
+        setFormMode("edit");
+      }
+    });
   };
 
   const handleUpdateProduct = async (data: InsertProductSchema) => {
-    // Call your update product mutation here
-    console.log(data);
+    await updateProduct(data);
   };
 
   return (
@@ -126,7 +140,7 @@ export function ProductForm({ className, mode, productId }: Props) {
                               <Skeleton className="w-full h-12" />
                             ) : (
                               <Input
-                                className="w-full h-12 bg-white"
+                                className="w-full h-12 bg-white shadow-none"
                                 placeholder="Elephant House - Strawberry Ice Cream (500ml)"
                                 {...field}
                               />
@@ -153,6 +167,11 @@ export function ProductForm({ className, mode, productId }: Props) {
                                 <Skeleton className="w-full h-12" />
                               ) : (
                                 <CategoryDropdown
+                                  defaultSelected={
+                                    formMode === "edit"
+                                      ? currentProduct?.category || null
+                                      : null
+                                  }
                                   onSelect={(category) => {
                                     field.onChange(category.id);
                                   }}
@@ -180,7 +199,7 @@ export function ProductForm({ className, mode, productId }: Props) {
                                 <Skeleton className="w-full h-12" />
                               ) : (
                                 <Input
-                                  className="w-full h-12 bg-white"
+                                  className="w-full h-12 bg-white shadow-none"
                                   placeholder="Ex: 4212230126191"
                                   {...field}
                                 />
@@ -207,7 +226,7 @@ export function ProductForm({ className, mode, productId }: Props) {
                               <Skeleton className="w-full h-18" />
                             ) : (
                               <Textarea
-                                className="w-full h-18 bg-white"
+                                className="w-full h-18 bg-white shadow-none"
                                 placeholder="Write something about new product..."
                                 {...field}
                               />
@@ -232,10 +251,13 @@ export function ProductForm({ className, mode, productId }: Props) {
                                 <Skeleton className="w-full h-12" />
                               ) : (
                                 <Input
-                                  className="w-full h-12 bg-white"
+                                  className="w-full h-12 bg-white shadow-none"
                                   type="number"
                                   placeholder="Ex: 1000.00"
                                   {...field}
+                                  onChange={(e) => {
+                                    field.onChange(parseFloat(e.target.value));
+                                  }}
                                 />
                               )}
                             </div>
@@ -259,10 +281,13 @@ export function ProductForm({ className, mode, productId }: Props) {
                                 <Skeleton className="w-full h-12" />
                               ) : (
                                 <Input
-                                  className="w-full h-12 bg-white"
+                                  className="w-full h-12 bg-white shadow-none"
                                   type="number"
                                   placeholder="Ex: 1000.00"
                                   {...field}
+                                  onChange={(e) => {
+                                    field.onChange(parseFloat(e.target.value));
+                                  }}
                                 />
                               )}
                             </div>
@@ -289,10 +314,13 @@ export function ProductForm({ className, mode, productId }: Props) {
                                 <Skeleton className="w-full h-12" />
                               ) : (
                                 <Input
-                                  className="w-full h-12 bg-white"
+                                  className="w-full h-12 bg-white shadow-none"
                                   type="number"
                                   placeholder="Ex: 10"
                                   {...field}
+                                  onChange={(e) => {
+                                    field.onChange(parseInt(e.target.value));
+                                  }}
                                 />
                               )}
                             </div>
@@ -313,6 +341,7 @@ export function ProductForm({ className, mode, productId }: Props) {
                                 <Skeleton className="w-full h-12" />
                               ) : (
                                 <UnitsDropdown
+                                  defaultValue={field.value}
                                   onSelect={(value) => {
                                     field.onChange(value);
                                   }}
@@ -337,6 +366,7 @@ export function ProductForm({ className, mode, productId }: Props) {
                               <Skeleton className="w-full h-12" />
                             ) : (
                               <ImageUploader
+                                initialImage={field.value}
                                 onUploaded={(filename) =>
                                   field.onChange(filename)
                                 }
@@ -353,8 +383,20 @@ export function ProductForm({ className, mode, productId }: Props) {
             </div>
 
             <div className="flex items-center justify-between p-4 border-t border-foreground/5 flex-shrink-0">
-              <Button variant="outline">Reset Form</Button>
-              <Button icon={<PlusCircleIcon />}>Create Product</Button>
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => form.reset()}
+              >
+                Reset Form
+              </Button>
+              <Button
+                loading={creatingProduct || updatingProduct}
+                type="submit"
+                icon={formMode === "create" ? <PlusCircleIcon /> : <EditIcon />}
+              >
+                {formMode === "create" ? "Create Product" : "Edit Product"}
+              </Button>
             </div>
           </div>
         </form>

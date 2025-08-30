@@ -94,6 +94,9 @@ export async function getProductByIDController(
     const product = await db.query.products.findFirst({
       where: (fields, { eq }) => {
         return eq(fields.id, id);
+      },
+      with: {
+        category: true
       }
     });
 

@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "5d92bb4a-de94-4132-afe1-265b7dec3c5d",
+  "id": "51c102cf-ddb7-49f0-a7ca-bc1e7a552449",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "categories": {
@@ -204,8 +204,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "cost": {
-          "name": "cost",
+        "discounted_price": {
+          "name": "discounted_price",
           "type": "real",
           "primaryKey": false,
           "notNull": true,
@@ -242,9 +242,9 @@
           "notNull": false,
           "autoincrement": false
         },
-        "image": {
-          "name": "image",
-          "type": "blob",
+        "image_filename": {
+          "name": "image_filename",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
