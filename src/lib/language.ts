@@ -21,10 +21,10 @@ export const TEXTS = {
     addNew: { en: "Add Category", si: "නව කාණ්ඩය එක් කරන්න" }
   },
   products: {
-    title: { en: "Products", si: "නිශ්පාදන" },
+    title: { en: "Product Inventory", si: "නිශ්පාදන ගබඩාව" },
     subtitle: {
-      en: "Manage your products",
-      si: "ඔබේ නිශ්පාදන කළමනාකරණය කරන්න"
+      en: "Manage your store Inventory here",
+      si: "ඔබේ නිශ්පාදන ගබඩාව කළමනාකරණය කරන්න"
     },
     update: {
       title: { en: "Update Product", si: "නිශ්පාදනය යාවත්කාලීන කරන්න" },

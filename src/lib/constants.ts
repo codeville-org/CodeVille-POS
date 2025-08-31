@@ -1,7 +1,7 @@
 export const CONSTANTS = {
   STORE_NAME: {
-    en: "Dewmali Stores",
-    si: "දෙව්මාලි ස්ටෝර්ස්"
+    en: "Dewmali Super",
+    si: "දෙව්මාලි සුපර්"
   },
   SIDEBAR: {
     dashboard: {

@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { EditIcon, PlusCircleIcon } from "lucide-react";
+import { EditIcon, PlusCircleIcon, TrashIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -29,6 +28,7 @@ import { usePersistStore } from "@/lib/zustand/persist-store";
 import { CategoryDropdown } from "@/modules/categories/components/category-dropdown";
 import { ImageUploader } from "@/modules/image-manager/components/image-uploader";
 import { useCreateProduct } from "../queries/use-create";
+import { useDeleteProduct } from "../queries/use-delete";
 import { useGetProductByIdMutated } from "../queries/use-mutated-get-by-id";
 import { useUpdateProduct } from "../queries/use-update";
 import { UnitsDropdown } from "./units-dropdown";
@@ -53,6 +53,8 @@ export function ProductForm({ className, mode, productId }: Props) {
     useUpdateProduct(productId || currentProduct?.id || "");
   const { mutateAsync: getProductById, isPending: fetchingProduct } =
     useGetProductByIdMutated();
+  const { mutateAsync: deleteProduct, isPending: deletingProduct } =
+    useDeleteProduct(productId || currentProduct?.id);
 
   const form = useForm<InsertProductSchema>({
     resolver: zodResolver(insertProductSchema),
@@ -118,6 +120,10 @@ export function ProductForm({ className, mode, productId }: Props) {
     form.reset();
     setFormMode("create");
     setCurrentProduct(null);
+  };
+
+  const handleDeleteProduct = async () => {
+    await deleteProduct();
   };
 
   return (
@@ -293,13 +299,6 @@ export function ProductForm({ className, mode, productId }: Props) {
                               )}
                             </div>
                           </FormControl>
-                          <FormDescription>
-                            {
-                              TEXTS.products.addNew.form.price.placeholder[
-                                language
-                              ]
-                            }
-                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -336,12 +335,6 @@ export function ProductForm({ className, mode, productId }: Props) {
                               )}
                             </div>
                           </FormControl>
-                          <FormDescription>
-                            {
-                              TEXTS.products.addNew.form.discountedPrice
-                                .placeholder[language]
-                            }
-                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -457,13 +450,26 @@ export function ProductForm({ className, mode, productId }: Props) {
             </div>
 
             <div className="flex items-center justify-between p-4 border-t border-foreground/5 flex-shrink-0">
-              <Button
-                variant="outline"
-                type="button"
-                onClick={handleResetProductForm}
-              >
-                {TEXTS.products.addNew.form.reset[language]}
-              </Button>
+              {formMode === "create" ? (
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={handleResetProductForm}
+                >
+                  {TEXTS.products.addNew.form.reset[language]}
+                </Button>
+              ) : (
+                <Button
+                  variant="destructive"
+                  type="button"
+                  loading={deletingProduct}
+                  icon={<TrashIcon />}
+                  onClick={handleDeleteProduct}
+                >
+                  {TEXTS.actions.delete[language]}
+                </Button>
+              )}
+
               <Button
                 loading={creatingProduct || updatingProduct}
                 type="submit"

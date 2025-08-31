@@ -12,3 +12,10 @@ export function formatDate(date: Date) {
     year: "numeric"
   }).format(date);
 }
+
+export function formatPrice(price: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "LKR"
+  }).format(price);
+}
