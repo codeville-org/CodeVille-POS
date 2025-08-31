@@ -90,3 +90,11 @@ typings/
 
 # Electron-Forge
 out/
+
+# Images Folder
+images/
+
+# Sqlite3 Database files
+*.db
+*.db-shm
+*.db-wal

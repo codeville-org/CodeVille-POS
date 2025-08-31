@@ -19,11 +19,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { TEXTS } from "@/lib/language";
 import {
   insertProductSchema,
   InsertProductSchema,
   SelectProductSchema
 } from "@/lib/zod/products.zod";
+import { usePersistStore } from "@/lib/zustand/persist-store";
 import { CategoryDropdown } from "@/modules/categories/components/category-dropdown";
 import { ImageUploader } from "@/modules/image-manager/components/image-uploader";
 import { useCreateProduct } from "../queries/use-create";
@@ -40,6 +42,7 @@ type Props = {
 };
 
 export function ProductForm({ className, mode, productId }: Props) {
+  const { language } = usePersistStore();
   const [formMode, setFormMode] = useState<FormMode>(mode);
   const [currentProduct, setCurrentProduct] =
     useState<SelectProductSchema | null>(null);
@@ -111,6 +114,12 @@ export function ProductForm({ className, mode, productId }: Props) {
     await updateProduct(data);
   };
 
+  const handleResetProductForm = () => {
+    form.reset();
+    setFormMode("create");
+    setCurrentProduct(null);
+  };
+
   return (
     <div>
       <Form {...form}>
@@ -127,13 +136,15 @@ export function ProductForm({ className, mode, productId }: Props) {
           >
             <div className="flex-1 h-full">
               <ScrollArea className="h-[calc(100dvh-260px)]">
-                <div className="px-6 py-8 flex flex-col gap-6">
+                <div className="px-6 py-8 flex flex-col gap-8">
                   <FormField
                     control={form.control}
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{`Product Name`}</FormLabel>
+                        <FormLabel>
+                          {TEXTS.products.addNew.form.name.label[language]}
+                        </FormLabel>
                         <FormControl className="flex-1 h-full">
                           <div>
                             {fetchingProduct ? (
@@ -141,15 +152,16 @@ export function ProductForm({ className, mode, productId }: Props) {
                             ) : (
                               <Input
                                 className="w-full h-12 bg-white shadow-none"
-                                placeholder="Elephant House - Strawberry Ice Cream (500ml)"
+                                placeholder={
+                                  TEXTS.products.addNew.form.name.placeholder[
+                                    language
+                                  ]
+                                }
                                 {...field}
                               />
                             )}
                           </div>
                         </FormControl>
-                        {/* <FormDescription>
-                          Enter your product name in english or sinhala
-                        </FormDescription> */}
                         <FormMessage />
                       </FormItem>
                     )}
@@ -160,7 +172,13 @@ export function ProductForm({ className, mode, productId }: Props) {
                       name="categoryId"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Product Category</FormLabel>
+                          <FormLabel>
+                            {
+                              TEXTS.products.addNew.form.category.label[
+                                language
+                              ]
+                            }
+                          </FormLabel>
                           <FormControl className="flex-1 h-full">
                             <div>
                               {fetchingProduct ? (
@@ -180,9 +198,6 @@ export function ProductForm({ className, mode, productId }: Props) {
                               )}
                             </div>
                           </FormControl>
-                          <FormDescription>
-                            Select your Product Category
-                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -192,7 +207,9 @@ export function ProductForm({ className, mode, productId }: Props) {
                       name="barcode"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Product Barcode</FormLabel>
+                          <FormLabel>
+                            {TEXTS.products.addNew.form.barcode.label[language]}
+                          </FormLabel>
                           <FormControl className="flex-1 h-full">
                             <div>
                               {fetchingProduct ? (
@@ -200,15 +217,15 @@ export function ProductForm({ className, mode, productId }: Props) {
                               ) : (
                                 <Input
                                   className="w-full h-12 bg-white shadow-none"
-                                  placeholder="Ex: 4212230126191"
+                                  placeholder={
+                                    TEXTS.products.addNew.form.barcode
+                                      .placeholder[language]
+                                  }
                                   {...field}
                                 />
                               )}
                             </div>
                           </FormControl>
-                          <FormDescription>
-                            Use barcode reader to scan product barcode
-                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -219,7 +236,13 @@ export function ProductForm({ className, mode, productId }: Props) {
                     name="description"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{`Description (Optional)`}</FormLabel>
+                        <FormLabel>
+                          {
+                            TEXTS.products.addNew.form.description.label[
+                              language
+                            ]
+                          }
+                        </FormLabel>
                         <FormControl className="flex-1 h-full">
                           <div>
                             {fetchingProduct ? (
@@ -227,7 +250,10 @@ export function ProductForm({ className, mode, productId }: Props) {
                             ) : (
                               <Textarea
                                 className="w-full h-18 bg-white shadow-none"
-                                placeholder="Write something about new product..."
+                                placeholder={
+                                  TEXTS.products.addNew.form.description
+                                    .placeholder[language]
+                                }
                                 {...field}
                               />
                             )}
@@ -244,7 +270,9 @@ export function ProductForm({ className, mode, productId }: Props) {
                       name="price"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Product Price</FormLabel>
+                          <FormLabel>
+                            {TEXTS.products.addNew.form.price.label[language]}
+                          </FormLabel>
                           <FormControl className="flex-1 h-full">
                             <div>
                               {fetchingProduct ? (
@@ -253,7 +281,10 @@ export function ProductForm({ className, mode, productId }: Props) {
                                 <Input
                                   className="w-full h-12 bg-white shadow-none"
                                   type="number"
-                                  placeholder="Ex: 1000.00"
+                                  placeholder={
+                                    TEXTS.products.addNew.form.price
+                                      .placeholder[language]
+                                  }
                                   {...field}
                                   onChange={(e) => {
                                     field.onChange(parseFloat(e.target.value));
@@ -263,7 +294,11 @@ export function ProductForm({ className, mode, productId }: Props) {
                             </div>
                           </FormControl>
                           <FormDescription>
-                            Product labeled price
+                            {
+                              TEXTS.products.addNew.form.price.placeholder[
+                                language
+                              ]
+                            }
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -274,7 +309,13 @@ export function ProductForm({ className, mode, productId }: Props) {
                       name="discountedPrice"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Product Discounted Price</FormLabel>
+                          <FormLabel>
+                            {
+                              TEXTS.products.addNew.form.discountedPrice.label[
+                                language
+                              ]
+                            }
+                          </FormLabel>
                           <FormControl className="flex-1 h-full">
                             <div>
                               {fetchingProduct ? (
@@ -283,7 +324,10 @@ export function ProductForm({ className, mode, productId }: Props) {
                                 <Input
                                   className="w-full h-12 bg-white shadow-none"
                                   type="number"
-                                  placeholder="Ex: 1000.00"
+                                  placeholder={
+                                    TEXTS.products.addNew.form.discountedPrice
+                                      .placeholder[language]
+                                  }
                                   {...field}
                                   onChange={(e) => {
                                     field.onChange(parseFloat(e.target.value));
@@ -293,7 +337,10 @@ export function ProductForm({ className, mode, productId }: Props) {
                             </div>
                           </FormControl>
                           <FormDescription>
-                            Discounted price of your shop
+                            {
+                              TEXTS.products.addNew.form.discountedPrice
+                                .placeholder[language]
+                            }
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -307,7 +354,13 @@ export function ProductForm({ className, mode, productId }: Props) {
                       name="stockQuantity"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Product Stock Quantity</FormLabel>
+                          <FormLabel>
+                            {
+                              TEXTS.products.addNew.form.stockQuantity.label[
+                                language
+                              ]
+                            }
+                          </FormLabel>
                           <FormControl className="flex-1 h-full">
                             <div>
                               {fetchingProduct ? (
@@ -316,7 +369,10 @@ export function ProductForm({ className, mode, productId }: Props) {
                                 <Input
                                   className="w-full h-12 bg-white shadow-none"
                                   type="number"
-                                  placeholder="Ex: 10"
+                                  placeholder={
+                                    TEXTS.products.addNew.form.stockQuantity
+                                      .placeholder[language]
+                                  }
                                   {...field}
                                   onChange={(e) => {
                                     field.onChange(parseInt(e.target.value));
@@ -334,7 +390,13 @@ export function ProductForm({ className, mode, productId }: Props) {
                       name="unit"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Product Unit</FormLabel>
+                          <FormLabel>
+                            {
+                              TEXTS.products.addNew.form.productUnit.label[
+                                language
+                              ]
+                            }
+                          </FormLabel>
                           <FormControl className="flex-1 h-full">
                             <div>
                               {fetchingProduct ? (
@@ -359,7 +421,13 @@ export function ProductForm({ className, mode, productId }: Props) {
                     name="imageFilename"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Product Image</FormLabel>
+                        <FormLabel>
+                          {
+                            TEXTS.products.addNew.form.productImage.label[
+                              language
+                            ]
+                          }
+                        </FormLabel>
                         <FormControl className="flex-1 h-full">
                           <div>
                             {fetchingProduct ? (
@@ -392,16 +460,18 @@ export function ProductForm({ className, mode, productId }: Props) {
               <Button
                 variant="outline"
                 type="button"
-                onClick={() => form.reset()}
+                onClick={handleResetProductForm}
               >
-                Reset Form
+                {TEXTS.products.addNew.form.reset[language]}
               </Button>
               <Button
                 loading={creatingProduct || updatingProduct}
                 type="submit"
                 icon={formMode === "create" ? <PlusCircleIcon /> : <EditIcon />}
               >
-                {formMode === "create" ? "Create Product" : "Edit Product"}
+                {formMode === "create"
+                  ? TEXTS.products.addNew.form.create[language]
+                  : TEXTS.products.addNew.form.edit[language]}
               </Button>
             </div>
           </div>

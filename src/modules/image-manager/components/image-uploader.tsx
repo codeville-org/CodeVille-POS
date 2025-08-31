@@ -222,22 +222,22 @@ export function ImageUploader({
       case "loading":
       case "uploading":
         return (
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 dark:border-blue-400" />
         );
       case "success":
         return (
-          <div className="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center">
+          <div className="h-8 w-8 rounded-full bg-green-500 dark:bg-green-600 flex items-center justify-center">
             <Check className="h-4 w-4 text-white" />
           </div>
         );
       case "error":
         return (
-          <div className="h-8 w-8 rounded-full bg-red-500 flex items-center justify-center">
+          <div className="h-8 w-8 rounded-full bg-red-500 dark:bg-red-600 flex items-center justify-center">
             <AlertCircle className="h-4 w-4 text-white" />
           </div>
         );
       default:
-        return <Upload className="h-8 w-8 text-gray-400" />;
+        return <Upload className="h-8 w-8 text-gray-400 dark:text-gray-500" />;
     }
   };
 
@@ -254,7 +254,7 @@ export function ImageUploader({
             <img
               src={uploadState.preview}
               alt="Preview"
-              className="h-32 w-32 object-cover rounded-lg shadow-md"
+              className="h-32 w-32 object-cover rounded-lg shadow-md dark:shadow-lg dark:shadow-black/25"
               onError={() => {
                 console.error("Failed to load image preview");
                 setUploadState((prev) => ({
@@ -266,7 +266,7 @@ export function ImageUploader({
             />
             {(uploadState.status === "uploading" ||
               uploadState.status === "loading") && (
-              <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center">
+              <div className="absolute inset-0 bg-black bg-opacity-50 dark:bg-black dark:bg-opacity-70 rounded-lg flex items-center justify-center">
                 <div className="text-white text-sm font-medium">
                   {uploadState.status === "loading"
                     ? "Loading..."
@@ -278,13 +278,13 @@ export function ImageUploader({
 
           {uploadState.status === "uploading" && (
             <div className="w-full max-w-xs">
-              <div className="flex justify-between text-sm text-gray-600 mb-1">
+              <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300 mb-1">
                 <span>Uploading...</span>
                 <span>{uploadState.progress}%</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                 <div
-                  className="bg-blue-500 h-2 rounded-full transition-all duration-300 ease-out"
+                  className="bg-blue-500 dark:bg-blue-400 h-2 rounded-full transition-all duration-300 ease-out"
                   style={{ width: `${uploadState.progress}%` }}
                 />
               </div>
@@ -293,12 +293,12 @@ export function ImageUploader({
 
           {uploadState.status === "success" && uploadState.filename && (
             <div className="text-center">
-              <p className="text-sm font-medium text-green-600">
+              <p className="text-sm font-medium text-green-600 dark:text-green-400">
                 {initialFilename === uploadState.filename
                   ? "Image loaded"
                   : "Upload successful!"}
               </p>
-              <p className="text-xs text-gray-500 mt-1 truncate max-w-[200px]">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate max-w-[200px]">
                 {uploadState.filename}
               </p>
             </div>
@@ -311,13 +311,15 @@ export function ImageUploader({
       <div className="flex flex-col items-center space-y-4">
         {getStatusIcon()}
         <div className="text-center">
-          <p className="text-lg font-medium text-gray-700">
+          <p className="text-lg font-medium text-gray-700 dark:text-gray-200">
             {uploadState.status === "error" ? "Upload Failed" : "Upload Image"}
           </p>
           {uploadState.status === "error" && uploadState.error ? (
-            <p className="text-sm text-red-500 mt-2">{uploadState.error}</p>
+            <p className="text-sm text-red-500 dark:text-red-400 mt-2">
+              {uploadState.error}
+            </p>
           ) : (
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
               {disabled
                 ? "Image upload disabled"
                 : "Drag and drop an image here, or click to select"}
@@ -325,7 +327,7 @@ export function ImageUploader({
           )}
         </div>
         {uploadState.status === "idle" && !disabled && (
-          <div className="flex items-center space-x-4 text-xs text-gray-400">
+          <div className="flex items-center space-x-4 text-xs text-gray-400 dark:text-gray-500">
             <span>JPG, PNG, WebP</span>
             <span>•</span>
             <span>Max 10MB</span>
@@ -355,12 +357,12 @@ export function ImageUploader({
           }
           ${
             isDragOver && !disabled
-              ? "border-blue-500 bg-blue-50 scale-[1.02]"
+              ? "border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-950/50 scale-[1.02]"
               : uploadState.status === "error"
-                ? "border-red-300 bg-red-50"
+                ? "border-red-300 dark:border-red-500 bg-red-50 dark:bg-red-950/50"
                 : uploadState.status === "success"
-                  ? "border-green-300 bg-green-50"
-                  : "border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100"
+                  ? "border-green-300 dark:border-green-500 bg-green-50 dark:bg-green-950/50"
+                  : "border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800/70"
           }
         `}
       >
@@ -374,17 +376,17 @@ export function ImageUploader({
                 e.stopPropagation();
                 resetUpload();
               }}
-              className="absolute top-3 right-3 p-1 rounded-full bg-white shadow-md hover:shadow-lg transition-shadow"
+              className="absolute top-3 right-3 p-1 rounded-full bg-white dark:bg-gray-800 shadow-md hover:shadow-lg dark:shadow-black/25 transition-shadow"
               aria-label="Upload another image"
             >
-              <X className="h-4 w-4 text-gray-500" />
+              <X className="h-4 w-4 text-gray-500 dark:text-gray-400" />
             </button>
           )}
 
         {/* Drag overlay */}
         {isDragOver && !disabled && (
-          <div className="absolute inset-0 bg-blue-500 bg-opacity-10 rounded-xl flex items-center justify-center">
-            <div className="bg-blue-500 text-white px-4 py-2 rounded-lg font-medium">
+          <div className="absolute inset-0 bg-blue-500 bg-opacity-10 dark:bg-blue-400 dark:bg-opacity-20 rounded-xl flex items-center justify-center">
+            <div className="bg-blue-500 dark:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium">
               Drop image here
             </div>
           </div>
@@ -407,10 +409,10 @@ export function ImageUploader({
 
       {/* Upload stats */}
       {uploadState.status === "success" && (
-        <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
+        <div className="mt-4 p-3 bg-green-50 dark:bg-green-950/50 rounded-lg border border-green-200 dark:border-green-700">
           <div className="flex items-center space-x-2">
-            <Check className="h-4 w-4 text-green-500" />
-            <span className="text-sm font-medium text-green-700">
+            <Check className="h-4 w-4 text-green-500 dark:text-green-400" />
+            <span className="text-sm font-medium text-green-700 dark:text-green-300">
               {initialFilename === uploadState.filename
                 ? "Image loaded successfully"
                 : "Image uploaded successfully"}
