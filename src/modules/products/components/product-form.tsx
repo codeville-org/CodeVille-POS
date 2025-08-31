@@ -364,9 +364,15 @@ export function ProductForm({ className, mode, productId }: Props) {
                           <div>
                             {fetchingProduct ? (
                               <Skeleton className="w-full h-12" />
+                            ) : formMode === "edit" && field.value !== "" ? (
+                              <ImageUploader
+                                initialFilename={field.value}
+                                onUploaded={(filename) =>
+                                  field.onChange(filename)
+                                }
+                              />
                             ) : (
                               <ImageUploader
-                                initialImage={field.value}
                                 onUploaded={(filename) =>
                                   field.onChange(filename)
                                 }

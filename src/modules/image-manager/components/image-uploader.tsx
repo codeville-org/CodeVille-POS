@@ -1,12 +1,15 @@
+// renderer/components/ImageUploader.tsx
 import { AlertCircle, Check, Upload, X } from "lucide-react";
 import React, { useCallback, useRef, useState } from "react";
+import ImageApiService from "../images-service";
 
 type Props = {
   onUploaded: (filename: string) => void;
-  initialImage?: string; // filename from database
+  initialFilename?: string; // New prop to display existing image
+  disabled?: boolean;
 };
 
-type UploadStatus = "idle" | "uploading" | "success" | "error";
+type UploadStatus = "idle" | "uploading" | "success" | "error" | "loading";
 
 interface UploadState {
   status: UploadStatus;
@@ -16,44 +19,56 @@ interface UploadState {
   filename?: string;
 }
 
-export function ImageUploader({ onUploaded, initialImage }: Props) {
+export function ImageUploader({
+  onUploaded,
+  initialFilename,
+  disabled = false
+}: Props) {
   const [uploadState, setUploadState] = useState<UploadState>({
     status: "idle",
-    progress: 0
+    progress: 0,
+    filename: initialFilename
   });
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Load initial image preview when component mounts or initialImage changes
+  // Load initial image if filename is provided
   React.useEffect(() => {
-    if (initialImage) {
-      // Here you would call imageManager.getImageAsBase64(initialImage)
-      // For demo, we'll simulate it
-      const loadInitialImage = async () => {
-        try {
-          // const preview = await imageManager.getImageAsBase64(initialImage);
-          // Simulated data URL for demo
-          const preview = `data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=`;
-
-          setUploadState({
-            status: "success",
-            progress: 100,
-            preview,
-            filename: initialImage
-          });
-        } catch (error) {
-          console.warn("Failed to load initial image:", error);
-          // Reset to idle state if image can't be loaded
-          setUploadState({
-            status: "idle",
-            progress: 0
-          });
-        }
-      };
-
-      loadInitialImage();
+    if (initialFilename && !uploadState.preview) {
+      loadImagePreview(initialFilename);
     }
-  }, [initialImage]);
+  }, [initialFilename]);
+
+  const loadImagePreview = async (filename: string) => {
+    try {
+      setUploadState((prev) => ({ ...prev, status: "loading" }));
+      const base64Data = await ImageApiService.getAsBase64(filename);
+
+      if (base64Data) {
+        setUploadState({
+          status: "success",
+          progress: 100,
+          preview: base64Data,
+          filename
+        });
+      } else {
+        setUploadState({
+          status: "error",
+          progress: 0,
+          error: "Image not found",
+          filename
+        });
+      }
+    } catch (error) {
+      console.error("Failed to load image preview:", error);
+      setUploadState({
+        status: "error",
+        progress: 0,
+        error: "Failed to load image",
+        filename
+      });
+    }
+  };
 
   const validateFile = (file: File): string | null => {
     const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -72,6 +87,8 @@ export function ImageUploader({ onUploaded, initialImage }: Props) {
 
   const processFile = useCallback(
     async (file: File) => {
+      if (disabled) return;
+
       const validationError = validateFile(file);
       if (validationError) {
         setUploadState({
@@ -89,7 +106,17 @@ export function ImageUploader({ onUploaded, initialImage }: Props) {
       });
 
       try {
-        // Convert file to base64 for preview (CSP-safe)
+        // Create temporary preview for immediate feedback
+        const tempPreview = URL.createObjectURL(file);
+        setUploadState((prev) => ({ ...prev, preview: tempPreview }));
+
+        // Simulate upload progress
+        for (let i = 0; i <= 90; i += 15) {
+          setUploadState((prev) => ({ ...prev, progress: i }));
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+
+        // Convert file to base64
         const base64 = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = () => resolve(reader.result as string);
@@ -97,36 +124,25 @@ export function ImageUploader({ onUploaded, initialImage }: Props) {
           reader.readAsDataURL(file);
         });
 
-        // Set preview using data URL (CSP-safe)
-        setUploadState((prev) => ({
-          ...prev,
-          preview: base64,
-          progress: 30
-        }));
-
-        // Simulate upload progress
-        for (let i = 40; i <= 90; i += 10) {
-          setUploadState((prev) => ({ ...prev, progress: i }));
-          await new Promise((resolve) => setTimeout(resolve, 50));
-        }
-
         setUploadState((prev) => ({ ...prev, progress: 95 }));
 
-        // Here you would call your ImageManager
-        // const filename = await imageManager.saveImageFromBase64(base64);
-
-        // For demo purposes, we'll simulate this
-        const filename = `${Date.now()}-${file.name}`;
+        // Save image using IPC
+        const filename = await ImageApiService.saveFromBase64(base64);
 
         setUploadState((prev) => ({ ...prev, progress: 100 }));
 
-        // Simulate processing time
+        // Clean up temp preview and get the actual saved image
+        URL.revokeObjectURL(tempPreview);
+
+        // Load the saved image as preview
+        const savedImageBase64 = await ImageApiService.getAsBase64(filename);
+
         await new Promise((resolve) => setTimeout(resolve, 200));
 
         setUploadState({
           status: "success",
           progress: 100,
-          preview: base64,
+          preview: savedImageBase64 || tempPreview,
           filename
         });
 
@@ -140,7 +156,7 @@ export function ImageUploader({ onUploaded, initialImage }: Props) {
         });
       }
     },
-    [onUploaded]
+    [onUploaded, disabled]
   );
 
   const handleDrop = useCallback(
@@ -148,18 +164,25 @@ export function ImageUploader({ onUploaded, initialImage }: Props) {
       e.preventDefault();
       setIsDragOver(false);
 
+      if (disabled) return;
+
       const files = Array.from(e.dataTransfer.files);
       if (files.length > 0) {
         processFile(files[0]);
       }
     },
-    [processFile]
+    [processFile, disabled]
   );
 
-  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragOver(true);
-  }, []);
+  const handleDragOver = useCallback(
+    (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      if (!disabled) {
+        setIsDragOver(true);
+      }
+    },
+    [disabled]
+  );
 
   const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -169,20 +192,22 @@ export function ImageUploader({ onUploaded, initialImage }: Props) {
   const handleFileInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = e.target.files;
-      if (files && files.length > 0) {
+      if (files && files.length > 0 && !disabled) {
         processFile(files[0]);
       }
     },
-    [processFile]
+    [processFile, disabled]
   );
 
   const handleClick = useCallback(() => {
-    if (uploadState.status === "uploading") return;
+    if (uploadState.status === "uploading" || disabled) return;
     fileInputRef.current?.click();
-  }, [uploadState.status]);
+  }, [uploadState.status, disabled]);
 
   const resetUpload = useCallback(() => {
-    // No need to revoke data URLs, they're garbage collected automatically
+    if (uploadState.preview && !uploadState.preview.startsWith("data:")) {
+      URL.revokeObjectURL(uploadState.preview);
+    }
     setUploadState({
       status: "idle",
       progress: 0
@@ -190,10 +215,11 @@ export function ImageUploader({ onUploaded, initialImage }: Props) {
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-  }, []);
+  }, [uploadState.preview]);
 
   const getStatusIcon = () => {
     switch (uploadState.status) {
+      case "loading":
       case "uploading":
         return (
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
@@ -218,7 +244,9 @@ export function ImageUploader({ onUploaded, initialImage }: Props) {
   const getMainContent = () => {
     if (
       uploadState.preview &&
-      (uploadState.status === "success" || uploadState.status === "uploading")
+      (uploadState.status === "success" ||
+        uploadState.status === "uploading" ||
+        uploadState.status === "loading")
     ) {
       return (
         <div className="flex flex-col items-center space-y-4">
@@ -227,15 +255,27 @@ export function ImageUploader({ onUploaded, initialImage }: Props) {
               src={uploadState.preview}
               alt="Preview"
               className="h-32 w-32 object-cover rounded-lg shadow-md"
+              onError={() => {
+                console.error("Failed to load image preview");
+                setUploadState((prev) => ({
+                  ...prev,
+                  status: "error",
+                  error: "Failed to load image preview"
+                }));
+              }}
             />
-            {uploadState.status === "uploading" && (
+            {(uploadState.status === "uploading" ||
+              uploadState.status === "loading") && (
               <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center">
                 <div className="text-white text-sm font-medium">
-                  {uploadState.progress}%
+                  {uploadState.status === "loading"
+                    ? "Loading..."
+                    : `${uploadState.progress}%`}
                 </div>
               </div>
             )}
           </div>
+
           {uploadState.status === "uploading" && (
             <div className="w-full max-w-xs">
               <div className="flex justify-between text-sm text-gray-600 mb-1">
@@ -250,12 +290,15 @@ export function ImageUploader({ onUploaded, initialImage }: Props) {
               </div>
             </div>
           )}
+
           {uploadState.status === "success" && uploadState.filename && (
             <div className="text-center">
               <p className="text-sm font-medium text-green-600">
-                Upload successful!
+                {initialFilename === uploadState.filename
+                  ? "Image loaded"
+                  : "Upload successful!"}
               </p>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 mt-1 truncate max-w-[200px]">
                 {uploadState.filename}
               </p>
             </div>
@@ -275,11 +318,13 @@ export function ImageUploader({ onUploaded, initialImage }: Props) {
             <p className="text-sm text-red-500 mt-2">{uploadState.error}</p>
           ) : (
             <p className="text-sm text-gray-500 mt-2">
-              Drag and drop an image here, or click to select
+              {disabled
+                ? "Image upload disabled"
+                : "Drag and drop an image here, or click to select"}
             </p>
           )}
         </div>
-        {uploadState.status === "idle" && (
+        {uploadState.status === "idle" && !disabled && (
           <div className="flex items-center space-x-4 text-xs text-gray-400">
             <span>JPG, PNG, WebP</span>
             <span>•</span>
@@ -291,17 +336,25 @@ export function ImageUploader({ onUploaded, initialImage }: Props) {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full mx-auto">
       <div
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onClick={handleClick}
         className={`
-          relative border-2 border-dashed rounded-xl p-8 text-center cursor-pointer
+          relative border-2 border-dashed rounded-xl p-8 text-center
           transition-all duration-300 ease-in-out
           ${
-            isDragOver
+            disabled
+              ? "cursor-not-allowed opacity-60"
+              : uploadState.status === "uploading" ||
+                  uploadState.status === "loading"
+                ? "cursor-not-allowed"
+                : "cursor-pointer"
+          }
+          ${
+            isDragOver && !disabled
               ? "border-blue-500 bg-blue-50 scale-[1.02]"
               : uploadState.status === "error"
                 ? "border-red-300 bg-red-50"
@@ -309,28 +362,27 @@ export function ImageUploader({ onUploaded, initialImage }: Props) {
                   ? "border-green-300 bg-green-50"
                   : "border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100"
           }
-          ${uploadState.status === "uploading" ? "cursor-not-allowed" : "cursor-pointer"}
         `}
       >
         {getMainContent()}
 
         {/* Reset button for success/error states */}
-        {(uploadState.status === "success" ||
-          uploadState.status === "error") && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              resetUpload();
-            }}
-            className="absolute top-3 right-3 p-1 rounded-full bg-white shadow-md hover:shadow-lg transition-shadow"
-            aria-label="Upload another image"
-          >
-            <X className="h-4 w-4 text-gray-500" />
-          </button>
-        )}
+        {(uploadState.status === "success" || uploadState.status === "error") &&
+          !disabled && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                resetUpload();
+              }}
+              className="absolute top-3 right-3 p-1 rounded-full bg-white shadow-md hover:shadow-lg transition-shadow"
+              aria-label="Upload another image"
+            >
+              <X className="h-4 w-4 text-gray-500" />
+            </button>
+          )}
 
         {/* Drag overlay */}
-        {isDragOver && (
+        {isDragOver && !disabled && (
           <div className="absolute inset-0 bg-blue-500 bg-opacity-10 rounded-xl flex items-center justify-center">
             <div className="bg-blue-500 text-white px-4 py-2 rounded-lg font-medium">
               Drop image here
@@ -346,7 +398,11 @@ export function ImageUploader({ onUploaded, initialImage }: Props) {
         accept="image/jpeg,image/jpg,image/png,image/webp"
         onChange={handleFileInput}
         className="hidden"
-        disabled={uploadState.status === "uploading"}
+        disabled={
+          uploadState.status === "uploading" ||
+          uploadState.status === "loading" ||
+          disabled
+        }
       />
 
       {/* Upload stats */}
@@ -355,7 +411,9 @@ export function ImageUploader({ onUploaded, initialImage }: Props) {
           <div className="flex items-center space-x-2">
             <Check className="h-4 w-4 text-green-500" />
             <span className="text-sm font-medium text-green-700">
-              Image uploaded successfully
+              {initialFilename === uploadState.filename
+                ? "Image loaded successfully"
+                : "Image uploaded successfully"}
             </span>
           </div>
         </div>

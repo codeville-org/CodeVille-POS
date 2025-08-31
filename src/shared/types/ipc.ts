@@ -48,9 +48,18 @@ export interface ProductsActions {
   delete: (id: string) => Promise<DeleteProductResponse>;
 }
 
+export interface ImagesActions {
+  getImagesDirectory: () => string;
+  saveImageFromBase64: (base64Data: string) => Promise<string>;
+  saveImageFromPath: (sourceImagePath: string) => Promise<string>;
+  getImageAsBase64: (filename: string) => Promise<string | null>;
+  deleteImage: (filename: string) => Promise<boolean>;
+}
+
 // Main IPC API interface
 export interface ElectronAPI {
   window: WindowActions;
   categories: CategoriesActions;
   products: ProductsActions;
+  images: ImagesActions;
 }
