@@ -22,13 +22,18 @@ import { usePersistStore } from "@/lib/zustand/persist-store";
 const unitsList = CONSTANTS.PRODUCT_UNITS;
 
 type Props = {
+  defaultValue?: string | null;
   onSelect: (value: string) => void;
 };
 
-export function UnitsDropdown({ onSelect }: Props) {
+export function UnitsDropdown({ defaultValue, onSelect }: Props) {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState("");
+  const [value, setValue] = React.useState(defaultValue);
   const { language } = usePersistStore();
+
+  React.useEffect(() => {
+    setValue(defaultValue);
+  }, [defaultValue]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -37,7 +42,7 @@ export function UnitsDropdown({ onSelect }: Props) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full h-12 flex items-center justify-between bg-white"
+          className="w-full h-12 flex items-center justify-between bg-white shadow-none"
         >
           {value
             ? unitsList.find((unit) => unit.value === value)?.label[language]

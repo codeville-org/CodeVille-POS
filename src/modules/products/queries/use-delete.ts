@@ -3,10 +3,12 @@ import { useId } from "react";
 import { toast } from "sonner";
 
 import { useElectronAPI } from "@/hooks/use-electron-api";
+import { useNavigate } from "react-router-dom";
 
 export const useDeleteProduct = (id: string) => {
   const queryClient = useQueryClient();
   const toastId = useId();
+  const navigate = useNavigate();
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -23,6 +25,7 @@ export const useDeleteProduct = (id: string) => {
     },
     onMutate: () => {
       toast.loading("Deleting Product...", { id: toastId });
+      navigate("/products");
     },
     onSuccess: () => {
       toast.success("Product deleted successfully!", { id: toastId });

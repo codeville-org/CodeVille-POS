@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PlusCircleIcon } from "lucide-react";
+import { EditIcon, PlusCircleIcon, TrashIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -19,14 +18,19 @@ import {
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { TEXTS } from "@/lib/language";
 import {
   insertProductSchema,
   InsertProductSchema,
   SelectProductSchema
 } from "@/lib/zod/products.zod";
+import { usePersistStore } from "@/lib/zustand/persist-store";
 import { CategoryDropdown } from "@/modules/categories/components/category-dropdown";
 import { ImageUploader } from "@/modules/image-manager/components/image-uploader";
+import { useCreateProduct } from "../queries/use-create";
+import { useDeleteProduct } from "../queries/use-delete";
 import { useGetProductByIdMutated } from "../queries/use-mutated-get-by-id";
+import { useUpdateProduct } from "../queries/use-update";
 import { UnitsDropdown } from "./units-dropdown";
 
 type FormMode = "create" | "edit";
@@ -38,11 +42,19 @@ type Props = {
 };
 
 export function ProductForm({ className, mode, productId }: Props) {
+  const { language } = usePersistStore();
   const [formMode, setFormMode] = useState<FormMode>(mode);
   const [currentProduct, setCurrentProduct] =
     useState<SelectProductSchema | null>(null);
+
+  const { mutateAsync: createProduct, isPending: creatingProduct } =
+    useCreateProduct();
+  const { mutateAsync: updateProduct, isPending: updatingProduct } =
+    useUpdateProduct(productId || currentProduct?.id || "");
   const { mutateAsync: getProductById, isPending: fetchingProduct } =
     useGetProductByIdMutated();
+  const { mutateAsync: deleteProduct, isPending: deletingProduct } =
+    useDeleteProduct(productId || currentProduct?.id);
 
   const form = useForm<InsertProductSchema>({
     resolver: zodResolver(insertProductSchema),
@@ -61,7 +73,11 @@ export function ProductForm({ className, mode, productId }: Props) {
   });
 
   useEffect(() => {
-    if (formMode === "edit") handleFetchProduct(productId);
+    if (formMode === "edit") {
+      if (productId) {
+        handleFetchProduct(productId);
+      }
+    }
   }, [formMode, productId]);
 
   useEffect(() => {
@@ -88,13 +104,26 @@ export function ProductForm({ className, mode, productId }: Props) {
   };
 
   const handleCreateProduct = async (data: InsertProductSchema) => {
-    // Call your create product mutation here
-    console.log(data);
+    await createProduct(data, {
+      onSuccess: ({ id }) => {
+        handleFetchProduct(id);
+        setFormMode("edit");
+      }
+    });
   };
 
   const handleUpdateProduct = async (data: InsertProductSchema) => {
-    // Call your update product mutation here
-    console.log(data);
+    await updateProduct(data);
+  };
+
+  const handleResetProductForm = () => {
+    form.reset();
+    setFormMode("create");
+    setCurrentProduct(null);
+  };
+
+  const handleDeleteProduct = async () => {
+    await deleteProduct();
   };
 
   return (
@@ -113,29 +142,32 @@ export function ProductForm({ className, mode, productId }: Props) {
           >
             <div className="flex-1 h-full">
               <ScrollArea className="h-[calc(100dvh-260px)]">
-                <div className="px-6 py-8 flex flex-col gap-6">
+                <div className="px-6 py-8 flex flex-col gap-8">
                   <FormField
                     control={form.control}
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{`Product Name`}</FormLabel>
+                        <FormLabel>
+                          {TEXTS.products.addNew.form.name.label[language]}
+                        </FormLabel>
                         <FormControl className="flex-1 h-full">
                           <div>
                             {fetchingProduct ? (
                               <Skeleton className="w-full h-12" />
                             ) : (
                               <Input
-                                className="w-full h-12 bg-white"
-                                placeholder="Elephant House - Strawberry Ice Cream (500ml)"
+                                className="w-full h-12 bg-white shadow-none"
+                                placeholder={
+                                  TEXTS.products.addNew.form.name.placeholder[
+                                    language
+                                  ]
+                                }
                                 {...field}
                               />
                             )}
                           </div>
                         </FormControl>
-                        {/* <FormDescription>
-                          Enter your product name in english or sinhala
-                        </FormDescription> */}
                         <FormMessage />
                       </FormItem>
                     )}
@@ -146,13 +178,24 @@ export function ProductForm({ className, mode, productId }: Props) {
                       name="categoryId"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Product Category</FormLabel>
+                          <FormLabel>
+                            {
+                              TEXTS.products.addNew.form.category.label[
+                                language
+                              ]
+                            }
+                          </FormLabel>
                           <FormControl className="flex-1 h-full">
                             <div>
                               {fetchingProduct ? (
                                 <Skeleton className="w-full h-12" />
                               ) : (
                                 <CategoryDropdown
+                                  defaultSelected={
+                                    formMode === "edit"
+                                      ? currentProduct?.category || null
+                                      : null
+                                  }
                                   onSelect={(category) => {
                                     field.onChange(category.id);
                                   }}
@@ -161,9 +204,6 @@ export function ProductForm({ className, mode, productId }: Props) {
                               )}
                             </div>
                           </FormControl>
-                          <FormDescription>
-                            Select your Product Category
-                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -173,23 +213,25 @@ export function ProductForm({ className, mode, productId }: Props) {
                       name="barcode"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Product Barcode</FormLabel>
+                          <FormLabel>
+                            {TEXTS.products.addNew.form.barcode.label[language]}
+                          </FormLabel>
                           <FormControl className="flex-1 h-full">
                             <div>
                               {fetchingProduct ? (
                                 <Skeleton className="w-full h-12" />
                               ) : (
                                 <Input
-                                  className="w-full h-12 bg-white"
-                                  placeholder="Ex: 4212230126191"
+                                  className="w-full h-12 bg-white shadow-none"
+                                  placeholder={
+                                    TEXTS.products.addNew.form.barcode
+                                      .placeholder[language]
+                                  }
                                   {...field}
                                 />
                               )}
                             </div>
                           </FormControl>
-                          <FormDescription>
-                            Use barcode reader to scan product barcode
-                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -200,15 +242,24 @@ export function ProductForm({ className, mode, productId }: Props) {
                     name="description"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{`Description (Optional)`}</FormLabel>
+                        <FormLabel>
+                          {
+                            TEXTS.products.addNew.form.description.label[
+                              language
+                            ]
+                          }
+                        </FormLabel>
                         <FormControl className="flex-1 h-full">
                           <div>
                             {fetchingProduct ? (
                               <Skeleton className="w-full h-18" />
                             ) : (
                               <Textarea
-                                className="w-full h-18 bg-white"
-                                placeholder="Write something about new product..."
+                                className="w-full h-18 bg-white shadow-none"
+                                placeholder={
+                                  TEXTS.products.addNew.form.description
+                                    .placeholder[language]
+                                }
                                 {...field}
                               />
                             )}
@@ -225,24 +276,29 @@ export function ProductForm({ className, mode, productId }: Props) {
                       name="price"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Product Price</FormLabel>
+                          <FormLabel>
+                            {TEXTS.products.addNew.form.price.label[language]}
+                          </FormLabel>
                           <FormControl className="flex-1 h-full">
                             <div>
                               {fetchingProduct ? (
                                 <Skeleton className="w-full h-12" />
                               ) : (
                                 <Input
-                                  className="w-full h-12 bg-white"
+                                  className="w-full h-12 bg-white shadow-none"
                                   type="number"
-                                  placeholder="Ex: 1000.00"
+                                  placeholder={
+                                    TEXTS.products.addNew.form.price
+                                      .placeholder[language]
+                                  }
                                   {...field}
+                                  onChange={(e) => {
+                                    field.onChange(parseFloat(e.target.value));
+                                  }}
                                 />
                               )}
                             </div>
                           </FormControl>
-                          <FormDescription>
-                            Product labeled price
-                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -252,24 +308,33 @@ export function ProductForm({ className, mode, productId }: Props) {
                       name="discountedPrice"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Product Discounted Price</FormLabel>
+                          <FormLabel>
+                            {
+                              TEXTS.products.addNew.form.discountedPrice.label[
+                                language
+                              ]
+                            }
+                          </FormLabel>
                           <FormControl className="flex-1 h-full">
                             <div>
                               {fetchingProduct ? (
                                 <Skeleton className="w-full h-12" />
                               ) : (
                                 <Input
-                                  className="w-full h-12 bg-white"
+                                  className="w-full h-12 bg-white shadow-none"
                                   type="number"
-                                  placeholder="Ex: 1000.00"
+                                  placeholder={
+                                    TEXTS.products.addNew.form.discountedPrice
+                                      .placeholder[language]
+                                  }
                                   {...field}
+                                  onChange={(e) => {
+                                    field.onChange(parseFloat(e.target.value));
+                                  }}
                                 />
                               )}
                             </div>
                           </FormControl>
-                          <FormDescription>
-                            Discounted price of your shop
-                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -282,17 +347,29 @@ export function ProductForm({ className, mode, productId }: Props) {
                       name="stockQuantity"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Product Stock Quantity</FormLabel>
+                          <FormLabel>
+                            {
+                              TEXTS.products.addNew.form.stockQuantity.label[
+                                language
+                              ]
+                            }
+                          </FormLabel>
                           <FormControl className="flex-1 h-full">
                             <div>
                               {fetchingProduct ? (
                                 <Skeleton className="w-full h-12" />
                               ) : (
                                 <Input
-                                  className="w-full h-12 bg-white"
+                                  className="w-full h-12 bg-white shadow-none"
                                   type="number"
-                                  placeholder="Ex: 10"
+                                  placeholder={
+                                    TEXTS.products.addNew.form.stockQuantity
+                                      .placeholder[language]
+                                  }
                                   {...field}
+                                  onChange={(e) => {
+                                    field.onChange(parseInt(e.target.value));
+                                  }}
                                 />
                               )}
                             </div>
@@ -306,13 +383,20 @@ export function ProductForm({ className, mode, productId }: Props) {
                       name="unit"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Product Unit</FormLabel>
+                          <FormLabel>
+                            {
+                              TEXTS.products.addNew.form.productUnit.label[
+                                language
+                              ]
+                            }
+                          </FormLabel>
                           <FormControl className="flex-1 h-full">
                             <div>
                               {fetchingProduct ? (
                                 <Skeleton className="w-full h-12" />
                               ) : (
                                 <UnitsDropdown
+                                  defaultValue={field.value}
                                   onSelect={(value) => {
                                     field.onChange(value);
                                   }}
@@ -330,11 +414,24 @@ export function ProductForm({ className, mode, productId }: Props) {
                     name="imageFilename"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Product Image</FormLabel>
+                        <FormLabel>
+                          {
+                            TEXTS.products.addNew.form.productImage.label[
+                              language
+                            ]
+                          }
+                        </FormLabel>
                         <FormControl className="flex-1 h-full">
                           <div>
                             {fetchingProduct ? (
                               <Skeleton className="w-full h-12" />
+                            ) : formMode === "edit" && field.value !== "" ? (
+                              <ImageUploader
+                                initialFilename={field.value}
+                                onUploaded={(filename) =>
+                                  field.onChange(filename)
+                                }
+                              />
                             ) : (
                               <ImageUploader
                                 onUploaded={(filename) =>
@@ -353,8 +450,35 @@ export function ProductForm({ className, mode, productId }: Props) {
             </div>
 
             <div className="flex items-center justify-between p-4 border-t border-foreground/5 flex-shrink-0">
-              <Button variant="outline">Reset Form</Button>
-              <Button icon={<PlusCircleIcon />}>Create Product</Button>
+              {formMode === "create" ? (
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={handleResetProductForm}
+                >
+                  {TEXTS.products.addNew.form.reset[language]}
+                </Button>
+              ) : (
+                <Button
+                  variant="destructive"
+                  type="button"
+                  loading={deletingProduct}
+                  icon={<TrashIcon />}
+                  onClick={handleDeleteProduct}
+                >
+                  {TEXTS.actions.delete[language]}
+                </Button>
+              )}
+
+              <Button
+                loading={creatingProduct || updatingProduct}
+                type="submit"
+                icon={formMode === "create" ? <PlusCircleIcon /> : <EditIcon />}
+              >
+                {formMode === "create"
+                  ? TEXTS.products.addNew.form.create[language]
+                  : TEXTS.products.addNew.form.edit[language]}
+              </Button>
             </div>
           </div>
         </form>

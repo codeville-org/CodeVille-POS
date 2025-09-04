@@ -27,25 +27,39 @@ export async function getAllProductsController(
     const offset = (pageNum - 1) * limitNum;
 
     // Build where conditions
-    const whereConditions = [];
+    const whereConditions: any[] = [];
+
     if (search) {
       whereConditions.push(
         sql`LOWER(${products.name}) LIKE LOWER(${`%${search}%`})`
       );
     }
 
-    // Build the query
-    const productsQuery = db
-      .select()
-      .from(products)
-      .where(whereConditions.length ? and(...whereConditions) : undefined)
-      .orderBy(
+    db.query.products.findMany({
+      where: whereConditions.length ? and(...whereConditions) : undefined,
+      orderBy:
         sort.toLowerCase() === "asc"
           ? products.createdAt
-          : desc(products.createdAt)
-      )
-      .limit(limitNum)
-      .offset(offset);
+          : desc(products.createdAt),
+      limit: limitNum,
+      offset,
+      with: {
+        category: true
+      }
+    });
+
+    const productsQuery = db.query.products.findMany({
+      where: whereConditions.length ? and(...whereConditions) : undefined,
+      orderBy:
+        sort.toLowerCase() === "asc"
+          ? products.createdAt
+          : desc(products.createdAt),
+      limit: limitNum,
+      offset,
+      with: {
+        category: true
+      }
+    });
 
     // Get total count for pagination metadata
     const totalCountQuery = db
@@ -94,6 +108,9 @@ export async function getProductByIDController(
     const product = await db.query.products.findFirst({
       where: (fields, { eq }) => {
         return eq(fields.id, id);
+      },
+      with: {
+        category: true
       }
     });
 

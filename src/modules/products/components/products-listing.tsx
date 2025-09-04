@@ -15,23 +15,23 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { ListingView } from "@/shared/types/global";
-import { useGetAllCategories } from "../queries/use-get-all";
-import { CategoryItem } from "./category-item";
+import { useGetAllProducts } from "../queries/use-get-all";
+import { ProductItem } from "./product-item";
 
 type Props = {
   className?: string;
 };
 
-export function CategoryListing({ className }: Props) {
+export function ProductsListing({ className }: Props) {
   const [searchValue, setSearchValue] = useState("");
   const [debouncedSearchValue, setDebouncedSearchValue] = useState("");
   const [sortValue, setSortValue] = useState<"asc" | "desc">("desc");
-  const [view, setView] = useState<ListingView>("list");
+  const [view, setView] = useState<ListingView>("grid");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const { data, isLoading, error } = useGetAllCategories({
+  const { data, isLoading, error } = useGetAllProducts({
     search: debouncedSearchValue,
     sort: sortValue,
     page: currentPage.toString(),
@@ -82,7 +82,7 @@ export function CategoryListing({ className }: Props) {
             {sortValue === "asc" ? <SortDescIcon /> : <SortAscIcon />}
           </Button>
           <Input
-            placeholder="Search categories..."
+            placeholder="Search Products..."
             className="shadow-none h-9"
             value={searchValue}
             onChange={handleSearchChange}
@@ -104,13 +104,12 @@ export function CategoryListing({ className }: Props) {
       <Separator />
 
       <div className="flex-1 h-full">
-        <ScrollArea className="h-[calc(100dvh-385px)]">
+        <ScrollArea className="h-[calc(100dvh-310px)]">
           <div
             className={cn(
               "h-full",
               {
-                "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4":
-                  view === "grid",
+                "grid grid-cols-5 gap-4 p-4": view === "grid",
                 "flex flex-col": view === "list"
               },
               isLoading && "flex items-center justify-center min-h-[400px]",
@@ -135,7 +134,7 @@ export function CategoryListing({ className }: Props) {
 
             {data &&
               data.data.map((item) => (
-                <CategoryItem key={item.id} category={item} view={view} />
+                <ProductItem key={item.id} product={item} view={view} />
               ))}
           </div>
         </ScrollArea>
@@ -144,7 +143,7 @@ export function CategoryListing({ className }: Props) {
       {/* Pagination Bar */}
       {data && (
         <Pagination
-          entityName="Categories"
+          entityName="Products"
           currentPage={currentPage}
           itemsPerPage={itemsPerPage}
           totalCount={data.meta.totalCount}

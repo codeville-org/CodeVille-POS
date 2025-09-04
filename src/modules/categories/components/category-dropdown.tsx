@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { SelectCategory } from "@/lib/zod/categories.zod";
 
@@ -22,12 +22,16 @@ import { cn } from "@/lib/utils";
 import { useGetAllCategories } from "../queries/use-get-all";
 
 type Props = {
-  // selected: SelectCategory | null;
+  defaultSelected?: SelectCategory | null;
   onSelect: (category: SelectCategory) => void;
   maxItems?: number;
 };
 
-export function CategoryDropdown({ onSelect, maxItems }: Props) {
+export function CategoryDropdown({
+  defaultSelected,
+  onSelect,
+  maxItems
+}: Props) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selected, setSelected] = useState<SelectCategory | null>(null);
   const [open, setOpen] = useState(false);
@@ -36,6 +40,12 @@ export function CategoryDropdown({ onSelect, maxItems }: Props) {
     search: searchTerm
   });
 
+  useEffect(() => {
+    if (defaultSelected) {
+      setSelected(defaultSelected);
+    }
+  }, [defaultSelected]);
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -43,7 +53,7 @@ export function CategoryDropdown({ onSelect, maxItems }: Props) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full h-12 flex items-center justify-between bg-white"
+          className="w-full h-12 flex items-center justify-between bg-white shadow-none"
         >
           {isFetching ? (
             <Loader className="size-4 animate-spin" />
