@@ -7,13 +7,17 @@ import path from "path";
 export function getImagesDirectory(): string {
   let baseDir: string;
 
-  if (app.isPackaged) {
-    baseDir = app.getPath("userData");
-  } else {
-    baseDir = process.cwd();
+  if (!app.isReady()) {
+    return path.join(process.cwd(), "images");
   }
 
-  return path.join(baseDir, "images");
+  if (app.isPackaged) {
+    baseDir = app.getPath("documents");
+    return path.join(baseDir, "CodeVille POS", "images");
+  } else {
+    baseDir = process.cwd();
+    return path.join(baseDir, "images");
+  }
 }
 
 // This function ensures image extension is valid
@@ -49,8 +53,9 @@ export async function saveImageFromBase64Controller(
     const filename = `${fileId}${extension}`;
 
     const imagesDirectory = getImagesDirectory();
-    const fullPath = path.join(imagesDirectory, filename);
+    await fs.mkdir(imagesDirectory, { recursive: true });
 
+    const fullPath = path.join(imagesDirectory, filename);
     await fs.writeFile(fullPath, imageBuffer);
     console.log(`Image saved from base64: ${filename}`);
     return filename;
@@ -86,15 +91,17 @@ export async function saveImageFromBufferController(
 
     const filename = `${fileId}${extension}`;
     const imagesDirectory = getImagesDirectory();
-    const fullPath = path.join(imagesDirectory, filename);
 
-    if (isValidImageExtension(extension)) {
-      throw new Error(
-        "Invalid image format. Only jpg, jpeg, png, webp are supported."
-      );
+    if (!isValidImageExtension(extension)) {
+      throw new Error("Invalid image format...");
     }
 
+    // Ensure the directory exists before writing the file
+    await fs.mkdir(imagesDirectory, { recursive: true });
+
+    const fullPath = path.join(imagesDirectory, filename);
     await fs.writeFile(fullPath, imageBuffer);
+
     console.log(`Image saved: ${filename}`);
     return filename;
   } catch (error) {
