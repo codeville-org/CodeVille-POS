@@ -66,17 +66,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       key: "customers",
       title: CONSTANTS.SIDEBAR.customers.text[language],
       url: "/customers",
-      icon: Users,
-      items: [
-        {
-          title: CONSTANTS.SIDEBAR.customers.items.allCustomers[language],
-          url: "/customers"
-        },
-        {
-          title: CONSTANTS.SIDEBAR.customers.items.newCustomer[language],
-          url: "/customers/new"
-        }
-      ]
+      icon: Users
     },
     {
       key: "reports",

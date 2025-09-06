@@ -16,7 +16,8 @@ import {
   SidebarMenuItem,
   SidebarMenuSub,
   SidebarMenuSubButton,
-  SidebarMenuSubItem
+  SidebarMenuSubItem,
+  useSidebar
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { usePersistStore } from "@/lib/zustand/persist-store";
@@ -36,6 +37,7 @@ export function NavMain({
     }[];
   }[];
 }) {
+  const { open, setOpen } = useSidebar();
   const location = useLocation();
   const { language } = usePersistStore();
 
@@ -55,6 +57,13 @@ export function NavMain({
                   asChild
                   tooltip={item.title}
                   isActive={isCurrentPath}
+                  onClick={() => {
+                    if (item.url === "/pos") {
+                      setOpen(false);
+                    } else {
+                      if (!open) setOpen(true);
+                    }
+                  }}
                 >
                   <Link to={item.url}>
                     {item.icon && <item.icon />}
