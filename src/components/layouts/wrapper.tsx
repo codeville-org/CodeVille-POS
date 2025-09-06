@@ -4,6 +4,7 @@ import {
   SidebarProvider,
   SidebarTrigger
 } from "@/components/ui/sidebar";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 
 import { CONSTANTS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -15,6 +16,9 @@ import { AppRouter } from "./router";
 
 export function Wrapper() {
   const { language } = usePersistStore();
+
+  // Enable keyboard shortcuts
+  useKeyboardShortcuts();
 
   return (
     <main

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { createId } from "@paralleldrive/cuid2";
 import { app } from "electron";
 import * as fs from "node:fs/promises";
@@ -7,13 +8,39 @@ import path from "path";
 export function getImagesDirectory(): string {
   let baseDir: string;
 
-  if (app.isPackaged) {
-    baseDir = app.getPath("userData");
-  } else {
+  try {
+    // Check if app is ready and available
+    if (app && app.isReady()) {
+      if (app.isPackaged) {
+        // For packaged apps, use userData directory
+        baseDir = app.getPath("userData");
+        logger.log(`Using userData directory for packaged app: ${baseDir}`);
+      } else {
+        // Development mode - use current working directory
+        baseDir = process.cwd();
+        logger.log(
+          `Using current working directory for development: ${baseDir}`
+        );
+      }
+    } else {
+      // Fallback when app is not ready yet
+      logger.warn(
+        "Electron app not ready, using current working directory as fallback"
+      );
+      baseDir = process.cwd();
+    }
+  } catch (error) {
+    logger.error(
+      "Failed to get app path, falling back to process.cwd():",
+      error
+    );
+    // Fallback to current working directory if app methods fail
     baseDir = process.cwd();
   }
 
-  return path.join(baseDir, "images");
+  const imagesPath = path.join(baseDir, "images");
+  logger.log(`Images directory resolved to: ${imagesPath}`);
+  return imagesPath;
 }
 
 // This function ensures image extension is valid
@@ -27,6 +54,8 @@ export async function saveImageFromBase64Controller(
   base64Data: string
 ): Promise<string> {
   try {
+    logger.log("Starting base64 image save process");
+
     const matches = base64Data.match(
       /^data:image\/([a-zA-Z0-9]+);base64,(.+)$/
     );
@@ -37,6 +66,7 @@ export async function saveImageFromBase64Controller(
 
     const [, imageType, base64String] = matches;
     const extension = `.${imageType.toLowerCase()}`;
+    logger.log(`Image type detected: ${imageType}, extension: ${extension}`);
 
     if (!isValidImageExtension(extension)) {
       throw new Error(
@@ -47,15 +77,28 @@ export async function saveImageFromBase64Controller(
     const imageBuffer = Buffer.from(base64String, "base64");
     const fileId = createId();
     const filename = `${fileId}${extension}`;
+    logger.log(`Generated filename: ${filename}`);
 
     const imagesDirectory = getImagesDirectory();
+    logger.log(`Images directory: ${imagesDirectory}`);
+
+    // Ensure the directory exists before writing the file
+    try {
+      await fs.mkdir(imagesDirectory, { recursive: true });
+      logger.log("Directory creation/verification completed");
+    } catch (dirError) {
+      logger.error("Failed to create images directory:", dirError);
+      throw new Error(`Failed to create images directory: ${dirError}`);
+    }
+
     const fullPath = path.join(imagesDirectory, filename);
+    logger.log(`Full file path: ${fullPath}`);
 
     await fs.writeFile(fullPath, imageBuffer);
-    console.log(`Image saved from base64: ${filename}`);
+    logger.log(`Image saved successfully: ${filename}`);
     return filename;
   } catch (error) {
-    console.error("Failed to save image from base64:", error);
+    logger.error("Failed to save image from base64:", error);
     throw error;
   }
 }
@@ -65,10 +108,11 @@ export async function saveImageFromPathController(
   sourceImagePath: string
 ): Promise<string> {
   try {
+    logger.log(`Saving image from path: ${sourceImagePath}`);
     const imageBuffer = await fs.readFile(sourceImagePath);
     return await saveImageFromBufferController(imageBuffer, sourceImagePath);
   } catch (error) {
-    console.error("Failed to save image from path: ", error);
+    logger.error("Failed to save image from path:", error);
     throw new Error("Failed to save image from file path");
   }
 }
@@ -79,26 +123,43 @@ export async function saveImageFromBufferController(
   originalPath?: string
 ): Promise<string> {
   try {
+    logger.log("Starting buffer image save process");
+
     const fileId = createId();
     const extension = originalPath
       ? path.extname(originalPath).toLowerCase()
       : ".jpg";
+    logger.log(`Extension detected: ${extension}`);
 
-    const filename = `${fileId}${extension}`;
-    const imagesDirectory = getImagesDirectory();
-    const fullPath = path.join(imagesDirectory, filename);
-
-    if (isValidImageExtension(extension)) {
+    if (!isValidImageExtension(extension)) {
       throw new Error(
         "Invalid image format. Only jpg, jpeg, png, webp are supported."
       );
     }
 
+    const filename = `${fileId}${extension}`;
+    logger.log(`Generated filename: ${filename}`);
+
+    const imagesDirectory = getImagesDirectory();
+    logger.log(`Images directory: ${imagesDirectory}`);
+
+    // Ensure the directory exists before writing the file
+    try {
+      await fs.mkdir(imagesDirectory, { recursive: true });
+      logger.log("Directory creation/verification completed");
+    } catch (dirError) {
+      logger.error("Failed to create images directory:", dirError);
+      throw new Error(`Failed to create images directory: ${dirError}`);
+    }
+
+    const fullPath = path.join(imagesDirectory, filename);
+    logger.log(`Full file path: ${fullPath}`);
+
     await fs.writeFile(fullPath, imageBuffer);
-    console.log(`Image saved: ${filename}`);
+    logger.log(`Image saved successfully: ${filename}`);
     return filename;
   } catch (error) {
-    console.error("Failed to save image from buffer:", error);
+    logger.error("Failed to save image from buffer:", error);
     throw error;
   }
 }

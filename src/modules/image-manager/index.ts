@@ -9,20 +9,54 @@ import {
   saveImageFromBufferController,
   saveImageFromPathController
 } from "@/controllers/images.controller";
+import { logger } from "@/lib/logger";
 
 export class ImageManager {
-  private imagesDir: string;
+  private imagesDir: string | null = null;
 
   constructor() {
-    this.imagesDir = getImagesDirectory();
+    // Don't initialize the directory path in constructor
+    // This will be set in the initialize() method
+  }
+
+  private getImagesDir(): string {
+    if (!this.imagesDir) {
+      this.imagesDir = getImagesDirectory();
+    }
+    return this.imagesDir;
   }
 
   async initialize(): Promise<void> {
     try {
+      // Set the images directory path when initializing
+      this.imagesDir = getImagesDirectory();
+      logger.log(
+        `ImageManager: Starting initialization with directory: ${this.imagesDir}`
+      );
+
+      // Ensure the directory exists
+      logger.log(
+        `ImageManager: Attempting to create directory: ${this.imagesDir}`
+      );
       await fs.mkdir(this.imagesDir, { recursive: true });
-      console.log(`Images directory initialized at: ${this.imagesDir}`);
+      logger.log(`ImageManager: Directory creation completed`);
+
+      // Verify the directory was created and is accessible
+      try {
+        await fs.access(this.imagesDir, fs.constants.R_OK | fs.constants.W_OK);
+        logger.log(
+          `Images directory initialized and accessible at: ${this.imagesDir}`
+        );
+      } catch (accessError) {
+        logger.error(
+          `Images directory exists but is not accessible: ${accessError}`
+        );
+        throw new Error(
+          `Images directory is not accessible: ${this.imagesDir}`
+        );
+      }
     } catch (error) {
-      console.error("Failed to initialize images directory:", error);
+      logger.error("Failed to initialize images directory:", error);
       throw error;
     }
   }
@@ -47,7 +81,7 @@ export class ImageManager {
   }
 
   getImagePath(filename: string): string {
-    return path.join(this.imagesDir, filename);
+    return path.join(this.getImagesDir(), filename);
   }
 
   async deleteImage(filename: string): Promise<boolean> {

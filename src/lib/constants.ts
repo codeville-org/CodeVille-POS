@@ -42,6 +42,9 @@ export const CONSTANTS = {
     },
     settings: {
       text: { en: "Settings", si: "සැකසුම්" }
+    },
+    diagnostics: {
+      text: { en: "Diagnostics", si: "හැඳුනුම්" }
     }
   },
   PRODUCT_UNITS: [

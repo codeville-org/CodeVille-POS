@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { CategoriesPage } from "../pages/categories";
 import { CustomersPage } from "../pages/customers";
 import { DashboardPage } from "../pages/dashboard";
+import { DiagnosticsPage } from "../pages/diagnostics";
 import { PosPage } from "../pages/pos";
 import { ProductsInventoryPage } from "../pages/products";
 import { NewProductPage } from "../pages/products/new-product";
@@ -21,6 +22,7 @@ export function AppRouter({}: Props) {
       <Route path="/products/:id" element={<SingleProductPage />} />
       <Route path="/products/categories" element={<CategoriesPage />} />
       <Route path="/customers" element={<CustomersPage />} />
+      <Route path="/diagnostics" element={<DiagnosticsPage />} />
       {/* <Route path="/customers/:id" element={<CustomerDetail />} /> */}
       {/* <Route path="/reports" element={<Reports />} /> */}
       {/* <Route path="/settings" element={<Settings />} /> */}

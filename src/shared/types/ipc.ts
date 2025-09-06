@@ -84,6 +84,21 @@ export interface CustomersActions {
   delete: (id: string) => Promise<DeleteCustomerResponseSchema>;
 }
 
+export interface DiagnosticsActions {
+  getLogPath: () => Promise<string | null>;
+  getAppInfo: () => Promise<{
+    isPackaged: boolean;
+    isReady: boolean;
+    platform: string;
+    arch: string;
+    cwd: string;
+    userDataPath: string;
+    documentsPath: string;
+    tempPath: string;
+  }>;
+  testLog: (message: string) => Promise<string>;
+}
+
 // Main IPC API interface
 export interface ElectronAPI {
   window: WindowActions;
@@ -91,4 +106,5 @@ export interface ElectronAPI {
   products: ProductsActions;
   images: ImagesActions;
   customers: CustomersActions;
+  diagnostics: DiagnosticsActions;
 }

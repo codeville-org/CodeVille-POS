@@ -9,6 +9,7 @@ const categoriesInvoker = createInvoker("categories");
 const productsInvoker = createInvoker("products");
 const imagesInvoker = createInvoker("images");
 const customersInvoker = createInvoker("customers");
+const diagnosticsInvoker = createInvoker("diagnostics");
 
 const electronAPI: ElectronAPI = {
   window: {
@@ -43,6 +44,11 @@ const electronAPI: ElectronAPI = {
     create: customersInvoker("create"),
     update: customersInvoker("update"),
     delete: customersInvoker("delete")
+  },
+  diagnostics: {
+    getLogPath: diagnosticsInvoker("getLogPath"),
+    getAppInfo: diagnosticsInvoker("getAppInfo"),
+    testLog: diagnosticsInvoker("testLog")
   }
 };
 

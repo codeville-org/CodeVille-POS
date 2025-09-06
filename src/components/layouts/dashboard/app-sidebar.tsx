@@ -2,6 +2,7 @@
 
 import {
   BarChart3,
+  Bug,
   CodeSquareIcon,
   LayoutDashboard,
   Settings,
@@ -79,6 +80,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       title: CONSTANTS.SIDEBAR.settings.text[language],
       url: "/settings",
       icon: Settings
+    },
+    {
+      key: "diagnostics",
+      title: CONSTANTS.SIDEBAR.diagnostics.text[language],
+      url: "/diagnostics",
+      icon: Bug
     }
   ];
 

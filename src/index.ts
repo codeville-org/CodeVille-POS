@@ -1,5 +1,6 @@
 import { app, BrowserWindow } from "electron";
 
+import { logger } from "@/lib/logger";
 import imageManager from "@/modules/image-manager";
 import databaseManager from "./database";
 import { setupIPCHandlers } from "./ipc/handlers";
@@ -18,15 +19,14 @@ const createWindow = async (): Promise<void> => {
   // Initialize database before creating window
   try {
     await databaseManager.initialize();
-    console.log("Database initialized successfully");
+    logger.log("Database initialized successfully");
 
     // Initialize image manager
     await imageManager.initialize();
-    console.log("Image manager initialized successfully");
+    logger.log("Image manager initialized successfully");
   } catch (error) {
-    console.error("Failed to initialize:", error);
-    app.quit();
-    return;
+    logger.error("Failed to initialize:", error);
+    // Don't quit the app, but continue - user can still see error in diagnostics
   }
 
   // Create the browser window.
