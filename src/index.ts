@@ -25,8 +25,8 @@ const createWindow = async (): Promise<void> => {
     console.log("Image manager initialized successfully");
   } catch (error) {
     console.error("Failed to initialize:", error);
-    app.quit();
-    return;
+    // app.quit();
+    // return;
   }
 
   // Create the browser window.
