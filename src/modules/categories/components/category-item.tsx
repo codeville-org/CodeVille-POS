@@ -14,7 +14,7 @@ type Props = {
 export function CategoryItem({ view = "list", category }: Props) {
   if (view === "grid") {
     return (
-      <Card className="p-4 rounded-md shadow-xs hover:shadow-md transition-shadow group">
+      <Card className="p-4 rounded-md shadow-none hover:shadow-md transition-shadow group bg-secondary/10">
         <div className="flex flex-col gap-3">
           <div className="flex items-start justify-between">
             <div className="p-2 rounded-md bg-primary/10 text-primary group-hover:bg-primary/20 transition-colors">

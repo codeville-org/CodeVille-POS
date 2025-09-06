@@ -8,6 +8,7 @@ const windowInvoker = createInvoker("window");
 const categoriesInvoker = createInvoker("categories");
 const productsInvoker = createInvoker("products");
 const imagesInvoker = createInvoker("images");
+const customersInvoker = createInvoker("customers");
 
 const electronAPI: ElectronAPI = {
   window: {
@@ -35,6 +36,13 @@ const electronAPI: ElectronAPI = {
     saveImageFromBase64: imagesInvoker("saveImageFromBase64"),
     saveImageFromPath: imagesInvoker("saveImageFromPath"),
     deleteImage: imagesInvoker("deleteImage")
+  },
+  customers: {
+    getAll: customersInvoker("getAll"),
+    getById: customersInvoker("getById"),
+    create: customersInvoker("create"),
+    update: customersInvoker("update"),
+    delete: customersInvoker("delete")
   }
 };
 

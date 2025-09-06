@@ -15,14 +15,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { ListingView } from "@/shared/types/global";
-import { useGetAllCategories } from "../queries/use-get-all";
-import { CategoryItem } from "./category-item";
+import { useGetAllCustomers } from "../queries/get-all";
+import { CustomerItem } from "./customer-item";
 
 type Props = {
   className?: string;
 };
 
-export function CategoryListing({ className }: Props) {
+export function CustomersListing({ className }: Props) {
   const [searchValue, setSearchValue] = useState("");
   const [debouncedSearchValue, setDebouncedSearchValue] = useState("");
   const [sortValue, setSortValue] = useState<"asc" | "desc">("desc");
@@ -31,7 +31,7 @@ export function CategoryListing({ className }: Props) {
   const [itemsPerPage] = useState(10);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const { data, isLoading, error } = useGetAllCategories({
+  const { data, isLoading, error } = useGetAllCustomers({
     search: debouncedSearchValue,
     sort: sortValue,
     page: currentPage.toString(),
@@ -82,7 +82,7 @@ export function CategoryListing({ className }: Props) {
             {sortValue === "asc" ? <SortDescIcon /> : <SortAscIcon />}
           </Button>
           <Input
-            placeholder="Search categories..."
+            placeholder="Search customers..."
             className="shadow-none h-9"
             value={searchValue}
             onChange={handleSearchChange}
@@ -104,7 +104,7 @@ export function CategoryListing({ className }: Props) {
       <Separator />
 
       <div className="flex-1 h-full">
-        <ScrollArea className="h-[calc(100dvh-385px)]">
+        <ScrollArea className="h-[calc(100dvh-310px)]">
           <div
             className={cn(
               "h-full",
@@ -135,7 +135,7 @@ export function CategoryListing({ className }: Props) {
 
             {data &&
               data.data.map((item) => (
-                <CategoryItem key={item.id} category={item} view={view} />
+                <CustomerItem key={item.id} customer={item} view={view} />
               ))}
           </div>
         </ScrollArea>

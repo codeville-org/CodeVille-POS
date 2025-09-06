@@ -2,8 +2,10 @@ export const TEXTS = {
   language: { en: "English", si: "සිංහල" },
   actions: {
     view: { en: "View", si: "පෙන්වන්න" },
+    create: { en: "Create", si: "සාදන්න" },
     edit: { en: "Edit", si: "යාවත්කාලීන කරන්න" },
-    delete: { en: "Delete", si: "මකන්න" }
+    delete: { en: "Delete", si: "මකන්න" },
+    cancel: { en: "Cancel", si: "අවලංගු කරන්න" }
   },
   categories: {
     title: { en: "Product Categories", si: "නිශ්පාදන වර්ග" },
@@ -87,6 +89,78 @@ export const TEXTS = {
         reset: { en: "Reset", si: "නැවත සකසන්න" },
         create: { en: "Create Product", si: "නිශ්පාදනයක් සාදන්න" },
         edit: { en: "Edit Product", si: "නිශ්පාදනයක් යාවත්කාලීන කරන්න" }
+      }
+    }
+  },
+  customers: {
+    title: { en: "All Customers", si: "ඔබේ පාරිභෝගිකයන්" },
+    subtitle: {
+      en: "Manage your customers",
+      si: "ඔබේ පාරිභෝගිකයන් කළමනාකරණය කරන්න"
+    },
+    update: {
+      title: { en: "Update Customer", si: "පාරිභෝගිකයා යාවත්කාලීන කරන්න" },
+      description: {
+        en: "Make changes to your customer here.",
+        si: "යාවත්කාලීන කිරීමට අදාල තොරතුරු පහත ෆෝරමයේ ඇතුලත් කරන්න."
+      }
+    },
+    addNew: {
+      en: "Add Customer",
+      si: "නව පාරිභෝගිකයෙක් එක් කරන්න",
+      subtitle: {
+        en: "Fill customer details in following form",
+        si: "පාරිභෝගිකයාගේ විස්තර පහත ෆෝරමයේ ඇතුලත් කරන්න."
+      },
+      form: {
+        name: {
+          en: "Name",
+          si: "පාරිභෝගිකයාගේ නම",
+          placeholder: {
+            en: "Enter customer name",
+            si: "පාරිභෝගිකයාගේ නම ඇතුලත් කරන්න"
+          }
+        },
+        phone: {
+          en: "Phone",
+          si: "දුරකථන",
+          placeholder: {
+            en: "Enter customer phone",
+            si: "දුරකථන අංකය ඇතුලත් කරන්න"
+          }
+        },
+        address: {
+          en: "Address",
+          si: "ලිපිනය",
+          placeholder: {
+            en: "Enter customer address",
+            si: "ලිපිනය ඇතුලත් කරන්න"
+          }
+        },
+        currentBalance: {
+          en: "Current Balance",
+          si: "වත්මන් ණය ශේෂය",
+          placeholder: {
+            en: "Enter current balance",
+            si: "වත්මන් ණය ශේෂය ඇතුලත් කරන්න"
+          }
+        },
+        totalCreditLimit: {
+          en: "Total Credit Limit",
+          si: "උපරිම ණය සීමාව",
+          placeholder: {
+            en: "Enter total credit limit",
+            si: "උපරිම ණය සීමාව ඇතුලත් කරන්න"
+          }
+        },
+        notes: {
+          en: "Additional Notes",
+          si: "අමතර සටහන්",
+          placeholder: {
+            en: "Enter additional notes",
+            si: "අමතර සටහන් ඇතුලත් කරන්න"
+          }
+        }
       }
     }
   }

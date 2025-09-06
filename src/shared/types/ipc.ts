@@ -1,3 +1,6 @@
+import { QueryParamsSchema } from "@/lib/zod/helpers";
+
+// Categories Imports
 import {
   CreateCategoryResponse,
   DeleteCategoryResponse,
@@ -7,7 +10,8 @@ import {
   UpdateCategoryResponse,
   UpdateCategorySchema
 } from "@/lib/zod/categories.zod";
-import { QueryParamsSchema } from "@/lib/zod/helpers";
+
+// Products Imports
 import {
   CreateProductResponse,
   DeleteProductResponse,
@@ -18,6 +22,17 @@ import {
   UpdateProductResponse,
   UpdateProductSchema
 } from "@/lib/zod/products.zod";
+
+// Customers Imports
+import {
+  CreateCustomerResponseSchema,
+  CreateCustomerSchema,
+  DeleteCustomerResponseSchema,
+  GetAllCustomersResponseSchema,
+  GetCustomerByIdResponseSchema,
+  UpdateCustomerResponseSchema,
+  UpdateCustomerSchema
+} from "@/lib/zod/customers.zod";
 
 // Window management types
 export interface WindowActions {
@@ -56,10 +71,24 @@ export interface ImagesActions {
   deleteImage: (filename: string) => Promise<boolean>;
 }
 
+export interface CustomersActions {
+  getAll: (query: QueryParamsSchema) => Promise<GetAllCustomersResponseSchema>;
+  getById: (id: string) => Promise<GetCustomerByIdResponseSchema>;
+  create: (
+    payload: CreateCustomerSchema
+  ) => Promise<CreateCustomerResponseSchema>;
+  update: (
+    id: string,
+    payload: UpdateCustomerSchema
+  ) => Promise<UpdateCustomerResponseSchema>;
+  delete: (id: string) => Promise<DeleteCustomerResponseSchema>;
+}
+
 // Main IPC API interface
 export interface ElectronAPI {
   window: WindowActions;
   categories: CategoriesActions;
   products: ProductsActions;
   images: ImagesActions;
+  customers: CustomersActions;
 }
