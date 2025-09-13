@@ -24,7 +24,7 @@ export function ProductItem({
   if (page === "pos") {
     return (
       <Card
-        className="p-3 rounded-md shadow-xs hover:shadow-md transition-shadow group"
+        className="p-3 rounded-xl shadow-xs hover:shadow-md transition-shadow group bg-secondary dark:bg-sidebar border-sidebar-border/60"
         onClick={onClick}
       >
         <div className="flex flex-col gap-3">
@@ -32,8 +32,8 @@ export function ProductItem({
             <ImageDisplay
               alt={product.name}
               filename={product.imageFilename}
-              className="w-full h-full aspect-square rounded-md"
-              fallbackClassName="w-full h-full aspect-square rounded-md"
+              className="w-full h-full aspect-square rounded-xl"
+              fallbackClassName="w-full h-full aspect-square rounded-xl"
             />
             <Badge
               variant="secondary"
@@ -71,14 +71,14 @@ export function ProductItem({
   if (view === "grid") {
     return (
       <Link to={{ pathname: `/products/${product.id}` }}>
-        <Card className="p-4 rounded-md shadow-xs hover:shadow-md transition-shadow group">
+        <Card className="p-3 rounded-xl shadow-xs hover:shadow-md transition-shadow group bg-secondary dark:bg-sidebar border-sidebar-border/60">
           <div className="flex flex-col gap-3">
             <div className="relative">
               <ImageDisplay
                 alt={product.name}
                 filename={product.imageFilename}
-                className="w-full h-full aspect-square rounded-md"
-                fallbackClassName="w-full h-full aspect-square rounded-md"
+                className="w-full h-full aspect-square rounded-xl"
+                fallbackClassName="w-full h-full aspect-square rounded-xl"
               />
               <Badge
                 variant="secondary"

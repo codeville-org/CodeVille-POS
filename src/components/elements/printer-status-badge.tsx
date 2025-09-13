@@ -4,19 +4,24 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-type Props = {};
+type Props = {
+  minimal?: boolean;
+};
 
-export function PrinterStatusBadge({}: Props) {
+export function PrinterStatusBadge({ minimal }: Props) {
   const [status, setStatus] = useState<boolean>(false);
 
   return (
     <Badge
       variant="outline"
-      className={cn("h-9 flex items-center gap-2 px-3 py-2 font-sans", {
-        "bg-amber-600/10 hover:bg-amber-600/20 border-amber-600/30 text-amber-600":
-          status,
-        "bg-zinc-600/10 hover:bg-zinc-600/20 text-zinc-600": !status
-      })}
+      className={cn(
+        "h-9 flex items-center gap-2 px-3 py-2 font-sans rounded-full",
+        {
+          "bg-amber-600/10 hover:bg-amber-600/20 border-amber-600/30 text-amber-600":
+            status,
+          "bg-zinc-600/10 hover:bg-zinc-600/20 text-zinc-600": !status
+        }
+      )}
       // TODO: Remove line below
       onClick={() => setStatus(!status)}
     >
@@ -40,9 +45,11 @@ export function PrinterStatusBadge({}: Props) {
         )}
       </div>
 
-      <span className="font-sans text-xs">
-        {status ? "Printer Active" : "Printer Inactive"}
-      </span>
+      {!minimal && (
+        <span className="font-sans text-xs">
+          {status ? "Printer Active" : "Printer Inactive"}
+        </span>
+      )}
     </Badge>
   );
 }

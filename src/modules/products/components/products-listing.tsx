@@ -103,7 +103,7 @@ export function ProductsListing({ className }: Props) {
 
       <Separator />
 
-      <div className="flex-1 h-full bg-sidebar/30">
+      <div className="flex-1 h-full">
         <ScrollArea className="h-[calc(100dvh-310px)]">
           <div
             className={cn(

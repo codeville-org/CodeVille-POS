@@ -87,9 +87,15 @@ export function CustomersDropdown({
                     key={customer.id}
                     value={customer.name}
                     onSelect={() => {
-                      onSelect(customer);
-                      setSelected(customer);
-                      setOpen(false);
+                      if (selected?.id === customer.id) {
+                        onSelect(null);
+                        setSelected(null);
+                        setOpen(false);
+                      } else {
+                        onSelect(customer);
+                        setSelected(customer);
+                        setOpen(false);
+                      }
                     }}
                   >
                     <CheckIcon

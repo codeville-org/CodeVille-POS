@@ -6,7 +6,13 @@ export type SearchMode = "barcode" | "manual";
 
 export type FilterType = "featured" | "all" | SelectCategory;
 
+export type POSListingView = "listing" | "billing";
+
 export interface PosStoreInterface {
+  // Listing View
+  listingView: POSListingView;
+  setListingView: (view: POSListingView) => void;
+
   // POS Product Search
   searchMode: SearchMode;
   setSearchMode: (mode: SearchMode) => void;

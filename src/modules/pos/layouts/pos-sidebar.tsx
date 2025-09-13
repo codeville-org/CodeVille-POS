@@ -1,8 +1,8 @@
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { formatPrice } from "@/lib/utils";
+import { Label } from "@/components/ui/label";
+import { cn, formatPrice } from "@/lib/utils";
 import { SelectCustomer } from "@/lib/zod/customers.zod";
 import { usePosStore } from "@/lib/zustand/pos-store";
 import { CustomersDropdown } from "@/modules/customers/components/customer-dropdown";
@@ -17,60 +17,41 @@ export function PosSidebar({}: Props) {
   const handleResetAndInitializeTransaction = () => {};
 
   return (
-    <div className="w-full h-full flex-1 flex flex-col bg-sidebar/50 dark:bg-sidebar/40 border-l border-sidebar-border">
-      <div className="space-y-2 p-3 bg-sidebar border-b border-sidebar-border/30">
-        <p className="text-sm font-semibold text-foreground/70">Customer</p>
-
-        <CustomersDropdown
-          onSelect={(customer) => setSelectedCustomer(customer)}
-        />
-
-        {selectedCustomer && (
-          <p className="text-xs text-foreground/70">
-            {selectedCustomer.name} - Current Balance{" "}
-            <span className="font-semibold text-green-600">
-              {formatPrice(selectedCustomer.currentBalance)}
-            </span>
-          </p>
-        )}
+    <div className="w-full h-full flex flex-col bg-sidebar/50 dark:bg-sidebar/40 border-l border-sidebar-border overflow-hidden">
+      {/* Customer Selection - Fixed */}
+      <div className="flex-shrink-0 space-y-3 p-4 bg-sidebar border-b border-sidebar-border/30">
+        <div className="space-y-2">
+          <Label className="text-sm font-semibold text-foreground/70">
+            Customer
+          </Label>
+          <CustomersDropdown
+            defaultSelected={selectedCustomer}
+            onSelect={setSelectedCustomer}
+          />
+          {selectedCustomer && (
+            <p className="text-xs text-foreground/70">
+              {selectedCustomer.name} • Balance:{" "}
+              <span
+                className={cn(
+                  "font-semibold",
+                  selectedCustomer.currentBalance >= 0
+                    ? "text-green-600"
+                    : "text-red-600"
+                )}
+              >
+                {formatPrice(selectedCustomer.currentBalance)}
+              </span>
+            </p>
+          )}
+        </div>
       </div>
 
-      <div className="flex-1 w-full">
+      {/* Cart Items - Scrollable */}
+      <div className="flex-1 overflow-hidden">
         Cart Items
         {!activeTransaction && (
           <Button variant="outline">Start Transaction</Button>
         )}
-      </div>
-
-      <div className="border-t border-sidebar-border/30 bg-sidebar p-3">
-        <div className="space-y-1">
-          <p className="text-xs">Subtotal :</p>
-          <p className="text-xs">Discount :</p>
-          <p className="text-xs">Tax :</p>
-        </div>
-
-        <Separator className="my-3" />
-
-        <p className="text-lg font-semibold">Total :</p>
-
-        <div className="mt-2 space-y-1">
-          <h2 className="text-xs font-semibold text-foreground/70">
-            Payment Method
-          </h2>
-          <div className="w-full flex items-center gap-2">
-            <Button className="flex-1 shadow-none" variant="outline">
-              Cash
-            </Button>
-            <Button className="flex-1 shadow-none" variant="outline">
-              Card
-            </Button>
-            <Button className="flex-1 shadow-none" variant="outline">
-              Credit
-            </Button>
-          </div>
-        </div>
-
-        <Button className="w-full mt-3">Complete Payment</Button>
       </div>
     </div>
   );

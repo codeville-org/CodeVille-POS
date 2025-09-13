@@ -63,7 +63,7 @@ export const RealtimeClock = () => {
   return (
     <Badge
       variant="outline"
-      className="flex h-9 items-center gap-2 px-3 py-2 text-xs tracking-wider font-sans"
+      className="flex h-9 items-center gap-2 px-3 py-2 text-xs tracking-wider font-sans border-none"
     >
       <ClockIcon className="size-5" />
       {formatTime(time)}
