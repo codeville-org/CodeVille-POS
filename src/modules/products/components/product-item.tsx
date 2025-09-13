@@ -11,9 +11,63 @@ import { ListingView } from "@/shared/types/global";
 type Props = {
   view?: ListingView;
   product: SelectProductSchema;
+  page?: "listing" | "pos";
+  onClick?: () => void;
 };
 
-export function ProductItem({ view = "list", product }: Props) {
+export function ProductItem({
+  view = "list",
+  product,
+  page = "listing",
+  onClick
+}: Props) {
+  if (page === "pos") {
+    return (
+      <Card
+        className="p-3 rounded-md shadow-xs hover:shadow-md transition-shadow group"
+        onClick={onClick}
+      >
+        <div className="flex flex-col gap-3">
+          <div className="relative">
+            <ImageDisplay
+              alt={product.name}
+              filename={product.imageFilename}
+              className="w-full h-full aspect-square rounded-md"
+              fallbackClassName="w-full h-full aspect-square rounded-md"
+            />
+            <Badge
+              variant="secondary"
+              className="absolute top-3 left-3"
+            >{`${product.category.name}`}</Badge>
+          </div>
+
+          <div className="space-y-1">
+            <h3 className="font-semibold text-sm group-hover:text-primary transition-colors">
+              {product.name}
+            </h3>
+
+            <div className="my-2 flex items-center gap-2">
+              <Badge variant="destructive">{`${formatPrice(product.price)}`}</Badge>
+              <Badge
+                className={cn(
+                  "bg-amber-500 text-white hover:bg-amber-600 hover:text-white dark:bg-amber-500/10 dark:text-amber-500 dark:hover:bg-amber-500/20",
+                  product.stockQuantity < 3 && "animate-pulse"
+                )}
+              >
+                {`Stock: ${product.stockQuantity}`}
+              </Badge>
+            </div>
+
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <CalendarIcon className="h-3 w-3" />
+              <span>{formatDate(product.createdAt)}</span>
+            </div>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
   if (view === "grid") {
     return (
       <Link to={{ pathname: `/products/${product.id}` }}>

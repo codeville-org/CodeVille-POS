@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -17,6 +18,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { TEXTS } from "@/lib/language";
 import {
@@ -68,7 +70,8 @@ export function ProductForm({ className, mode, productId }: Props) {
       stockQuantity: 0,
       unit: "",
       imageFilename: "",
-      isActive: true
+      isActive: true,
+      isFeatured: false
     }
   });
 
@@ -409,6 +412,38 @@ export function ProductForm({ className, mode, productId }: Props) {
                       )}
                     />
                   </div>
+
+                  <FormField
+                    control={form.control}
+                    name="isFeatured"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 bg-white dark:bg-secondary/50">
+                        <div className="space-y-1">
+                          <FormLabel className="text-base">
+                            {
+                              TEXTS.products.addNew.form.isFeatured.label[
+                                language
+                              ]
+                            }
+                          </FormLabel>
+                          <FormDescription>
+                            {
+                              TEXTS.products.addNew.form.isFeatured.placeholder[
+                                language
+                              ]
+                            }
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
                   <FormField
                     control={form.control}
                     name="imageFilename"

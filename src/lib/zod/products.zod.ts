@@ -19,6 +19,7 @@ const baseProductSchema = z.object({
   description: z.string(),
   imageFilename: z.string(),
   isActive: z.boolean(),
+  isFeatured: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date()
 });

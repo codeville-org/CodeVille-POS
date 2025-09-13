@@ -1,4 +1,7 @@
-import { QueryParamsSchema } from "@/lib/zod/helpers";
+import {
+  ProductsQueryParamsSchema,
+  QueryParamsSchema
+} from "@/lib/zod/helpers";
 
 // Categories Imports
 import {
@@ -22,6 +25,16 @@ import {
   UpdateProductResponse,
   UpdateProductSchema
 } from "@/lib/zod/products.zod";
+
+import type {
+  AddNewTransactionItemsResponse,
+  CreateTransactionSchema,
+  DeleteTransactionResponse,
+  InitializeTransactionResponse,
+  UninitializedTransactionItem,
+  UpdateTransactionResponse,
+  UpdateTransactionSchema
+} from "@/lib/zod/transactions.zod";
 
 // Customers Imports
 import {
@@ -52,7 +65,7 @@ export interface CategoriesActions {
 }
 
 export interface ProductsActions {
-  getAll: (query: QueryParamsSchema) => Promise<GetAllProductsResponse>;
+  getAll: (query: ProductsQueryParamsSchema) => Promise<GetAllProductsResponse>;
   getById: (id: string) => Promise<GetProductByIDResponse>;
   getByBarcode: (barcode: string) => Promise<GetProductByBarcodeResponse>;
   create: (payload: InsertProductSchema) => Promise<CreateProductResponse>;
@@ -84,6 +97,21 @@ export interface CustomersActions {
   delete: (id: string) => Promise<DeleteCustomerResponseSchema>;
 }
 
+export interface TransactionsActions {
+  initialize: (
+    body: CreateTransactionSchema
+  ) => Promise<InitializeTransactionResponse>;
+  update: (
+    id: string,
+    body: UpdateTransactionSchema
+  ) => Promise<UpdateTransactionResponse>;
+  addItems: (
+    transactionId: string,
+    items: UninitializedTransactionItem[]
+  ) => Promise<AddNewTransactionItemsResponse>;
+  delete: (id: string) => Promise<DeleteTransactionResponse>;
+}
+
 // Main IPC API interface
 export interface ElectronAPI {
   window: WindowActions;
@@ -91,4 +119,5 @@ export interface ElectronAPI {
   products: ProductsActions;
   images: ImagesActions;
   customers: CustomersActions;
+  transactions: TransactionsActions;
 }

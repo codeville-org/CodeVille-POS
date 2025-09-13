@@ -29,6 +29,9 @@ export const products = sqliteTable(
     description: text("description"),
     imageFilename: text("image_filename"),
     isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
+    isFeatured: integer("is_featured", { mode: "boolean" })
+      .notNull()
+      .default(false),
     ...timestamps
   },
   (table) => [

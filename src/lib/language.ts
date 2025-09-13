@@ -82,6 +82,13 @@ export const TEXTS = {
           label: { en: "Product Unit", si: "නිශ්පාදන ඒකකය" },
           placeholder: { en: "Units", si: "ආකාර" }
         },
+        isFeatured: {
+          label: { en: "Featured Product", si: "ඉක්මන් අයිතමයක්" },
+          placeholder: {
+            en: "Mark the product as featured for easy access",
+            si: "නිශ්පාදනය පහසුවෙන් සොයාගැනීමට උපකාරී වේ"
+          }
+        },
         productImage: {
           label: { en: "Product Image", si: "නිශ්පාදනයේ ඡායාරූපය" },
           placeholder: { en: "Upload image", si: "රූපය උඩුගත කරන්න" }
