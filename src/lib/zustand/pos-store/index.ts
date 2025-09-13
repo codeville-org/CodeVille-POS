@@ -1,6 +1,7 @@
 import { create } from "zustand";
 
 import type { UninitializedTransactionItem } from "@/lib/zod/transactions.zod";
+import { PaymentMethod } from "@/lib/zod/transactions.zod";
 import type { PosStoreInterface } from "./types";
 
 export const usePosStore = create<PosStoreInterface>()((set, get) => ({
@@ -21,6 +22,22 @@ export const usePosStore = create<PosStoreInterface>()((set, get) => ({
 
   transactionItems: [],
 
+  // Customer Selection
+  selectedCustomer: null,
+  setSelectedCustomer: (customer) => set({ selectedCustomer: customer }),
+
+  // Payment
+  paymentMethod: PaymentMethod.CASH,
+  setPaymentMethod: (method) => set({ paymentMethod: method }),
+  cashReceived: 0,
+  setCashReceived: (amount) => set({ cashReceived: amount }),
+
+  // Discount & Tax
+  discountAmount: 0,
+  setDiscountAmount: (amount) => set({ discountAmount: amount }),
+  taxRate: 0,
+  setTaxRate: (rate) => set({ taxRate: rate }),
+
   /**
    * Add new Product to Active Transaction
    * @param item - Item to add active transaction
@@ -28,16 +45,17 @@ export const usePosStore = create<PosStoreInterface>()((set, get) => ({
   addTransactionItem: (item) => {
     const { transactionItems } = get();
 
-    const exsistingArray = transactionItems.filter(
+    const existingArray = transactionItems.filter(
       (arrayItem) => arrayItem.productId === item.productId
     );
 
-    if (exsistingArray.length > 0) {
-      const existingItem = exsistingArray[0];
+    if (existingArray.length > 0) {
+      const existingItem = existingArray[0];
 
       let updatedItem: UninitializedTransactionItem = {
         ...existingItem,
-        quantity: existingItem.quantity + 1
+        quantity: existingItem.quantity + 1,
+        totalAmount: (existingItem.quantity + 1) * existingItem.unitPrice
       };
 
       const preparedArray = transactionItems.filter(
@@ -47,7 +65,11 @@ export const usePosStore = create<PosStoreInterface>()((set, get) => ({
 
       set({ transactionItems: preparedArray });
     } else {
-      set({ transactionItems: [...transactionItems, item] });
+      const newItem = {
+        ...item,
+        totalAmount: item.quantity * item.unitPrice
+      };
+      set({ transactionItems: [...transactionItems, newItem] });
     }
   },
 
@@ -67,7 +89,10 @@ export const usePosStore = create<PosStoreInterface>()((set, get) => ({
 
       const updatedItem: UninitializedTransactionItem = {
         ...existingItem,
-        ...item
+        ...item,
+        totalAmount:
+          (item.quantity || existingItem.quantity) *
+          (item.unitPrice || existingItem.unitPrice)
       };
 
       const preparedArray = transactionItems.filter(
@@ -95,5 +120,57 @@ export const usePosStore = create<PosStoreInterface>()((set, get) => ({
   /**
    * This clears all items from active transaction
    */
-  clearTransactionItems: () => set({ transactionItems: [] })
+  clearTransactionItems: () => set({ transactionItems: [] }),
+
+  // Computed values
+  getSubtotal: () => {
+    const { transactionItems } = get();
+    return transactionItems.reduce((sum, item) => sum + item.totalAmount, 0);
+  },
+
+  getTaxAmount: () => {
+    const { taxRate } = get();
+    const subtotal = get().getSubtotal();
+    return (subtotal * taxRate) / 100;
+  },
+
+  getTotal: () => {
+    const { discountAmount } = get();
+    const subtotal = get().getSubtotal();
+    const taxAmount = get().getTaxAmount();
+    return subtotal + taxAmount - discountAmount;
+  },
+
+  getChangeAmount: () => {
+    const { cashReceived, paymentMethod } = get();
+    // Only calculate change for cash payments
+    if (paymentMethod !== PaymentMethod.CASH) return 0;
+    const total = get().getTotal();
+    return Math.max(0, cashReceived - total);
+  },
+
+  // Transaction operations
+  initializeNewTransaction: () => {
+    set({
+      activeTransaction: null,
+      transactionItems: [],
+      selectedCustomer: null,
+      paymentMethod: PaymentMethod.CASH,
+      cashReceived: 0,
+      discountAmount: 0,
+      taxRate: 0
+    });
+  },
+
+  resetTransaction: () => {
+    set({
+      activeTransaction: null,
+      transactionItems: [],
+      selectedCustomer: null,
+      paymentMethod: PaymentMethod.CASH,
+      cashReceived: 0,
+      discountAmount: 0,
+      taxRate: 0
+    });
+  }
 }));

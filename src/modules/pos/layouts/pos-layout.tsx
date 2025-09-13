@@ -11,13 +11,14 @@ type Props = {};
 
 export function PosScreenLayout({}: Props) {
   return (
-    <div className="flex h-full max-h-[calc(100vh-48px)]">
-      <div className="flex-1 w-full h-full flex flex-col">
-        {/* Header */}
-        <div className="p-4 pb-2 shadow-none flex flex-col gap-6">
-          <div className="flex items-center justify-between">
+    <div className="flex h-[calc(100vh-48px)] max-h-[calc(100vh-48px)] overflow-hidden">
+      {/* Left Panel - Products */}
+      <div className="flex-1 flex flex-col h-full overflow-hidden">
+        {/* Header - Fixed */}
+        <div className="flex-shrink-0 p-4 pb-2 shadow-none border-b border-border/20">
+          <div className="flex items-center justify-between mb-6">
             {/* Store Name / Logo */}
-            <div className="">
+            <div>
               <h1 className="font-black font-sans text-primary text-2xl">
                 Dewmali Super
               </h1>
@@ -34,14 +35,20 @@ export function PosScreenLayout({}: Props) {
           <ProductSearchInput />
         </div>
 
-        <CategoriesBar />
+        {/* Categories Bar - Fixed */}
+        <div className="flex-shrink-0">
+          <CategoriesBar />
+          <Separator className="opacity-50" />
+        </div>
 
-        <Separator className="opacity-50" />
-
-        <PosProductsListing />
+        {/* Products Listing - Scrollable */}
+        <div className="flex-1 overflow-hidden">
+          <PosProductsListing />
+        </div>
       </div>
 
-      <div className="w-96 h-full">
+      {/* Right Panel - Cart/Sidebar - Fixed width */}
+      <div className="w-96 h-full flex-shrink-0">
         <PosSidebar />
       </div>
     </div>
