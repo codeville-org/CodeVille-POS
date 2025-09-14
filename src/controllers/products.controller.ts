@@ -177,9 +177,10 @@ export async function createNewProductController(
       .values({
         name: payload.name,
         barcode: payload.barcode,
-        price: payload.price,
         discountedPrice: payload.discountedPrice,
         stockQuantity: payload.stockQuantity,
+        unitPrice: payload.unitPrice,
+        unitAmount: payload.unitAmount,
         unit: payload.unit,
         description: payload.description,
         imageFilename: payload.imageFilename,

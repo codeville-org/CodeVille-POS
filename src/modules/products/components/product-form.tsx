@@ -65,10 +65,11 @@ export function ProductForm({ className, mode, productId }: Props) {
       categoryId: "",
       barcode: "",
       description: "",
-      price: 0,
+      unitPrice: 0,
+      unitAmount: 0,
+      unit: "",
       discountedPrice: 0,
       stockQuantity: 0,
-      unit: "",
       imageFilename: "",
       isActive: true,
       isFeatured: false
@@ -93,7 +94,7 @@ export function ProductForm({ className, mode, productId }: Props) {
   }, [formMode, currentProduct, form]);
 
   // Listen to form -> price value and update discounted price value simultanously
-  const priceValue = form.watch("price");
+  const priceValue = form.watch("unitPrice");
 
   useEffect(() => {
     // const discountedPrice = priceValue ? priceValue * 0.8 : 0;
@@ -273,14 +274,18 @@ export function ProductForm({ className, mode, productId }: Props) {
                     )}
                   />
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <FormField
                       control={form.control}
-                      name="price"
+                      name="unitPrice"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            {TEXTS.products.addNew.form.price.label[language]}
+                            {
+                              TEXTS.products.addNew.form.unitPrice.label[
+                                language
+                              ]
+                            }
                           </FormLabel>
                           <FormControl className="flex-1 h-full">
                             <div>
@@ -291,7 +296,7 @@ export function ProductForm({ className, mode, productId }: Props) {
                                   className="w-full h-12 bg-white shadow-none"
                                   type="number"
                                   placeholder={
-                                    TEXTS.products.addNew.form.price
+                                    TEXTS.products.addNew.form.unitPrice
                                       .placeholder[language]
                                   }
                                   {...field}
@@ -306,6 +311,75 @@ export function ProductForm({ className, mode, productId }: Props) {
                         </FormItem>
                       )}
                     />
+                    <FormField
+                      control={form.control}
+                      name="unitAmount"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            {
+                              TEXTS.products.addNew.form.unitAmount.label[
+                                language
+                              ]
+                            }
+                          </FormLabel>
+                          <FormControl className="flex-1 h-full">
+                            <div>
+                              {fetchingProduct ? (
+                                <Skeleton className="w-full h-12" />
+                              ) : (
+                                <Input
+                                  className="w-full h-12 bg-white shadow-none"
+                                  type="number"
+                                  placeholder={
+                                    TEXTS.products.addNew.form.unitAmount
+                                      .placeholder[language]
+                                  }
+                                  {...field}
+                                  onChange={(e) => {
+                                    field.onChange(parseFloat(e.target.value));
+                                  }}
+                                />
+                              )}
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="unit"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            {
+                              TEXTS.products.addNew.form.productUnit.label[
+                                language
+                              ]
+                            }
+                          </FormLabel>
+                          <FormControl className="flex-1 h-full">
+                            <div>
+                              {fetchingProduct ? (
+                                <Skeleton className="w-full h-12" />
+                              ) : (
+                                <UnitsDropdown
+                                  defaultValue={field.value}
+                                  onSelect={(value) => {
+                                    field.onChange(value);
+                                  }}
+                                />
+                              )}
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="discountedPrice"
@@ -342,9 +416,6 @@ export function ProductForm({ className, mode, productId }: Props) {
                         </FormItem>
                       )}
                     />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="stockQuantity"
@@ -372,36 +443,6 @@ export function ProductForm({ className, mode, productId }: Props) {
                                   {...field}
                                   onChange={(e) => {
                                     field.onChange(parseInt(e.target.value));
-                                  }}
-                                />
-                              )}
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="unit"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>
-                            {
-                              TEXTS.products.addNew.form.productUnit.label[
-                                language
-                              ]
-                            }
-                          </FormLabel>
-                          <FormControl className="flex-1 h-full">
-                            <div>
-                              {fetchingProduct ? (
-                                <Skeleton className="w-full h-12" />
-                              ) : (
-                                <UnitsDropdown
-                                  defaultValue={field.value}
-                                  onSelect={(value) => {
-                                    field.onChange(value);
                                   }}
                                 />
                               )}

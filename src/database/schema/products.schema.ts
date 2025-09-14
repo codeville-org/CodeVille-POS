@@ -19,12 +19,13 @@ export const products = sqliteTable(
       .$defaultFn(() => createId()),
     name: text("name").notNull(),
     barcode: text("barcode").unique(),
-    price: real("price").notNull(),
     discountedPrice: real("discounted_price").notNull().default(0),
     categoryId: text("category_id").references(() => categories.id, {
       onDelete: "set null"
     }),
     stockQuantity: integer("stock_quantity").notNull().default(0),
+    unitPrice: real("unit_price").notNull(),
+    unitAmount: integer("unit_amount").default(1),
     unit: text("unit").default("pcs"), // pcs, kg, liter, etc.
     description: text("description"),
     imageFilename: text("image_filename"),

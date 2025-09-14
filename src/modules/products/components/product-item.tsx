@@ -47,7 +47,7 @@ export function ProductItem({
             </h3>
 
             <div className="my-2 flex items-center gap-2">
-              <Badge variant="destructive">{`${formatPrice(product.price)}`}</Badge>
+              <Badge variant="destructive">{`${formatPrice(product.unitPrice)}`}</Badge>
               <Badge
                 className={cn(
                   "bg-amber-500 text-white hover:bg-amber-600 hover:text-white dark:bg-amber-500/10 dark:text-amber-500 dark:hover:bg-amber-500/20",
@@ -92,7 +92,7 @@ export function ProductItem({
               </h3>
 
               <div className="my-2 flex items-center justify-between">
-                <Badge variant="destructive">{`${formatPrice(product.price)}`}</Badge>
+                <Badge variant="destructive">{`${formatPrice(product.unitPrice)}`}</Badge>
                 <Badge
                   className={cn(
                     "bg-amber-500 text-white hover:bg-amber-600 hover:text-white dark:bg-amber-500/10 dark:text-amber-500 dark:hover:bg-amber-500/20",
@@ -140,7 +140,7 @@ export function ProductItem({
 
       <div className="flex items-center gap-2">
         <Badge variant="secondary">{`${product.category.name}`}</Badge>
-        <Badge variant="destructive">{`${formatPrice(product.price)}`}</Badge>
+        <Badge variant="destructive">{`${formatPrice(product.unitPrice)}`}</Badge>
         <Badge
           className={cn(
             "bg-amber-500 text-white hover:bg-amber-600 hover:text-white dark:bg-amber-500/10 dark:text-amber-500 dark:hover:bg-amber-500/20",

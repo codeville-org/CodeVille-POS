@@ -43,10 +43,15 @@ export function PosProductsListing({ className }: Props) {
       productName: product.name,
       productBarcode: product.barcode || "",
       unitPrice:
-        product.discountedPrice > 0 ? product.discountedPrice : product.price,
+        product.discountedPrice > 0
+          ? product.discountedPrice
+          : product.unitPrice,
+      unitAmount: product.unitAmount,
       quantity: 1,
       totalAmount:
-        product.discountedPrice > 0 ? product.discountedPrice : product.price,
+        product.discountedPrice > 0
+          ? product.discountedPrice
+          : product.unitPrice,
       discountAmount: 0
     };
 

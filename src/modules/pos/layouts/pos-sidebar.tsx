@@ -14,8 +14,6 @@ export function PosSidebar({}: Props) {
   const [selectedCustomer, setSelectedCustomer] =
     useState<SelectCustomer | null>(null);
 
-  const handleResetAndInitializeTransaction = () => {};
-
   return (
     <div className="w-full h-full flex flex-col bg-sidebar/50 dark:bg-sidebar/40 border-l border-sidebar-border overflow-hidden">
       {/* Customer Selection - Fixed */}

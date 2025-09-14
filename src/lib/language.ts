@@ -66,9 +66,13 @@ export const TEXTS = {
             si: "නිශ්පාදනය පිලිබද සටහන් *(අත්‍යාවශ්‍යය නොවේ)"
           }
         },
-        price: {
+        unitPrice: {
           label: { en: "Product Price", si: "නිශ්පාදනයේ මිල" },
           placeholder: { en: "120.00", si: "120.00" }
+        },
+        unitAmount: {
+          label: { en: "No. of Units", si: "ඒකක ගණන" },
+          placeholder: { en: "100", si: "100" }
         },
         discountedPrice: {
           label: { en: "Discounted Price", si: "අපේ මිල" },
