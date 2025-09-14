@@ -64,7 +64,9 @@ export const transactionItems = sqliteTable(
     }),
     productName: text("product_name").notNull(), // Snapshot at time of sale
     productBarcode: text("product_barcode"), // Snapshot at time of sale
-    unitPrice: real("unit_price").notNull(), // Snapshot at time of sale
+    unitPrice: real("unit_price").notNull(),
+    unitAmount: integer("unit_amount").default(1),
+    unit: text("unit").default("pcs"), // pcs, kg, liter, etc.
     quantity: real("quantity").notNull(),
     totalAmount: real("total_amount").notNull(),
     discountAmount: real("discount_amount").notNull().default(0),

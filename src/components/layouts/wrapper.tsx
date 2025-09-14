@@ -23,7 +23,7 @@ export function Wrapper() {
         language === "si" && "font-sinhala"
       )}
     >
-      <SidebarProvider>
+      <SidebarProvider defaultOpen={false}>
         <AppSidebar />
 
         <SidebarInset>

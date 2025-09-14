@@ -31,6 +31,9 @@ export interface PosStoreInterface {
 
   transactionItems: UninitializedTransactionItem[];
   addTransactionItem: (item: UninitializedTransactionItem) => void;
+
+  changeTransactionItemQuantity: (id: string, quantity: number) => void;
+
   updateTransactionItem: (
     id: string,
     item: UninitializedTransactionItem

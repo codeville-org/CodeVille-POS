@@ -5,6 +5,7 @@ import { Pagination } from "@/components/layouts/dashboard/pagination";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import type { SelectProductSchema } from "@/lib/zod/products.zod";
+import { UninitializedTransactionItem } from "@/lib/zod/transactions.zod";
 import { usePosStore } from "@/lib/zustand/pos-store";
 import { ProductItem } from "@/modules/products/components/product-item";
 import { useGetAllProducts } from "@/modules/products/queries/use-get-all";
@@ -38,7 +39,7 @@ export function PosProductsListing({ className }: Props) {
       return;
     }
 
-    const item = {
+    const item: UninitializedTransactionItem = {
       productId: product.id,
       productName: product.name,
       productBarcode: product.barcode || "",
@@ -46,8 +47,9 @@ export function PosProductsListing({ className }: Props) {
         product.discountedPrice > 0
           ? product.discountedPrice
           : product.unitPrice,
+      quantity: product.unitAmount,
+      unit: product.unit,
       unitAmount: product.unitAmount,
-      quantity: 1,
       totalAmount:
         product.discountedPrice > 0
           ? product.discountedPrice

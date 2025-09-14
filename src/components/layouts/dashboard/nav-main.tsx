@@ -58,7 +58,7 @@ export function NavMain({
                   tooltip={item.title}
                   isActive={isCurrentPath}
                   onClick={() => {
-                    if (item.url === "/pos") {
+                    if (item.url === "/") {
                       setOpen(false);
                     } else {
                       if (!open) setOpen(true);

@@ -22,6 +22,13 @@
       "when": 1757829352718,
       "tag": "0002_curvy_wolf_cub",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1757857105368,
+      "tag": "0003_smooth_shiva",
+      "breakpoints": true
     }
   ]
 }

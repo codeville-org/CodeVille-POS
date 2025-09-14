@@ -25,12 +25,14 @@ type Props = {
   defaultSelected?: SelectCustomer | null;
   onSelect: (custmer: SelectCustomer) => void;
   maxItems?: number;
+  loading?: boolean;
 };
 
 export function CustomersDropdown({
   defaultSelected,
   onSelect,
-  maxItems
+  maxItems,
+  loading = false
 }: Props) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selected, setSelected] = useState<SelectCustomer | null>(null);
@@ -43,7 +45,7 @@ export function CustomersDropdown({
   useEffect(() => {
     if (defaultSelected) {
       setSelected(defaultSelected);
-    }
+    } else setSelected(null);
   }, [defaultSelected]);
 
   return (
@@ -52,10 +54,11 @@ export function CustomersDropdown({
         <Button
           variant="outline"
           role="combobox"
+          disabled={loading}
           aria-expanded={open}
           className="w-full h-12 flex items-center justify-between bg-white shadow-none"
         >
-          {isFetching ? (
+          {isFetching || loading ? (
             <Loader className="size-4 animate-spin" />
           ) : selected && selected?.name ? (
             data.data.find((customer) => customer.name === selected.name)?.name

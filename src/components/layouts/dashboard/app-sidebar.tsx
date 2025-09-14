@@ -3,7 +3,6 @@
 import {
   BarChart3,
   CodeSquareIcon,
-  LayoutDashboard,
   Settings,
   ShoppingCart,
   Users,
@@ -30,16 +29,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // Dynamic navigation data based on current language
   const navMainData = [
     {
-      key: "dashboard",
-      title: CONSTANTS.SIDEBAR.dashboard.text[language],
-      url: "/",
-      icon: LayoutDashboard,
-      isActive: true
-    },
-    {
       key: "pos",
       title: CONSTANTS.SIDEBAR.pos.text[language],
-      url: "/pos",
+      url: "/",
       icon: ShoppingCart
     },
     {

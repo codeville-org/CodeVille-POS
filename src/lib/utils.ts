@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { UninitializedTransactionItem } from "./zod/transactions.zod";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -40,4 +41,28 @@ export function generateUniqueId(): string {
   const checkDigit = (parseInt(baseNumber) % 10).toString();
 
   return baseNumber + checkDigit;
+}
+
+/**
+ * Get Product Amount based on Unit Price and Number of Units
+ * @param item - The transaction item containing product details
+ * @param quantity - The number of units for the product
+ */
+export function getProductAmount(
+  item: UninitializedTransactionItem,
+  quantity: number
+) {
+  /**
+   * Explanation: Micro unit price
+   * Assume unitAmount is 250 (g) and unit price is 100,
+   * Then it means it cost 100 amount per 250g
+   * Therefore, for 1g it will cost 100/250 = 0.4
+   *
+   * It used to calculate total amount based on unit amount and unit price
+   */
+  const microUnitPrice = item.unitPrice / item.unitAmount;
+
+  console.log(`Total: LKR ${microUnitPrice * quantity}`);
+
+  return microUnitPrice * quantity;
 }

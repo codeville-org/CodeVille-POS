@@ -41,6 +41,8 @@ export const baseTransactionItemSchema = z.object({
   productName: z.string(),
   productBarcode: z.string(),
   unitPrice: z.number(),
+  unitAmount: z.number(),
+  unit: z.string(),
   quantity: z.number(),
   totalAmount: z.number(),
   discountAmount: z.number(),
