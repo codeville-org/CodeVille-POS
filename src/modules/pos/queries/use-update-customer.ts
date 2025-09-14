@@ -8,7 +8,7 @@ import { usePosStore } from "@/lib/zustand/pos-store";
 export const useUpdateCustomer = () => {
   const queryClient = useQueryClient();
   const toastId = useId();
-  const { activeTransaction } = usePosStore();
+  const { activeTransaction, setActiveTransaction } = usePosStore();
 
   const mutation = useMutation({
     mutationFn: async (customerId: string | null) => {
@@ -28,7 +28,7 @@ export const useUpdateCustomer = () => {
 
       const data = response.data;
 
-      //   setActiveTransaction(data);
+      setActiveTransaction({ ...activeTransaction, customerId });
 
       return data;
     },

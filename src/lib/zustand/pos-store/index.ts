@@ -139,5 +139,27 @@ export const usePosStore = create<PosStoreInterface>()((set, get) => ({
   /**
    * This clears all items from active transaction
    */
-  clearTransactionItems: () => set({ transactionItems: [] })
+  clearTransactionItems: () => set({ transactionItems: [] }),
+
+  getTransactionAmountOverview: () => {
+    const { transactionItems, activeTransaction } = get();
+
+    const subtotal = transactionItems.reduce(
+      (acc, item) => acc + item.totalAmount,
+      0
+    );
+    const taxRate = activeTransaction?.taxAmount || 0;
+    const discountRate = activeTransaction?.discountAmount || 0;
+
+    const tax = (subtotal * taxRate) / 100;
+    const discount = (subtotal * discountRate) / 100;
+    const total = subtotal + tax - discount;
+
+    return {
+      subtotal,
+      tax,
+      discount,
+      total
+    };
+  }
 }));

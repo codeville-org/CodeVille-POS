@@ -12,6 +12,7 @@ import { generateUniqueId } from "@/lib/utils";
 import { UpdateCategoryResponse } from "@/lib/zod/categories.zod";
 import {
   AddNewTransactionItemsResponse,
+  BaseTransactionItemSchema,
   CreateTransactionSchema,
   DeleteTransactionResponse,
   InitializeTransactionResponse,
@@ -97,28 +98,33 @@ export async function addNewTransactionItemController(
   try {
     const db = getDB();
 
-    const addedItems = await Promise.all(
-      items.map(
-        async (item) =>
-          await db
-            .insert(transactionItems)
-            .values({
-              ...item,
-              transactionId: transactionId,
-              productName: item.productName!,
-              unitPrice: item.unitPrice!,
-              quantity: item?.quantity || 1,
-              totalAmount: item?.totalAmount || item?.unitPrice || 0
-            })
-            .returning()
-      )
+    const addedItems: BaseTransactionItemSchema[] = [];
+
+    await Promise.all(
+      items.map(async (item) => {
+        const addedItem = await db
+          .insert(transactionItems)
+          .values({
+            ...item,
+            transactionId: transactionId,
+            productName: item.productName!,
+            unitPrice: item.unitPrice!,
+            unitAmount: item.unitAmount!,
+            unit: item.unit!,
+            quantity: item?.quantity || 1,
+            totalAmount: item?.totalAmount || item?.unitPrice || 0
+          })
+          .returning();
+
+        if (addedItem.length > 0) addedItems.push(addedItem[0]);
+      })
     );
 
-    if (addedItems.length > 0)
+    if (addedItems.length < 1)
       throw new Error("Failed to add new transaction items");
 
     return {
-      data: addedItems[0],
+      data: addedItems,
       error: null,
       success: true
     };
