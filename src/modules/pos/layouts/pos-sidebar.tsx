@@ -2,11 +2,13 @@ import { ListTodoIcon, ShoppingCartIcon } from "lucide-react";
 import { useState } from "react";
 
 import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn, formatPrice } from "@/lib/utils";
 import { SelectCustomer } from "@/lib/zod/customers.zod";
 import { usePosStore } from "@/lib/zustand/pos-store";
 import { CustomersDropdown } from "@/modules/customers/components/customer-dropdown";
 import { InitializeTransaction } from "../components/initialize-transaction";
+import { PosSidebarFooter } from "../components/pos-sidebar-footer";
 import { SidebarTransactionItem } from "../components/sidebar-transaction-item";
 import { useUpdateCustomer } from "../queries/use-update-customer";
 
@@ -69,7 +71,7 @@ export function PosSidebar({}: Props) {
       </div>
 
       {/* Cart Items - Scrollable */}
-      <div className="flex-1 h-full overflow-hidden">
+      <ScrollArea className="flex-1 h-full overflow-hidden">
         {!activeTransaction ? (
           <div className="flex-1 h-full shrink-0 flex items-center justify-center p-6">
             <div className="text-center w-full flex items-center justify-center flex-col gap-3">
@@ -125,7 +127,11 @@ export function PosSidebar({}: Props) {
             </div>
           </div>
         )}
-      </div>
+      </ScrollArea>
+
+      {activeTransaction && (
+        <PosSidebarFooter className="flex-shrink-0 space-y-3 p-4 bg-sidebar border-t border-sidebar-border/30" />
+      )}
     </div>
   );
 }

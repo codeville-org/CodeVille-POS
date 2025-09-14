@@ -8,6 +8,13 @@ export type FilterType = "featured" | "all" | SelectCategory;
 
 export type POSListingView = "listing" | "billing";
 
+export type AmountOverview = {
+  subtotal: number;
+  tax: number;
+  discount: number;
+  total: number;
+};
+
 export interface PosStoreInterface {
   // Listing View
   listingView: POSListingView;
@@ -38,6 +45,10 @@ export interface PosStoreInterface {
     id: string,
     item: UninitializedTransactionItem
   ) => void;
+
   removeTransactionItem: (id: string) => void;
+
   clearTransactionItems: () => void;
+
+  getTransactionAmountOverview: () => AmountOverview;
 }

@@ -26,7 +26,7 @@ export function SidebarTransactionItem({ item }: Props) {
   };
 
   return (
-    <Card className="px-2 py-3 bg-sidebar dark:bg-secondary flex flex-col gap-3 shadow-none rounded-md">
+    <Card className="px-2 py-3 bg-sidebar/60 dark:bg-secondary/60 flex flex-col gap-3 shadow-none rounded-md">
       <div className="w-full flex items-center justify-between">
         <p className="text-xs whitespace-nowrap truncate">{item.productName}</p>
         <Button
