@@ -1,6 +1,6 @@
 import { getDB } from "@/database";
 import { products } from "@/database/schema";
-import { QueryParamsSchema } from "@/lib/zod/helpers";
+import { ProductsQueryParamsSchema } from "@/lib/zod/helpers";
 import {
   CreateProductResponse,
   DeleteProductResponse,
@@ -15,11 +15,11 @@ import { and, desc, eq, sql } from "drizzle-orm";
 
 // ================= Get all products Controller =================
 export async function getAllProductsController(
-  query: QueryParamsSchema
+  query: ProductsQueryParamsSchema
 ): Promise<GetAllProductsResponse> {
   try {
     const db = getDB();
-    const { search, page, limit, sort } = query;
+    const { search, page, limit, sort, category, featured } = query;
 
     // Convert to numbers and validate
     const pageNum = Math.max(1, parseInt(page));
@@ -33,6 +33,14 @@ export async function getAllProductsController(
       whereConditions.push(
         sql`LOWER(${products.name}) LIKE LOWER(${`%${search}%`})`
       );
+    }
+
+    if (category) {
+      whereConditions.push(sql`${products.categoryId} = ${category}`);
+    }
+
+    if (featured) {
+      whereConditions.push(sql`${products.isFeatured} = true`);
     }
 
     db.query.products.findMany({
@@ -169,9 +177,10 @@ export async function createNewProductController(
       .values({
         name: payload.name,
         barcode: payload.barcode,
-        price: payload.price,
         discountedPrice: payload.discountedPrice,
         stockQuantity: payload.stockQuantity,
+        unitPrice: payload.unitPrice,
+        unitAmount: payload.unitAmount,
         unit: payload.unit,
         description: payload.description,
         imageFilename: payload.imageFilename,

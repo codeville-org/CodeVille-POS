@@ -57,6 +57,8 @@
   /* Font family variables */
   --font-sans: "DM Sans", system-ui, -apple-system, sans-serif;
   --font-sinhala: "Noto Sans", system-ui, -apple-system, sans-serif;
+  --font-sinhala-accent:
+    "THARU DIGITAL MAHEE", system-ui, -apple-system, sans-serif;
   --font-serif: serif;
   --font-mono: monospace;
 

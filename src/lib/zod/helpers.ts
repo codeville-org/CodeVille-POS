@@ -9,6 +9,19 @@ export const queryParamsSchema = z.object({
 
 export type QueryParamsSchema = z.infer<typeof queryParamsSchema>;
 
+export const productsQueryParamsSchema = z.object({
+  page: z.string().optional(),
+  limit: z.string().optional(),
+  sort: z.enum(["asc", "desc"]).optional().default("desc"),
+  search: z.string().optional(),
+  category: z.string().optional(),
+  featured: z.boolean().optional()
+});
+
+export type ProductsQueryParamsSchema = z.infer<
+  typeof productsQueryParamsSchema
+>;
+
 export function getBaseReturnSchema<T>(data: z.ZodType<T>) {
   return z.object({
     data: data.nullable(),

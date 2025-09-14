@@ -5,9 +5,9 @@ import {
   SidebarTrigger
 } from "@/components/ui/sidebar";
 
-import { CONSTANTS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { usePersistStore } from "@/lib/zustand/persist-store";
+import { RealtimeClock } from "@/modules/pos/components/clock";
 import { LanguageSelector } from "../elements/language-selector";
 import { AppSidebar } from "./dashboard/app-sidebar";
 import { WindowActions } from "./dashboard/window-actions";
@@ -23,7 +23,7 @@ export function Wrapper() {
         language === "si" && "font-sinhala"
       )}
     >
-      <SidebarProvider>
+      <SidebarProvider defaultOpen={false}>
         <AppSidebar />
 
         <SidebarInset>
@@ -41,20 +41,20 @@ export function Wrapper() {
                 <div className="flex-1 ">
                   <h2 className="font-semibold text-foreground/80 text-sm">
                     <span
-                      className={cn(
-                        language === "si" ? "font-sinhala text-xs" : "font-sans"
-                      )}
+                      className={
+                        cn("font-semibold mr-0.5")
+                        // language === "si" ? "font-sinhala text-xs" : "font-sans"
+                      }
                     >
-                      {CONSTANTS.STORE_NAME[language]}
+                      {`CodeVille`}
                     </span>
-
-                    <span className="font-light text-xs">
-                      {" - Point of Sales System"}
-                    </span>
+                    <span className="font-thin">POS</span>
                   </h2>
                 </div>
 
                 <div className="flex items-center gap-2 h-full">
+                  <RealtimeClock />
+
                   <LanguageSelector />
 
                   <Separator

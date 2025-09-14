@@ -66,9 +66,13 @@ export const TEXTS = {
             si: "නිශ්පාදනය පිලිබද සටහන් *(අත්‍යාවශ්‍යය නොවේ)"
           }
         },
-        price: {
+        unitPrice: {
           label: { en: "Product Price", si: "නිශ්පාදනයේ මිල" },
           placeholder: { en: "120.00", si: "120.00" }
+        },
+        unitAmount: {
+          label: { en: "No. of Units", si: "ඒකක ගණන" },
+          placeholder: { en: "100", si: "100" }
         },
         discountedPrice: {
           label: { en: "Discounted Price", si: "අපේ මිල" },
@@ -81,6 +85,13 @@ export const TEXTS = {
         productUnit: {
           label: { en: "Product Unit", si: "නිශ්පාදන ඒකකය" },
           placeholder: { en: "Units", si: "ආකාර" }
+        },
+        isFeatured: {
+          label: { en: "Featured Product", si: "ඉක්මන් අයිතමයක්" },
+          placeholder: {
+            en: "Mark the product as featured for easy access",
+            si: "නිශ්පාදනය පහසුවෙන් සොයාගැනීමට උපකාරී වේ"
+          }
         },
         productImage: {
           label: { en: "Product Image", si: "නිශ්පාදනයේ ඡායාරූපය" },

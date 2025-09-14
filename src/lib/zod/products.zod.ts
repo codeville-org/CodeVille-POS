@@ -12,13 +12,15 @@ const baseProductSchema = z.object({
   id: z.string(),
   name: z.string(),
   barcode: z.string(),
-  price: z.number(),
   discountedPrice: z.number(),
   stockQuantity: z.number(),
+  unitPrice: z.number(),
+  unitAmount: z.number(),
   unit: z.string(),
   description: z.string(),
   imageFilename: z.string(),
   isActive: z.boolean(),
+  isFeatured: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date()
 });

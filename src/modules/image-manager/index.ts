@@ -17,8 +17,17 @@ export class ImageManager {
     this.imagesDir = getImagesDirectory();
   }
 
+  private getImagesDir(): string {
+    if (!this.imagesDir) {
+      this.imagesDir = getImagesDirectory();
+    }
+    return this.imagesDir;
+  }
+
   async initialize(): Promise<void> {
     try {
+      this.imagesDir = getImagesDirectory();
+
       await fs.mkdir(this.imagesDir, { recursive: true });
       console.log(`Images directory initialized at: ${this.imagesDir}`);
     } catch (error) {
@@ -47,7 +56,7 @@ export class ImageManager {
   }
 
   getImagePath(filename: string): string {
-    return path.join(this.imagesDir, filename);
+    return path.join(this.getImagesDir(), filename);
   }
 
   async deleteImage(filename: string): Promise<boolean> {

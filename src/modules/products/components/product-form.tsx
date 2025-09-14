@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -17,6 +18,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { TEXTS } from "@/lib/language";
 import {
@@ -63,12 +65,14 @@ export function ProductForm({ className, mode, productId }: Props) {
       categoryId: "",
       barcode: "",
       description: "",
-      price: 0,
+      unitPrice: 0,
+      unitAmount: 0,
+      unit: "",
       discountedPrice: 0,
       stockQuantity: 0,
-      unit: "",
       imageFilename: "",
-      isActive: true
+      isActive: true,
+      isFeatured: false
     }
   });
 
@@ -90,7 +94,7 @@ export function ProductForm({ className, mode, productId }: Props) {
   }, [formMode, currentProduct, form]);
 
   // Listen to form -> price value and update discounted price value simultanously
-  const priceValue = form.watch("price");
+  const priceValue = form.watch("unitPrice");
 
   useEffect(() => {
     // const discountedPrice = priceValue ? priceValue * 0.8 : 0;
@@ -270,14 +274,18 @@ export function ProductForm({ className, mode, productId }: Props) {
                     )}
                   />
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <FormField
                       control={form.control}
-                      name="price"
+                      name="unitPrice"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            {TEXTS.products.addNew.form.price.label[language]}
+                            {
+                              TEXTS.products.addNew.form.unitPrice.label[
+                                language
+                              ]
+                            }
                           </FormLabel>
                           <FormControl className="flex-1 h-full">
                             <div>
@@ -288,7 +296,7 @@ export function ProductForm({ className, mode, productId }: Props) {
                                   className="w-full h-12 bg-white shadow-none"
                                   type="number"
                                   placeholder={
-                                    TEXTS.products.addNew.form.price
+                                    TEXTS.products.addNew.form.unitPrice
                                       .placeholder[language]
                                   }
                                   {...field}
@@ -305,12 +313,12 @@ export function ProductForm({ className, mode, productId }: Props) {
                     />
                     <FormField
                       control={form.control}
-                      name="discountedPrice"
+                      name="unitAmount"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
                             {
-                              TEXTS.products.addNew.form.discountedPrice.label[
+                              TEXTS.products.addNew.form.unitAmount.label[
                                 language
                               ]
                             }
@@ -324,51 +332,12 @@ export function ProductForm({ className, mode, productId }: Props) {
                                   className="w-full h-12 bg-white shadow-none"
                                   type="number"
                                   placeholder={
-                                    TEXTS.products.addNew.form.discountedPrice
+                                    TEXTS.products.addNew.form.unitAmount
                                       .placeholder[language]
                                   }
                                   {...field}
                                   onChange={(e) => {
                                     field.onChange(parseFloat(e.target.value));
-                                  }}
-                                />
-                              )}
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="stockQuantity"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>
-                            {
-                              TEXTS.products.addNew.form.stockQuantity.label[
-                                language
-                              ]
-                            }
-                          </FormLabel>
-                          <FormControl className="flex-1 h-full">
-                            <div>
-                              {fetchingProduct ? (
-                                <Skeleton className="w-full h-12" />
-                              ) : (
-                                <Input
-                                  className="w-full h-12 bg-white shadow-none"
-                                  type="number"
-                                  placeholder={
-                                    TEXTS.products.addNew.form.stockQuantity
-                                      .placeholder[language]
-                                  }
-                                  {...field}
-                                  onChange={(e) => {
-                                    field.onChange(parseInt(e.target.value));
                                   }}
                                 />
                               )}
@@ -409,6 +378,113 @@ export function ProductForm({ className, mode, productId }: Props) {
                       )}
                     />
                   </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="discountedPrice"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            {
+                              TEXTS.products.addNew.form.discountedPrice.label[
+                                language
+                              ]
+                            }
+                          </FormLabel>
+                          <FormControl className="flex-1 h-full">
+                            <div>
+                              {fetchingProduct ? (
+                                <Skeleton className="w-full h-12" />
+                              ) : (
+                                <Input
+                                  className="w-full h-12 bg-white shadow-none"
+                                  type="number"
+                                  placeholder={
+                                    TEXTS.products.addNew.form.discountedPrice
+                                      .placeholder[language]
+                                  }
+                                  {...field}
+                                  onChange={(e) => {
+                                    field.onChange(parseFloat(e.target.value));
+                                  }}
+                                />
+                              )}
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="stockQuantity"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            {
+                              TEXTS.products.addNew.form.stockQuantity.label[
+                                language
+                              ]
+                            }
+                          </FormLabel>
+                          <FormControl className="flex-1 h-full">
+                            <div>
+                              {fetchingProduct ? (
+                                <Skeleton className="w-full h-12" />
+                              ) : (
+                                <Input
+                                  className="w-full h-12 bg-white shadow-none"
+                                  type="number"
+                                  placeholder={
+                                    TEXTS.products.addNew.form.stockQuantity
+                                      .placeholder[language]
+                                  }
+                                  {...field}
+                                  onChange={(e) => {
+                                    field.onChange(parseInt(e.target.value));
+                                  }}
+                                />
+                              )}
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="isFeatured"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 bg-white dark:bg-secondary/50">
+                        <div className="space-y-1">
+                          <FormLabel className="text-base">
+                            {
+                              TEXTS.products.addNew.form.isFeatured.label[
+                                language
+                              ]
+                            }
+                          </FormLabel>
+                          <FormDescription>
+                            {
+                              TEXTS.products.addNew.form.isFeatured.placeholder[
+                                language
+                              ]
+                            }
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
                   <FormField
                     control={form.control}
                     name="imageFilename"

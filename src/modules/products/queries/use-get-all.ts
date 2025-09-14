@@ -1,8 +1,8 @@
 import { useElectronAPI } from "@/hooks/use-electron-api";
-import { QueryParamsSchema } from "@/lib/zod/helpers";
+import { ProductsQueryParamsSchema } from "@/lib/zod/helpers";
 import { useQuery } from "@tanstack/react-query";
 
-export const useGetAllProducts = (queryParams: QueryParamsSchema) => {
+export const useGetAllProducts = (queryParams: ProductsQueryParamsSchema) => {
   const query = useQuery({
     queryKey: ["products", { ...queryParams }],
     queryFn: async () => {
@@ -10,7 +10,9 @@ export const useGetAllProducts = (queryParams: QueryParamsSchema) => {
         page = "1",
         limit = "10",
         search = "",
-        sort = "desc"
+        sort = "desc",
+        category = null,
+        featured = null
       } = queryParams;
 
       const api = useElectronAPI();
@@ -19,7 +21,9 @@ export const useGetAllProducts = (queryParams: QueryParamsSchema) => {
         page,
         limit,
         search,
-        sort
+        sort,
+        category,
+        featured
       });
 
       if (!response.data || response.error) {
