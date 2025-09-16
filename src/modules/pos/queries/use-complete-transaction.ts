@@ -3,6 +3,7 @@ import { useId } from "react";
 import { toast } from "sonner";
 
 import { useElectronAPI } from "@/hooks/use-electron-api";
+import { PaymentMethod } from "@/lib/zod/transactions.zod";
 import { usePosStore } from "@/lib/zustand/pos-store";
 
 export const useCompleteTransaction = () => {
@@ -37,6 +38,32 @@ export const useCompleteTransaction = () => {
         throw new Error(
           updatedTransaction.error || "Failed to update transaction"
         );
+      }
+
+      // If Customer is selected & Payment method is credit,
+      // Update customer balance
+      if (
+        activeTransaction.customerId &&
+        activeTransaction.paymentMethod === PaymentMethod.LEND
+      ) {
+        const currentCustomer = await api.customers.getById(
+          activeTransaction.customerId
+        );
+
+        if (currentCustomer.data) {
+          const updatedCustomer = await api.customers.update(
+            activeTransaction.customerId,
+            {
+              currentBalance:
+                currentCustomer.data.currentBalance +
+                activeTransaction.totalAmount
+            }
+          );
+
+          if (!updatedCustomer.success) {
+            toast.warning("Failed to update customer balance");
+          }
+        }
       }
 
       return updatedTransaction.data;
