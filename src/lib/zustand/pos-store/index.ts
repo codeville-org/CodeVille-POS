@@ -4,6 +4,13 @@ import { getProductAmount } from "@/lib/utils";
 import type { UninitializedTransactionItem } from "@/lib/zod/transactions.zod";
 import type { PosStoreInterface } from "./types";
 
+function sortTransactionItems(
+  items: UninitializedTransactionItem[]
+): UninitializedTransactionItem[] {
+  // Sort items by product name
+  return items.sort((a, b) => a.productName.localeCompare(b.productName));
+}
+
 export const usePosStore = create<PosStoreInterface>()((set, get) => ({
   searchMode: "barcode",
   setSearchMode: (mode) => set({ searchMode: mode }),
@@ -53,9 +60,11 @@ export const usePosStore = create<PosStoreInterface>()((set, get) => ({
 
       preparedArray.push(updatedItem);
 
-      set({ transactionItems: preparedArray });
+      set({ transactionItems: sortTransactionItems(preparedArray) });
     } else {
-      set({ transactionItems: [...transactionItems, item] });
+      set({
+        transactionItems: sortTransactionItems([...transactionItems, item])
+      });
     }
   },
 
@@ -91,7 +100,7 @@ export const usePosStore = create<PosStoreInterface>()((set, get) => ({
 
       preparedArray.push(updatedItem);
 
-      set({ transactionItems: preparedArray });
+      set({ transactionItems: sortTransactionItems(preparedArray) });
     }
   },
 
@@ -119,7 +128,7 @@ export const usePosStore = create<PosStoreInterface>()((set, get) => ({
       );
       preparedArray.push(updatedItem);
 
-      set({ transactionItems: preparedArray });
+      set({ transactionItems: sortTransactionItems(preparedArray) });
     }
   },
 
@@ -133,7 +142,7 @@ export const usePosStore = create<PosStoreInterface>()((set, get) => ({
       (arrayItem) => arrayItem.productId !== id
     );
 
-    set({ transactionItems: preparedArray });
+    set({ transactionItems: sortTransactionItems(preparedArray) });
   },
 
   /**
@@ -148,11 +157,9 @@ export const usePosStore = create<PosStoreInterface>()((set, get) => ({
       (acc, item) => acc + item.totalAmount,
       0
     );
-    const taxRate = activeTransaction?.taxAmount || 0;
-    const discountRate = activeTransaction?.discountAmount || 0;
 
-    const tax = (subtotal * taxRate) / 100;
-    const discount = (subtotal * discountRate) / 100;
+    const tax = activeTransaction?.taxAmount || 0;
+    const discount = activeTransaction?.discountAmount || 0;
     const total = subtotal + tax - discount;
 
     return {
@@ -161,5 +168,27 @@ export const usePosStore = create<PosStoreInterface>()((set, get) => ({
       discount,
       total
     };
+  },
+
+  setDiscountAmount: (discount: number) => {
+    const { activeTransaction, setActiveTransaction } = get();
+
+    if (!activeTransaction) return;
+
+    setActiveTransaction({
+      ...activeTransaction,
+      discountAmount: discount
+    });
+  },
+
+  setTaxAmount: (tax: number) => {
+    const { activeTransaction, setActiveTransaction } = get();
+
+    if (!activeTransaction) return;
+
+    setActiveTransaction({
+      ...activeTransaction,
+      taxAmount: tax
+    });
   }
 }));

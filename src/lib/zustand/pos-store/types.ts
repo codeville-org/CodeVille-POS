@@ -46,6 +46,9 @@ export interface PosStoreInterface {
     item: UninitializedTransactionItem
   ) => void;
 
+  setDiscountAmount: (discount: number) => void;
+  setTaxAmount: (tax: number) => void;
+
   removeTransactionItem: (id: string) => void;
 
   clearTransactionItems: () => void;

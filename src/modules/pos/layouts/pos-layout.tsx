@@ -2,6 +2,7 @@ import { BarcodeReaderStatusBadge } from "@/components/elements/barcode-reader-s
 import { PrinterStatusBadge } from "@/components/elements/printer-status-badge";
 import { Separator } from "@/components/ui/separator";
 import { usePosStore } from "@/lib/zustand/pos-store";
+import { BillingTable } from "../components/billing-table";
 import { CategoriesBar } from "../components/categories-bar";
 import { InitializeTransaction } from "../components/initialize-transaction";
 import { ListingViewSwitcher } from "../components/listing-view-switcher";
@@ -12,7 +13,7 @@ import { PosSidebar } from "./pos-sidebar";
 type Props = {};
 
 export function PosScreenLayout({}: Props) {
-  const { listingView } = usePosStore();
+  const { listingView, activeTransaction } = usePosStore();
 
   return (
     <div className="flex h-[calc(100vh-48px)] max-h-[calc(100vh-48px)] overflow-hidden">
@@ -31,7 +32,7 @@ export function PosScreenLayout({}: Props) {
             <div className="flex items-center gap-3">
               <BarcodeReaderStatusBadge minimal />
               <PrinterStatusBadge minimal />
-              <ListingViewSwitcher />
+              {activeTransaction && <ListingViewSwitcher />}
               <InitializeTransaction />
             </div>
           </div>
@@ -54,7 +55,9 @@ export function PosScreenLayout({}: Props) {
           </>
         )}
 
-        {listingView === "billing" && <>Billing table</>}
+        {listingView === "billing" && (
+          <BillingTable className="flex-shrink-0 flex-1 overflow-hidden mt-5" />
+        )}
       </div>
 
       {/* Right Panel - Cart/Sidebar - Fixed width */}
