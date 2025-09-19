@@ -3,6 +3,7 @@
 import {
   BarChart3,
   CodeSquareIcon,
+  NotebookPen,
   Settings,
   ShoppingCart,
   Users,
@@ -59,6 +60,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       title: CONSTANTS.SIDEBAR.customers.text[language],
       url: "/customers",
       icon: Users
+    },
+    {
+      key: "transactions",
+      title: CONSTANTS.SIDEBAR.transactions.text[language],
+      url: "/transactions",
+      icon: NotebookPen
     },
     {
       key: "reports",

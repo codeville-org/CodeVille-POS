@@ -19,11 +19,11 @@ export const CONSTANTS = {
     products: {
       text: {
         en: "Products",
-        si: "නිශ්පාදන"
+        si: "භාණ්ඩ"
       },
       items: {
-        allProducts: { en: "All Products", si: "සියළු නිශ්පාදන" },
-        newProduct: { en: "New Product", si: "නව නිශ්පාදන" },
+        allProducts: { en: "All Products", si: "සියළු භාණ්ඩ" },
+        newProduct: { en: "New Product", si: "නව භාණ්ඩ" },
         categories: { en: "Categories", si: "වර්ග" }
       }
     },
@@ -36,6 +36,9 @@ export const CONSTANTS = {
         allCustomers: { en: "All Customers", si: "සියළු පාරිභෝගිකයන්" },
         newCustomer: { en: "New Customer", si: "නව පාරිභෝගිකයන්" }
       }
+    },
+    transactions: {
+      text: { en: "Transactions", si: "ගණුදෙනු" }
     },
     reports: {
       text: { en: "Reports", si: "අලෙවි වාර්තා" }

@@ -1,6 +1,10 @@
 import z from "zod";
 import { selectCustomerSchema } from "./customers.zod";
-import { getBaseReturnSchema, messageSchema } from "./helpers";
+import {
+  getBaseReturnSchema,
+  getPaginatedSchema,
+  messageSchema
+} from "./helpers";
 
 export enum PaymentMethod {
   CASH = "cash",
@@ -88,6 +92,14 @@ export const updateTransactionSchema = baseTransactionSchema.partial();
 export type UpdateTransactionSchema = z.infer<typeof updateTransactionSchema>;
 
 // End-to-End Schemas
+export const getAllTransactionsResponseSchema = getBaseReturnSchema(
+  getPaginatedSchema(z.array(selectTransactionSchema))
+);
+
+export type GetAllTransactionsResponse = z.infer<
+  typeof getAllTransactionsResponseSchema
+>;
+
 export const initializeTransactionResponseSchema = getBaseReturnSchema(
   baseTransactionItemSchema
 );

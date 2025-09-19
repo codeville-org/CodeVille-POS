@@ -31,3 +31,17 @@ export const transactionsRelations = relations(
     items: many(transactionItems)
   })
 );
+
+export const transactionItemsRelations = relations(
+  transactionItems,
+  ({ one }) => ({
+    transaction: one(transactions, {
+      fields: [transactionItems.transactionId],
+      references: [transactions.id]
+    }),
+    product: one(products, {
+      fields: [transactionItems.productId],
+      references: [products.id]
+    })
+  })
+);

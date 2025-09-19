@@ -174,5 +174,12 @@ export const TEXTS = {
         }
       }
     }
+  },
+  transactions: {
+    title: { en: "All Transactions", si: "සියලුම ගනුදෙනු" },
+    subtitle: {
+      en: "Manage your store transactions here",
+      si: "ඔබේ ගනුදෙනු මෙහි කළමනාකරණය කරන්න"
+    }
   }
 };
