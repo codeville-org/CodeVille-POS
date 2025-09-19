@@ -51,6 +51,7 @@ export function SidebarTransactionItem({ item }: Props) {
           </Button>
 
           <input
+            type="number"
             value={item.quantity}
             onChange={handleChangeQuantity}
             className="text-sm w-10 text-center text-foreground"

@@ -45,7 +45,8 @@ export function BillingTable({ className }: Props) {
   ) => {
     // Check any characters except numbers in value
     const value = e.target.value;
-    let newQuantity = isNaN(Number(value)) ? 1 : Number(value);
+    let newQuantity = isNaN(Number(value)) ? null : Number(value);
+
     if (newQuantity === 0) {
       newQuantity = 1;
     }
@@ -92,9 +93,10 @@ export function BillingTable({ className }: Props) {
 
                     <div className="w-14 h-full border-b border-dashed border-sidebar-border/90">
                       <input
+                        type="number"
                         value={item.quantity}
                         onChange={(e) => handleChangeQuantity(item, e)}
-                        className="text-base w-full h-full text-center text-foreground"
+                        className="text-base w-full h-full text-center text-foreground select-all"
                       />
                     </div>
 
