@@ -26,13 +26,15 @@ type Props = {
   onSelect: (custmer: SelectCustomer) => void;
   maxItems?: number;
   loading?: boolean;
+  className?: string;
 };
 
 export function CustomersDropdown({
   defaultSelected,
   onSelect,
   maxItems,
-  loading = false
+  loading = false,
+  className
 }: Props) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selected, setSelected] = useState<SelectCustomer | null>(null);
@@ -56,7 +58,10 @@ export function CustomersDropdown({
           role="combobox"
           disabled={loading}
           aria-expanded={open}
-          className="w-full h-12 flex items-center justify-between bg-white shadow-none"
+          className={cn(
+            "w-full h-12 flex items-center justify-between bg-white shadow-none",
+            className
+          )}
         >
           {isFetching || loading ? (
             <Loader className="size-4 animate-spin" />

@@ -10,16 +10,109 @@ import { getDB } from "@/database";
 import { transactionItems, transactions } from "@/database/schema";
 import { generateUniqueId } from "@/lib/utils";
 import { UpdateCategoryResponse } from "@/lib/zod/categories.zod";
+import { TransactionsQueryParamsSchema } from "@/lib/zod/helpers";
 import {
   AddNewTransactionItemsResponse,
   BaseTransactionItemSchema,
   CreateTransactionSchema,
   DeleteTransactionResponse,
+  GetAllTransactionsResponse,
   InitializeTransactionResponse,
+  PaymentMethod,
+  PaymentStatus,
+  SelectTransactionSchema,
   UninitializedTransactionItem,
   UpdateTransactionSchema
 } from "@/lib/zod/transactions.zod";
-import { eq } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
+
+// ========= Get all Transaction Controller =========
+export async function getAllTransactionsController(
+  query: TransactionsQueryParamsSchema
+): Promise<GetAllTransactionsResponse> {
+  try {
+    const db = getDB();
+    const { search, page, limit, sort, customer } = query;
+
+    // Convert to numbers and validate
+    const pageNum = Math.max(1, parseInt(page));
+    const limitNum = Math.max(1, Math.min(100, parseInt(limit))); // Cap at 100 items
+    const offset = (pageNum - 1) * limitNum;
+
+    // Build where conditions
+    const whereConditions: any[] = [];
+
+    if (search) {
+      whereConditions.push(
+        sql`LOWER(${transactions.transactionNumber}) LIKE LOWER(${`%${search}%`})`
+      );
+    }
+
+    if (customer) {
+      whereConditions.push(sql`${transactions.customerId} = ${customer}`);
+    }
+
+    const transactionQuery = db.query.transactions.findMany({
+      where: whereConditions.length ? and(...whereConditions) : undefined,
+      orderBy:
+        sort.toLowerCase() === "asc"
+          ? transactions.createdAt
+          : desc(transactions.createdAt),
+      limit: limitNum,
+      offset,
+      with: {
+        customer: true,
+        items: true
+      }
+    });
+
+    // Get total count for pagination metadata
+    const totalCountQuery = db
+      .select({ count: sql<number>`count(*)` })
+      .from(transactions)
+      .where(whereConditions.length ? and(...whereConditions) : undefined);
+
+    const [transactionEntries, _totalCount] = await Promise.all([
+      transactionQuery,
+      totalCountQuery
+    ]);
+
+    const totalCount = _totalCount[0]?.count || 0;
+
+    // Calculate pagination metadata
+    const totalPages = Math.ceil(totalCount / limitNum);
+
+    const formattedEntries: SelectTransactionSchema[] = transactionEntries.map(
+      (entry) => ({
+        ...entry,
+        status: entry.status as PaymentStatus,
+        paymentMethod: entry.paymentMethod as PaymentMethod,
+        customer: entry.customer,
+        items: entry.items
+      })
+    );
+
+    return {
+      data: {
+        data: formattedEntries,
+        meta: {
+          currentPage: pageNum,
+          limit: limitNum,
+          totalCount,
+          totalPages
+        }
+      },
+      success: true,
+      error: null
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      error: (error as Error).message
+    };
+  }
+}
 
 // ========= Initialize Transaction Controller =========
 export async function initializeTransactionController(

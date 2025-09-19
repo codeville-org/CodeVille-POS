@@ -22,6 +22,18 @@ export type ProductsQueryParamsSchema = z.infer<
   typeof productsQueryParamsSchema
 >;
 
+export const transactionsQueryParamsSchema = z.object({
+  page: z.string().optional(),
+  limit: z.string().optional(),
+  sort: z.enum(["asc", "desc"]).optional().default("desc"),
+  search: z.string().optional(),
+  customer: z.string().optional()
+});
+
+export type TransactionsQueryParamsSchema = z.infer<
+  typeof transactionsQueryParamsSchema
+>;
+
 export function getBaseReturnSchema<T>(data: z.ZodType<T>) {
   return z.object({
     data: data.nullable(),

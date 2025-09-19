@@ -46,6 +46,7 @@ const electronAPI: ElectronAPI = {
     delete: customersInvoker("delete")
   },
   transactions: {
+    getAll: transactionsInvoker("getAll"),
     initialize: transactionsInvoker("initialize"),
     addItems: transactionsInvoker("addItems"),
     delete: transactionsInvoker("delete"),

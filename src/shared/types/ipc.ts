@@ -1,6 +1,7 @@
 import {
   ProductsQueryParamsSchema,
-  QueryParamsSchema
+  QueryParamsSchema,
+  TransactionsQueryParamsSchema
 } from "@/lib/zod/helpers";
 
 // Categories Imports
@@ -30,6 +31,7 @@ import type {
   AddNewTransactionItemsResponse,
   CreateTransactionSchema,
   DeleteTransactionResponse,
+  GetAllTransactionsResponse,
   InitializeTransactionResponse,
   UninitializedTransactionItem,
   UpdateTransactionResponse,
@@ -98,6 +100,9 @@ export interface CustomersActions {
 }
 
 export interface TransactionsActions {
+  getAll: (
+    query: TransactionsQueryParamsSchema
+  ) => Promise<GetAllTransactionsResponse>;
   initialize: (
     body: CreateTransactionSchema
   ) => Promise<InitializeTransactionResponse>;
