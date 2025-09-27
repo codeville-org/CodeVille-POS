@@ -7,6 +7,7 @@ import {
 
 import { cn } from "@/lib/utils";
 import { usePersistStore } from "@/lib/zustand/persist-store";
+import { LockSwitch } from "@/modules/auth/lock-switch";
 import { RealtimeClock } from "@/modules/pos/components/clock";
 import { LanguageSelector } from "../elements/language-selector";
 import { AppSidebar } from "./dashboard/app-sidebar";
@@ -53,6 +54,13 @@ export function Wrapper() {
                 </div>
 
                 <div className="flex items-center gap-2 h-full">
+                  <LockSwitch />
+
+                  <Separator
+                    className="mx-2 ml-4 data-[orientation=vertical]:h-4"
+                    orientation="vertical"
+                  />
+
                   <RealtimeClock />
 
                   <LanguageSelector />

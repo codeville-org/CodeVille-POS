@@ -10,6 +10,8 @@ const productsInvoker = createInvoker("products");
 const imagesInvoker = createInvoker("images");
 const customersInvoker = createInvoker("customers");
 const transactionsInvoker = createInvoker("transactions");
+const settingsInvoker = createInvoker("settings");
+const securityInvoker = createInvoker("security");
 
 const electronAPI: ElectronAPI = {
   window: {
@@ -51,6 +53,13 @@ const electronAPI: ElectronAPI = {
     addItems: transactionsInvoker("addItems"),
     delete: transactionsInvoker("delete"),
     update: transactionsInvoker("update")
+  },
+  settings: {
+    get: settingsInvoker("get"),
+    upsert: settingsInvoker("upsert")
+  },
+  security: {
+    login: securityInvoker("login")
   }
 };
 

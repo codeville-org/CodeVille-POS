@@ -34,18 +34,18 @@ export const useSecurityStore = create<SecurityStoreInterface>()(
     login: async (password) => {
       const handlerResponse = await loginHandler(password);
 
-      if (handlerResponse !== null) {
+      if (handlerResponse.data !== null) {
         set({ isAuthenticated: true, latestLoginFootprint: new Date() });
 
         return {
           success: true,
-          message: "Login Successful"
+          message: handlerResponse.data.message
         };
       }
 
       return {
         success: false,
-        message: "Sorry, Password is Incorrect !"
+        message: handlerResponse.error
       };
     },
 
@@ -55,6 +55,15 @@ export const useSecurityStore = create<SecurityStoreInterface>()(
       return {
         success: true,
         message: "Logout Successful"
+      };
+    },
+
+    lock: () => {
+      set({ isAuthenticated: false });
+
+      return {
+        success: true,
+        message: "System Locked"
       };
     }
   })

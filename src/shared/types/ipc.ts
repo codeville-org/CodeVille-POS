@@ -48,6 +48,7 @@ import {
   UpdateCustomerResponseSchema,
   UpdateCustomerSchema
 } from "@/lib/zod/customers.zod";
+import { GetSecurityResponseT } from "@/lib/zod/security.zod";
 import {
   AppSettingsMapInsertT,
   GetAppSettingsResponseT
@@ -126,6 +127,10 @@ export interface SettingsActions {
   upsert: (payload: AppSettingsMapInsertT) => Promise<GetAppSettingsResponseT>;
 }
 
+export interface SecurityActions {
+  login: (password: string) => Promise<GetSecurityResponseT>;
+}
+
 // Main IPC API interface
 export interface ElectronAPI {
   window: WindowActions;
@@ -135,4 +140,5 @@ export interface ElectronAPI {
   customers: CustomersActions;
   transactions: TransactionsActions;
   settings: SettingsActions;
+  security: SecurityActions;
 }

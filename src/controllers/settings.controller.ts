@@ -112,6 +112,7 @@ export async function upsertAppSettingsController(
       error: null
     };
   } catch (error) {
+    console.log(error);
     return {
       data: null,
       error: (error as Error).message,

@@ -1,19 +1,12 @@
 import { useElectronAPI } from "@/hooks/use-electron-api";
-import { decrypt } from "@/shared/utils/auth-util";
+import { GetSecurityResponseT } from "@/lib/zod/security.zod";
 
-export async function loginHandler(text: string): Promise<string | null> {
+export async function loginHandler(
+  text: string
+): Promise<GetSecurityResponseT> {
   const electron = useElectronAPI();
 
-  // Decrupt the password from app settings
-  const appSettings = await electron.settings.get();
+  const loginResponse = await electron.security.login(text);
 
-  if (!appSettings.success && !appSettings.data) return null;
-
-  const encryptedPassword = appSettings.data.password;
-
-  const decryptedPassword = decrypt(encryptedPassword);
-
-  if (decryptedPassword === text) {
-    return decryptedPassword;
-  } else return null;
+  return loginResponse;
 }

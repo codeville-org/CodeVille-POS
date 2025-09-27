@@ -12,4 +12,5 @@ export interface SecurityStoreInterface {
   validateAuth: () => ResponseInterface;
   login: (password: string) => Promise<ResponseInterface>;
   logout: () => ResponseInterface;
+  lock: () => ResponseInterface;
 }
