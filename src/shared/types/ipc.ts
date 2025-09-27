@@ -48,6 +48,11 @@ import {
   UpdateCustomerResponseSchema,
   UpdateCustomerSchema
 } from "@/lib/zod/customers.zod";
+import { GetSecurityResponseT } from "@/lib/zod/security.zod";
+import {
+  AppSettingsMapInsertT,
+  GetAppSettingsResponseT
+} from "@/lib/zod/settings.zod";
 
 // Window management types
 export interface WindowActions {
@@ -117,6 +122,15 @@ export interface TransactionsActions {
   delete: (id: string) => Promise<DeleteTransactionResponse>;
 }
 
+export interface SettingsActions {
+  get: () => Promise<GetAppSettingsResponseT>;
+  upsert: (payload: AppSettingsMapInsertT) => Promise<GetAppSettingsResponseT>;
+}
+
+export interface SecurityActions {
+  login: (password: string) => Promise<GetSecurityResponseT>;
+}
+
 // Main IPC API interface
 export interface ElectronAPI {
   window: WindowActions;
@@ -125,4 +139,6 @@ export interface ElectronAPI {
   images: ImagesActions;
   customers: CustomersActions;
   transactions: TransactionsActions;
+  settings: SettingsActions;
+  security: SecurityActions;
 }
