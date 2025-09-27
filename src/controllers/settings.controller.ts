@@ -5,6 +5,7 @@ import type {
   AppSettingsMapT,
   GetAppSettingsResponseT
 } from "@/lib/zod/settings.zod";
+import { encrypt } from "@/shared/utils/auth-util";
 import { eq } from "drizzle-orm";
 
 // ================= Get App Settings Controller =================
@@ -61,12 +62,30 @@ export async function upsertAppSettingsController(
 
           if (existingSetting) {
             // Update the existing setting
+
+            if (key === "password" && keyValue !== "") {
+              await db
+                .update(settings)
+                .set({ value: encrypt(keyValue), updatedAt: new Date() })
+                .where(eq(settings.id, existingSetting.id));
+
+              return;
+            }
+
             await db
               .update(settings)
               .set({ value: keyValue, updatedAt: new Date() })
               .where(eq(settings.id, existingSetting.id));
           } else {
             // Insert a new setting
+
+            if (key === "password" && keyValue !== "") {
+              await db
+                .insert(settings)
+                .values({ key, value: encrypt(keyValue) });
+              return;
+            }
+
             await db.insert(settings).values({ key, value: keyValue });
           }
         }
