@@ -22,6 +22,10 @@ export const usePosStore = create<PosStoreInterface>()((set, get) => ({
   setSearchTerm: (term) => set({ searchTerm: term }),
   resetSearch: () => set({ searchTerm: null }),
 
+  // Last scanned product tracking
+  lastScannedProduct: null,
+  setLastScannedProduct: (product) => set({ lastScannedProduct: product }),
+
   filter: "featured",
   setFilter: (filter) => set({ filter }),
 

@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import { TEXTS } from "@/lib/language";
 import { cn } from "@/lib/utils";
 import { usePersistStore } from "@/lib/zustand/persist-store";
 import { useSecurityStore } from "@/lib/zustand/security-store";
@@ -19,8 +20,8 @@ type Props = {
 };
 
 export function LoginForm({ className }: Props) {
-  const { theme, setTheme } = usePersistStore();
   const toastId = useId();
+  const { theme, setTheme, language } = usePersistStore();
   const { latestLoginFootprint, login } = useSecurityStore();
   const [password, setPassword] = useState("");
 
@@ -106,7 +107,7 @@ export function LoginForm({ className }: Props) {
         >
           <div className="flex flex-col items-center justify-center gap-1">
             <h2 className="mb-1 text-center text-2xl font-black tracking-tight">
-              {latestLoginFootprint ? "🔒 System Locked" : "👋 Welcome Back !"}
+              {latestLoginFootprint ? "😾 System Locked" : "😺 Welcome Back !"}
             </h2>
             <p className="text-center text-sm text-foreground/70">
               Please login to your account to continue using CodeVille POS.
@@ -115,7 +116,7 @@ export function LoginForm({ className }: Props) {
 
           <div className="flex flex-col gap-3">
             <Input
-              placeholder="Enter your password here"
+              placeholder={TEXTS.lockScreen.placeholder[language]}
               className="h-12 text-center shadow-none rounded-lg"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -133,7 +134,7 @@ export function LoginForm({ className }: Props) {
               disabled={password.trim().length === 0}
               onClick={handleLogin}
             >
-              {latestLoginFootprint ? "Unlock" : "Login"}
+              {TEXTS.lockScreen.button[language]}
             </Button>
           </div>
         </Card>
