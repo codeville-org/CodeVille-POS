@@ -16,7 +16,13 @@ export function PosProductsListing({ className }: Props) {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(12);
 
-  const { filter, searchMode, searchTerm, addTransactionItem } = usePosStore();
+  const {
+    filter,
+    searchMode,
+    searchTerm,
+    addTransactionItem,
+    activeTransaction
+  } = usePosStore();
 
   const filterCategory = typeof filter === "string" ? null : filter.id;
 
@@ -33,6 +39,8 @@ export function PosProductsListing({ className }: Props) {
   };
 
   const handleAddToCart = (product: SelectProductSchema) => {
+    if (!activeTransaction) return;
+
     // Check if product is in stock
     if (product.stockQuantity <= 0) {
       // Could show a toast notification here

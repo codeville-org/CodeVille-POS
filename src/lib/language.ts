@@ -8,10 +8,10 @@ export const TEXTS = {
     cancel: { en: "Cancel", si: "අවලංගු කරන්න" }
   },
   categories: {
-    title: { en: "Product Categories", si: "නිශ්පාදන වර්ග" },
+    title: { en: "Product Categories", si: "භාණ්ඩ වර්ග" },
     subtitle: {
       en: "Manage your product categories",
-      si: "ඔබේ නිශ්පාදන වර්ග කළමනාකරණය කරන්න"
+      si: "ඔබේ භාණ්ඩ වර්ග කළමනාකරණය කරන්න"
     },
     update: {
       title: { en: "Update Category", si: "කාණ්ඩය යාවත්කාලීන කරන්න" },
@@ -23,34 +23,34 @@ export const TEXTS = {
     addNew: { en: "Add Category", si: "නව කාණ්ඩය එක් කරන්න" }
   },
   products: {
-    title: { en: "Product Inventory", si: "නිශ්පාදන ගබඩාව" },
+    title: { en: "Product Inventory", si: "භාණ්ඩ ගබඩාව" },
     subtitle: {
       en: "Manage your store Inventory here",
-      si: "ඔබේ නිශ්පාදන ගබඩාව කළමනාකරණය කරන්න"
+      si: "ඔබේ භාණ්ඩ ගබඩාව කළමනාකරණය කරන්න"
     },
     update: {
-      title: { en: "Update Product", si: "නිශ්පාදනය යාවත්කාලීන කරන්න" },
+      title: { en: "Update Product", si: "භාණ්ඩය යාවත්කාලීන කරන්න" },
       description: {
         en: "Make changes to your product here.",
         si: "යාවත්කාලීන කිරීමට අදාල තොරතුරු පහත ෆෝරමයේ ඇතුලත් කරන්න."
       }
     },
     addNew: {
-      title: { en: "Add Product", si: "නව නිශ්පාදනයක් එක් කරන්න" },
+      title: { en: "Add Product", si: "නව භාණ්ඩයක් එක් කරන්න" },
       description: {
         en: "Fill below form to create product",
-        si: "නිශ්පාදනයේ තොරතුරු පහත ෆෝරමයේ ඇතුලත් කරන්න."
+        si: "භාණ්ඩයේ තොරතුරු පහත ෆෝරමයේ ඇතුලත් කරන්න."
       },
       form: {
         name: {
-          label: { en: "Product Name", si: "නිශ්පාදන නම" },
+          label: { en: "Product Name", si: "භාණ්ඩයේ නම" },
           placeholder: {
             en: "Elephant House - Strawberry Ice Cream (500ml)",
             si: "එලිෆන්ට් හවුස් - ස්ට්‍රෝබෙරි අයිස් ක්‍රීම් (500ml)"
           }
         },
         category: {
-          label: { en: "Product Category", si: "නිශ්පාදන වර්ගය" }
+          label: { en: "Product Category", si: "භාණ්ඩ වර්ගය" }
         },
         barcode: {
           label: { en: "Barcode Number", si: "බාර්කෝඩ් අංකය" },
@@ -60,14 +60,14 @@ export const TEXTS = {
           }
         },
         description: {
-          label: { en: "Product Description", si: "නිශ්පාදන විස්තර" },
+          label: { en: "Product Description", si: "භාණ්ඩ විස්තර" },
           placeholder: {
             en: "Delicious strawberry ice cream",
-            si: "නිශ්පාදනය පිලිබද සටහන් *(අත්‍යාවශ්‍යය නොවේ)"
+            si: "භාණ්ඩය පිලිබද සටහන් *(අත්‍යාවශ්‍යය නොවේ)"
           }
         },
         unitPrice: {
-          label: { en: "Product Price", si: "නිශ්පාදනයේ මිල" },
+          label: { en: "Product Price", si: "භාණ්ඩයේ මිල" },
           placeholder: { en: "120.00", si: "120.00" }
         },
         unitAmount: {
@@ -83,23 +83,23 @@ export const TEXTS = {
           placeholder: { en: "100", si: "100" }
         },
         productUnit: {
-          label: { en: "Product Unit", si: "නිශ්පාදන ඒකකය" },
+          label: { en: "Product Unit", si: "භාණ්ඩ ඒකකය" },
           placeholder: { en: "Units", si: "ආකාර" }
         },
         isFeatured: {
           label: { en: "Featured Product", si: "ඉක්මන් අයිතමයක්" },
           placeholder: {
             en: "Mark the product as featured for easy access",
-            si: "නිශ්පාදනය පහසුවෙන් සොයාගැනීමට උපකාරී වේ"
+            si: "භාණ්ඩය පහසුවෙන් සොයාගැනීමට උපකාරී වේ"
           }
         },
         productImage: {
-          label: { en: "Product Image", si: "නිශ්පාදනයේ ඡායාරූපය" },
+          label: { en: "Product Image", si: "භාණ්ඩයේ ඡායාරූපය" },
           placeholder: { en: "Upload image", si: "රූපය උඩුගත කරන්න" }
         },
         reset: { en: "Reset", si: "නැවත සකසන්න" },
-        create: { en: "Create Product", si: "නිශ්පාදනයක් සාදන්න" },
-        edit: { en: "Edit Product", si: "නිශ්පාදනයක් යාවත්කාලීන කරන්න" }
+        create: { en: "Create Product", si: "භාණ්ඩයක් සාදන්න" },
+        edit: { en: "Edit Product", si: "භාණ්ඩයක් යාවත්කාලීන කරන්න" }
       }
     }
   },
@@ -181,5 +181,12 @@ export const TEXTS = {
       en: "Manage your store transactions here",
       si: "ඔබේ ගනුදෙනු මෙහි කළමනාකරණය කරන්න"
     }
+  },
+  lockScreen: {
+    placeholder: {
+      en: "Enter your password here",
+      si: "ඔබේ මුරපදය මෙහි ඇතුලත් කරන්න"
+    },
+    button: { en: "Login", si: "ඇතුල්වන්න" }
   }
 };

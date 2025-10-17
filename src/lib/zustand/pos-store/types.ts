@@ -8,6 +8,13 @@ export type FilterType = "featured" | "all" | SelectCategory;
 
 export type POSListingView = "listing" | "billing";
 
+export type ScannedProduct = {
+  id: string;
+  name: string;
+  barcode: string;
+  timestamp: number;
+};
+
 export type AmountOverview = {
   subtotal: number;
   tax: number;
@@ -27,6 +34,10 @@ export interface PosStoreInterface {
   searchTerm: string | null;
   setSearchTerm: (term: string) => void;
   resetSearch: () => void;
+
+  // Last scanned product tracking
+  lastScannedProduct: ScannedProduct | null;
+  setLastScannedProduct: (product: ScannedProduct | null) => void;
 
   // Products Listing
   filter: FilterType;

@@ -8,6 +8,8 @@ export const useGetProductByBarcode = (barcode: string) => {
     queryFn: async () => {
       const api = useElectronAPI();
 
+      if (barcode === "") return null;
+
       const response = await api.products.getByBarcode(barcode);
 
       if (!response.data || response.error) {
