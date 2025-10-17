@@ -3,6 +3,7 @@ import { EditIcon, PlusCircleIcon, TrashIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
+import { BarcodeInput } from "@/components/ui/barcode-input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
@@ -225,13 +226,23 @@ export function ProductForm({ className, mode, productId }: Props) {
                               {fetchingProduct ? (
                                 <Skeleton className="w-full h-12" />
                               ) : (
-                                <Input
-                                  className="w-full h-12 bg-white shadow-none"
+                                <BarcodeInput
+                                  value={field.value}
+                                  onChange={field.onChange}
                                   placeholder={
                                     TEXTS.products.addNew.form.barcode
                                       .placeholder[language]
                                   }
-                                  {...field}
+                                  className="w-full"
+                                  enableScanning={true}
+                                  enableSimulation={true}
+                                  simulationShortcut={{
+                                    ctrl: true,
+                                    shift: true,
+                                    key: "B"
+                                  }}
+                                  showScanButton={true}
+                                  showStatusIndicator={true}
                                 />
                               )}
                             </div>

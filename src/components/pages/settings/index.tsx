@@ -7,7 +7,7 @@ import { PasswordSection } from "@/modules/settings/components/password-section"
 type Props = {};
 
 export function SettingsPage({}: Props) {
-  const { language } = usePersistStore();
+  const {} = usePersistStore();
 
   return (
     <PageContainer scrollable={false}>
