@@ -1,6 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card";
+import { PasswordInput } from "@/components/ui/password-input";
 import { useState } from "react";
 import { useUpsertSettings } from "../query/use-upsert";
 
@@ -15,21 +22,27 @@ export function PasswordSection({}: Props) {
   };
 
   return (
-    <div className="space-y-2">
-      <Label>Password</Label>
+    <Card className="bg-secondary/30">
+      <CardHeader>
+        <CardTitle>Security Settings</CardTitle>
+        <CardDescription>
+          Update your account password to enhance security.
+        </CardDescription>
+      </CardHeader>
 
-      <div className="space-y-1">
-        <Input
-          type="password"
+      <CardContent className="space-y-3">
+        <PasswordInput
           placeholder="Enter new password"
           onChange={(e) => setPassword(e.target.value)}
         />
-        <Input type="password" placeholder="Confirm new password" />
+        <PasswordInput placeholder="Confirm new password" />
+      </CardContent>
 
+      <CardFooter>
         <Button onClick={handleUpdatePassword} loading={isPending}>
           Update Password
         </Button>
-      </div>
-    </div>
+      </CardFooter>
+    </Card>
   );
 }
