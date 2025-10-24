@@ -32,6 +32,7 @@ export function InitializeTransaction({
       className={cn(className, "rounded-full shadow-none", {
         "hover:text-foreground": variant === "outline"
       })}
+      autoBlur
     >
       New Transaction
     </Button>

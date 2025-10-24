@@ -9,7 +9,6 @@
 import { getDB } from "@/database";
 import { transactionItems, transactions } from "@/database/schema";
 import { generateUniqueId } from "@/lib/utils";
-import { UpdateCategoryResponse } from "@/lib/zod/categories.zod";
 import { TransactionsQueryParamsSchema } from "@/lib/zod/helpers";
 import {
   AddNewTransactionItemsResponse,
@@ -22,6 +21,7 @@ import {
   PaymentStatus,
   SelectTransactionSchema,
   UninitializedTransactionItem,
+  UpdateTransactionResponse,
   UpdateTransactionSchema
 } from "@/lib/zod/transactions.zod";
 import { and, desc, eq, sql } from "drizzle-orm";
@@ -157,7 +157,7 @@ export async function initializeTransactionController(
 export async function updateTransactionController(
   id: string,
   body: UpdateTransactionSchema
-): Promise<UpdateCategoryResponse> {
+): Promise<UpdateTransactionResponse> {
   try {
     const db = getDB();
 

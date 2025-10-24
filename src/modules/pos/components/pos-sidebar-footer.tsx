@@ -16,8 +16,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger
+  AlertDialogTitle
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +32,8 @@ type Props = {
 };
 
 export function PosSidebarFooter({ className }: Props) {
+  const [isClearModalOpen, setClearModalOpen] = useState<boolean>(false);
+  const [isCancelModalOpen, setCancelModalOpen] = useState<boolean>(false);
   const { mutate: completePurchase, isPending: completingPurchase } =
     useCompleteTransaction();
   const {
@@ -80,6 +81,63 @@ export function PosSidebarFooter({ className }: Props) {
         className
       )}
     >
+      {/* Clear Alert */}
+      <AlertDialog open={isClearModalOpen} onOpenChange={setClearModalOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action will clear all items in the cart.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                clearTransactionItems();
+                // Auto-blur to prevent barcode scanner interference
+                setTimeout(() => {
+                  if (document.activeElement instanceof HTMLElement) {
+                    document.activeElement.blur();
+                  }
+                }, 100);
+              }}
+            >
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Cancel Modal */}
+      <AlertDialog open={isCancelModalOpen} onOpenChange={setCancelModalOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action will reset the current transaction.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setActiveTransaction(null);
+                clearTransactionItems();
+                // Auto-blur to prevent barcode scanner interference
+                setTimeout(() => {
+                  if (document.activeElement instanceof HTMLElement) {
+                    document.activeElement.blur();
+                  }
+                }, 100);
+              }}
+            >
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <div className="space-y-1">
         <div className="flex items-center justify-between">
           <small>Subtotal</small>
@@ -119,6 +177,7 @@ export function PosSidebarFooter({ className }: Props) {
               "bg-green-700 text-white hover:bg-green-800":
                 paymentMethod === PaymentMethod.CASH
             })}
+            autoBlur
           >
             Cash
           </Button>
@@ -132,6 +191,7 @@ export function PosSidebarFooter({ className }: Props) {
               "bg-blue-700 text-white hover:bg-blue-800":
                 paymentMethod === PaymentMethod.CARD
             })}
+            autoBlur
           >
             Card
           </Button>
@@ -146,6 +206,7 @@ export function PosSidebarFooter({ className }: Props) {
               "bg-yellow-700 text-white hover:bg-yellow-800":
                 paymentMethod === PaymentMethod.LEND
             })}
+            autoBlur
           >
             Credit
           </Button>
@@ -198,67 +259,30 @@ export function PosSidebarFooter({ className }: Props) {
           }
           onClick={handleCompletePurchase}
           loading={completingPurchase}
+          autoBlur
         >
           Complete Purchase
         </Button>
 
         <div className="flex items-center gap-2">
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="outline"
-                className="flex-1 shadow-none"
-                icon={<EraserIcon />}
-              >
-                Clear
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action will clear all items in the cart.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={clearTransactionItems}>
-                  Continue
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="outline"
-                className="flex-1 shadow-none"
-                icon={<TrashIcon />}
-              >
-                Cancel
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action will reset the current transaction.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => {
-                    setActiveTransaction(null);
-                    clearTransactionItems();
-                  }}
-                >
-                  Continue
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <Button
+            variant="outline"
+            className="flex-1 shadow-none"
+            icon={<EraserIcon />}
+            onClick={() => setClearModalOpen(true)}
+            autoBlur
+          >
+            Clear
+          </Button>
+          <Button
+            variant="outline"
+            className="flex-1 shadow-none"
+            icon={<TrashIcon />}
+            onClick={() => setCancelModalOpen(true)}
+            autoBlur
+          >
+            Cancel
+          </Button>
         </div>
       </div>
     </div>

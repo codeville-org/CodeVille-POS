@@ -67,6 +67,14 @@ export function BarcodeInput({
     setRecentlyScanned(false);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Prevent Enter key from submitting forms accidentally
+    if (e.key === "Enter") {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
   return (
     <div className={cn("relative", className)}>
       <div
@@ -87,6 +95,7 @@ export function BarcodeInput({
         <Input
           value={value}
           onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           placeholder={

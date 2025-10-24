@@ -131,14 +131,36 @@ export function ProductForm({ className, mode, productId }: Props) {
     await deleteProduct();
   };
 
+  // Prevent accidental form submission from barcode scanner Enter key
+  const handleFormSubmit = (e: React.FormEvent) => {
+    // Check if the active element is a form input/control
+    const activeElement = document.activeElement as HTMLElement;
+    const isFormFieldFocused =
+      activeElement &&
+      (activeElement.tagName === "INPUT" ||
+        activeElement.tagName === "TEXTAREA" ||
+        activeElement.tagName === "SELECT" ||
+        activeElement.tagName === "BUTTON" ||
+        activeElement.closest('[role="combobox"]') ||
+        activeElement.closest("[data-radix-collection-item]"));
+
+    // If no form field is focused, prevent submission (likely from barcode scanner)
+    if (!isFormFieldFocused) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+
+    // Proceed with normal form submission
+    form.handleSubmit(
+      formMode === "create" ? handleCreateProduct : handleUpdateProduct
+    )(e);
+  };
+
   return (
     <div>
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(
-            formMode === "create" ? handleCreateProduct : handleUpdateProduct
-          )}
-        >
+        <form onSubmit={handleFormSubmit}>
           <div
             className={cn(
               "flex-1 flex flex-col h-full rounded-md bg-secondary/40 dark:bg-secondary/20 border border-foreground/5",

@@ -42,6 +42,7 @@ export interface ButtonProps
   asChild?: boolean;
   loading?: boolean;
   icon?: React.ReactNode;
+  autoBlur?: boolean;
 }
 
 export type VariantType = VariantProps<typeof buttonVariants>["variant"];
@@ -57,10 +58,22 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       size,
       asChild = false,
       icon,
+      autoBlur = false,
+      onClick,
       ...props
     },
     ref
   ) => {
+    const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+      // Auto-blur functionality for POS system barcode scanner compatibility
+      if (autoBlur) {
+        e.currentTarget.blur();
+      }
+
+      // Call the original onClick handler
+      onClick?.(e);
+    };
+
     const Comp = asChild ? Slot : "button";
     return (
       <Comp
@@ -70,6 +83,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         )}
         ref={ref}
         disabled={loading || disabled}
+        onClick={handleClick}
         {...props}
       >
         {loading ? (

@@ -3,6 +3,7 @@ import { BrowserWindow } from "electron";
 import { categoriesHandler } from "./categories-handler";
 import { customersHandler } from "./customers-handler";
 import { imagesHandler } from "./images-handler";
+import { printerHandler } from "./printer-handler";
 import { productsHandler } from "./products-handler";
 import { securityHandler } from "./security-handler";
 import { appSettingsHandler } from "./settings-handler";
@@ -19,4 +20,5 @@ export function setupIPCHandlers(mainWindow: BrowserWindow) {
   transactionsHandler.register();
   appSettingsHandler.register();
   securityHandler.register();
+  printerHandler.register();
 }

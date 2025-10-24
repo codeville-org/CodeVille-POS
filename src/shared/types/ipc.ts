@@ -48,6 +48,11 @@ import {
   UpdateCustomerResponseSchema,
   UpdateCustomerSchema
 } from "@/lib/zod/customers.zod";
+import {
+  ListPrintersResponseT,
+  PrintReceiptResponseT,
+  TestPrintResponseT
+} from "@/lib/zod/printers.zod";
 import { GetSecurityResponseT } from "@/lib/zod/security.zod";
 import {
   AppSettingsMapInsertT,
@@ -131,6 +136,12 @@ export interface SecurityActions {
   login: (password: string) => Promise<GetSecurityResponseT>;
 }
 
+export interface PrinterActions {
+  listPrinters: () => Promise<ListPrintersResponseT>;
+  printReceipt: (transactionId: string) => Promise<PrintReceiptResponseT>;
+  testPrint: (printerName: string) => Promise<TestPrintResponseT>;
+}
+
 // Main IPC API interface
 export interface ElectronAPI {
   window: WindowActions;
@@ -141,4 +152,5 @@ export interface ElectronAPI {
   transactions: TransactionsActions;
   settings: SettingsActions;
   security: SecurityActions;
+  print: PrinterActions;
 }
