@@ -186,9 +186,65 @@ export function BarcodeReaderStatusBadge({ minimal = false }: Props) {
         return;
       }
 
+      // Auto-blur buttons and focusable elements when barcode scanning starts
+      const activeElement = document.activeElement as HTMLElement;
+      if (
+        activeElement &&
+        activeElement !== document.body &&
+        (activeElement.tagName === "BUTTON" ||
+          activeElement.hasAttribute("tabindex") ||
+          activeElement.getAttribute("role") === "button" ||
+          activeElement.closest('[role="button"]'))
+      ) {
+        // Blur the focused element to prevent interference
+        activeElement.blur();
+        // Small delay to ensure blur takes effect
+        setTimeout(() => {
+          // Continue with barcode processing
+          if (
+            e.key !== "Enter" &&
+            e.key.length === 1 &&
+            !e.ctrlKey &&
+            !e.altKey &&
+            !e.metaKey
+          ) {
+            const now = Date.now();
+            const timeSinceLastKey = now - lastKeypressTimeRef.current;
+
+            if (timeSinceLastKey > 200) {
+              barcodeBufferRef.current = "";
+            }
+
+            lastKeypressTimeRef.current = now;
+
+            if (scanTimeoutRef.current) {
+              clearTimeout(scanTimeoutRef.current);
+            }
+
+            barcodeBufferRef.current += e.key;
+            setStatus("scanning");
+
+            if (inactivityTimeoutRef.current) {
+              clearTimeout(inactivityTimeoutRef.current);
+            }
+
+            scanTimeoutRef.current = setTimeout(() => {
+              const barcode = barcodeBufferRef.current.trim();
+              if (barcode.length >= 3) {
+                setScannedBarcode(barcode);
+                setStatus("connected");
+              } else {
+                setStatus("connected");
+              }
+              barcodeBufferRef.current = "";
+            }, 50);
+          }
+        }, 10);
+        return;
+      }
+
       // Special handling for space key - often used for UI interactions
       if (e.key === " ") {
-        const activeElement = document.activeElement as HTMLElement;
         if (
           activeElement &&
           (activeElement.tagName === "BUTTON" ||
