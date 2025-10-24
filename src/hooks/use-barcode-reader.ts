@@ -121,15 +121,48 @@ export function useBarcodeReader(options: BarcodeReaderOptions = {}) {
         }
       }
 
-      // Ignore if user is typing in form elements
+      // Ignore if user is typing in form elements or interacting with UI controls
       const target = e.target as HTMLElement;
       if (
         target.tagName === "INPUT" ||
         target.tagName === "TEXTAREA" ||
         target.tagName === "SELECT" ||
-        target.isContentEditable
+        target.tagName === "BUTTON" ||
+        target.isContentEditable ||
+        // Check for form controls and interactive elements
+        target.closest('[role="combobox"]') ||
+        target.closest('[role="listbox"]') ||
+        target.closest('[role="option"]') ||
+        target.closest('[role="button"]') ||
+        target.closest("[data-radix-collection-item]") ||
+        target.closest("[data-radix-select-trigger]") ||
+        target.closest("[data-radix-select-content]") ||
+        target.closest("[data-radix-dropdown-menu]") ||
+        target.closest("[tabindex]") ||
+        // Check if target or any parent has focus/interactive attributes
+        target.hasAttribute("tabindex") ||
+        target.getAttribute("role") === "button" ||
+        target.getAttribute("role") === "combobox" ||
+        target.getAttribute("role") === "listbox"
       ) {
         return;
+      }
+
+      // Special handling for space key - often used for UI interactions
+      if (e.key === " ") {
+        // If any focusable element is currently focused, ignore space key
+        const activeElement = document.activeElement as HTMLElement;
+        if (
+          activeElement &&
+          (activeElement.tagName === "BUTTON" ||
+            activeElement.hasAttribute("tabindex") ||
+            activeElement.getAttribute("role") === "button" ||
+            activeElement.getAttribute("role") === "combobox" ||
+            activeElement.closest('[role="combobox"]') ||
+            activeElement.closest("[data-radix-select-trigger]"))
+        ) {
+          return;
+        }
       }
 
       // Ignore modifier keys and special keys

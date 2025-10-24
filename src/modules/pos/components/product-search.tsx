@@ -1,4 +1,5 @@
 import { CheckCircleIcon, ScanBarcodeIcon, SearchIcon } from "lucide-react";
+import { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -48,6 +49,17 @@ export function ProductSearchInput({ className }: Props) {
   const isShowingScannedProduct =
     searchMode === "barcode" && lastScannedProduct && !searchTerm;
 
+  // Auto-clear scanned product after 7 seconds to restore normal input functionality
+  useEffect(() => {
+    if (lastScannedProduct && searchMode === "barcode" && !searchTerm) {
+      const timer = setTimeout(() => {
+        setLastScannedProduct(null);
+      }, 7000); // 7 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, [lastScannedProduct, searchMode, searchTerm, setLastScannedProduct]);
+
   // Dynamic placeholder based on mode and state
   const getPlaceholder = () => {
     if (isShowingScannedProduct) {
@@ -64,7 +76,7 @@ export function ProductSearchInput({ className }: Props) {
       className={cn(
         "h-14 border border-foreground/5 rounded-md bg-secondary/30 flex items-center justify-between overflow-hidden transition-all duration-200",
         {
-          "border-green-500/30 bg-green-50 dark:bg-green-900/10":
+          "border-green-500/30 bg-green-50 dark:bg-green-900/10 cursor-not-allowed pointer-events-none":
             isShowingScannedProduct
         },
         className

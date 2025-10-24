@@ -30,7 +30,7 @@ export function PosProductsListing({ className }: Props) {
     page: currentPage.toString(),
     limit: itemsPerPage.toString(),
     search: searchMode === "manual" ? searchTerm || "" : undefined,
-    featured: filter === "featured",
+    featured: searchMode !== "manual" && filter === "featured",
     category: filterCategory
   });
 
