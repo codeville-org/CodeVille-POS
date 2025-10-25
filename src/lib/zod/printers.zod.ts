@@ -4,7 +4,8 @@ import { getBaseReturnSchema } from "./helpers";
 export const printerInfoSchema = z.object({
   name: z.string(),
   description: z.string(),
-  displayName: z.string()
+  displayName: z.string(),
+  isDefault: z.boolean()
 });
 
 export type PrinterInfo = z.infer<typeof printerInfoSchema>;

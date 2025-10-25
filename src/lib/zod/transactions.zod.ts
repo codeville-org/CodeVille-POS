@@ -100,6 +100,14 @@ export type GetAllTransactionsResponse = z.infer<
   typeof getAllTransactionsResponseSchema
 >;
 
+export const getTransactionResponseSchema = getBaseReturnSchema(
+  selectTransactionSchema
+);
+
+export type GetTransactionResponse = z.infer<
+  typeof getTransactionResponseSchema
+>;
+
 export const initializeTransactionResponseSchema = getBaseReturnSchema(
   baseTransactionItemSchema
 );

@@ -16,6 +16,7 @@ import {
   CreateTransactionSchema,
   DeleteTransactionResponse,
   GetAllTransactionsResponse,
+  GetTransactionResponse,
   InitializeTransactionResponse,
   PaymentMethod,
   PaymentStatus,
@@ -102,6 +103,50 @@ export async function getAllTransactionsController(
           totalPages
         }
       },
+      success: true,
+      error: null
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      error: (error as Error).message
+    };
+  }
+}
+
+// ========= Get Single Transaction Controller =========
+export async function getTransactionByIDController(
+  id: string
+): Promise<GetTransactionResponse> {
+  try {
+    const db = getDB();
+
+    // Build where conditions
+    const whereConditions: any[] = [];
+
+    whereConditions.push(eq(transactions.id, id));
+
+    const transactionQuery = db.query.transactions.findFirst({
+      where: whereConditions.length ? and(...whereConditions) : undefined,
+      with: {
+        customer: true,
+        items: true
+      }
+    });
+
+    const entry = await transactionQuery;
+
+    const formattedEntry: SelectTransactionSchema = {
+      ...entry,
+      status: entry.status as PaymentStatus,
+      paymentMethod: entry.paymentMethod as PaymentMethod,
+      customer: entry.customer,
+      items: entry.items
+    };
+
+    return {
+      data: formattedEntry,
       success: true,
       error: null
     };

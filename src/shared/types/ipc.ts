@@ -32,6 +32,7 @@ import type {
   CreateTransactionSchema,
   DeleteTransactionResponse,
   GetAllTransactionsResponse,
+  GetTransactionResponse,
   InitializeTransactionResponse,
   UninitializedTransactionItem,
   UpdateTransactionResponse,
@@ -90,7 +91,11 @@ export interface ProductsActions {
 
 export interface ImagesActions {
   getImagesDirectory: () => string;
-  saveImageFromBase64: (base64Data: string) => Promise<string>;
+  saveImageFromBase64: (
+    base64Data: string,
+    billImage?: boolean,
+    transactionNumber?: string
+  ) => Promise<string>;
   saveImageFromPath: (sourceImagePath: string) => Promise<string>;
   getImageAsBase64: (filename: string) => Promise<string | null>;
   deleteImage: (filename: string) => Promise<boolean>;
@@ -113,6 +118,7 @@ export interface TransactionsActions {
   getAll: (
     query: TransactionsQueryParamsSchema
   ) => Promise<GetAllTransactionsResponse>;
+  getByID: (id: string) => Promise<GetTransactionResponse>;
   initialize: (
     body: CreateTransactionSchema
   ) => Promise<InitializeTransactionResponse>;
@@ -138,7 +144,7 @@ export interface SecurityActions {
 
 export interface PrinterActions {
   listPrinters: () => Promise<ListPrintersResponseT>;
-  printReceipt: (transactionId: string) => Promise<PrintReceiptResponseT>;
+  printReceipt: (imageName: string) => Promise<PrintReceiptResponseT>;
   testPrint: (printerName: string) => Promise<TestPrintResponseT>;
 }
 

@@ -6,6 +6,7 @@ import { BillingTable } from "../components/billing-table";
 import { CategoriesBar } from "../components/categories-bar";
 import { InitializeTransaction } from "../components/initialize-transaction";
 import { ListingViewSwitcher } from "../components/listing-view-switcher";
+import { PrinterProvider } from "../components/printer-provider";
 import { ProductSearchInput } from "../components/product-search";
 import { PosProductsListing } from "./pos-products-listing";
 import { PosSidebar } from "./pos-sidebar";
@@ -17,6 +18,8 @@ export function PosScreenLayout({}: Props) {
 
   return (
     <div className="flex h-[calc(100vh-48px)] max-h-[calc(100vh-48px)] overflow-hidden">
+      <PrinterProvider />
+
       {/* Left Panel - Products */}
       <div className="flex-1 flex flex-col h-full overflow-hidden">
         {/* Header - Fixed */}

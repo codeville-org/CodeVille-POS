@@ -50,6 +50,7 @@ const electronAPI: ElectronAPI = {
   },
   transactions: {
     getAll: transactionsInvoker("getAll"),
+    getByID: transactionsInvoker("getByID"),
     initialize: transactionsInvoker("initialize"),
     addItems: transactionsInvoker("addItems"),
     delete: transactionsInvoker("delete"),

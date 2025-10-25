@@ -2,8 +2,16 @@ export class ImageApiService {
   /**
    * Save image from base64 data URL
    */
-  static async saveFromBase64(base64Data: string): Promise<string> {
-    return await window.electronAPI.images.saveImageFromBase64(base64Data);
+  static async saveFromBase64(
+    base64Data: string,
+    billImage?: boolean,
+    transactionNumber?: string
+  ): Promise<string> {
+    return await window.electronAPI.images.saveImageFromBase64(
+      base64Data,
+      billImage,
+      transactionNumber
+    );
   }
 
   /**

@@ -87,7 +87,7 @@ export function PrinterTest() {
       <CardFooter className="flex items-center gap-3">
         <Button disabled={!selectedPrinter}>Set as Default</Button>
         <Button
-          disabled={!selectedPrinter}
+          // disabled={!selectedPrinter}
           variant="secondary"
           onClick={onClickPrintTest}
         >
