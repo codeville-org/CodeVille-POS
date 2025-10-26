@@ -12,6 +12,7 @@ const customersInvoker = createInvoker("customers");
 const transactionsInvoker = createInvoker("transactions");
 const settingsInvoker = createInvoker("settings");
 const securityInvoker = createInvoker("security");
+const printInvoker = createInvoker("print");
 
 const electronAPI: ElectronAPI = {
   window: {
@@ -49,6 +50,7 @@ const electronAPI: ElectronAPI = {
   },
   transactions: {
     getAll: transactionsInvoker("getAll"),
+    getByID: transactionsInvoker("getByID"),
     initialize: transactionsInvoker("initialize"),
     addItems: transactionsInvoker("addItems"),
     delete: transactionsInvoker("delete"),
@@ -60,6 +62,11 @@ const electronAPI: ElectronAPI = {
   },
   security: {
     login: securityInvoker("login")
+  },
+  print: {
+    listPrinters: printInvoker("listPrinters"),
+    printReceipt: printInvoker("printReceipt"),
+    testPrint: printInvoker("testPrint")
   }
 };
 

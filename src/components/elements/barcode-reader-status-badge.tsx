@@ -1,5 +1,6 @@
 import { CheckCircle2Icon, ScanBarcodeIcon, XCircleIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -23,10 +24,14 @@ const SIMULATE_BARCODES = [
 ];
 
 export function BarcodeReaderStatusBadge({ minimal = false }: Props) {
+  const location = useLocation();
   const [status, setStatus] = useState<
     "connected" | "disconnected" | "scanning"
   >("connected");
   const [scannedBarcode, setScannedBarcode] = useState<string | null>(null);
+
+  // Early return if on products page - avoid setting up hooks
+  const isOnProductsPage = location.pathname.startsWith("/products/");
 
   const {
     searchMode,
@@ -130,14 +135,20 @@ export function BarcodeReaderStatusBadge({ minimal = false }: Props) {
 
   // Add global method for testing (temporary)
   useEffect(() => {
+    // Don't set up global test method if on products page
+    if (isOnProductsPage) return;
+
     (window as any).testBarcodeSimulation = simulateBarcodeScan;
     return () => {
       delete (window as any).testBarcodeSimulation;
     };
-  }, []);
+  }, [isOnProductsPage]);
 
   // Global keypress listener for barcode scanner
   useEffect(() => {
+    // Don't set up global listeners if on products page
+    if (isOnProductsPage) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       // Check for Ctrl + Shift + S for barcode simulation
       // Try both e.key === "S" and e.code === "KeyS" for better compatibility
@@ -149,10 +160,102 @@ export function BarcodeReaderStatusBadge({ minimal = false }: Props) {
         return;
       }
 
-      // Ignore if user is typing in an input/textarea
+      // Ignore if user is typing in form elements or interacting with UI controls
       const target = e.target as HTMLElement;
-      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") {
+      if (
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.tagName === "SELECT" ||
+        target.tagName === "BUTTON" ||
+        target.isContentEditable ||
+        // Check for form controls and interactive elements
+        target.closest('[role="combobox"]') ||
+        target.closest('[role="listbox"]') ||
+        target.closest('[role="option"]') ||
+        target.closest('[role="button"]') ||
+        target.closest("[data-radix-collection-item]") ||
+        target.closest("[data-radix-select-trigger]") ||
+        target.closest("[data-radix-select-content]") ||
+        target.closest("[data-radix-dropdown-menu]") ||
+        target.closest("[tabindex]") ||
+        target.hasAttribute("tabindex") ||
+        target.getAttribute("role") === "button" ||
+        target.getAttribute("role") === "combobox" ||
+        target.getAttribute("role") === "listbox"
+      ) {
         return;
+      }
+
+      // Auto-blur buttons and focusable elements when barcode scanning starts
+      const activeElement = document.activeElement as HTMLElement;
+      if (
+        activeElement &&
+        activeElement !== document.body &&
+        (activeElement.tagName === "BUTTON" ||
+          activeElement.hasAttribute("tabindex") ||
+          activeElement.getAttribute("role") === "button" ||
+          activeElement.closest('[role="button"]'))
+      ) {
+        // Blur the focused element to prevent interference
+        activeElement.blur();
+        // Small delay to ensure blur takes effect
+        setTimeout(() => {
+          // Continue with barcode processing
+          if (
+            e.key !== "Enter" &&
+            e.key.length === 1 &&
+            !e.ctrlKey &&
+            !e.altKey &&
+            !e.metaKey
+          ) {
+            const now = Date.now();
+            const timeSinceLastKey = now - lastKeypressTimeRef.current;
+
+            if (timeSinceLastKey > 200) {
+              barcodeBufferRef.current = "";
+            }
+
+            lastKeypressTimeRef.current = now;
+
+            if (scanTimeoutRef.current) {
+              clearTimeout(scanTimeoutRef.current);
+            }
+
+            barcodeBufferRef.current += e.key;
+            setStatus("scanning");
+
+            if (inactivityTimeoutRef.current) {
+              clearTimeout(inactivityTimeoutRef.current);
+            }
+
+            scanTimeoutRef.current = setTimeout(() => {
+              const barcode = barcodeBufferRef.current.trim();
+              if (barcode.length >= 3) {
+                setScannedBarcode(barcode);
+                setStatus("connected");
+              } else {
+                setStatus("connected");
+              }
+              barcodeBufferRef.current = "";
+            }, 50);
+          }
+        }, 10);
+        return;
+      }
+
+      // Special handling for space key - often used for UI interactions
+      if (e.key === " ") {
+        if (
+          activeElement &&
+          (activeElement.tagName === "BUTTON" ||
+            activeElement.hasAttribute("tabindex") ||
+            activeElement.getAttribute("role") === "button" ||
+            activeElement.getAttribute("role") === "combobox" ||
+            activeElement.closest('[role="combobox"]') ||
+            activeElement.closest("[data-radix-select-trigger]"))
+        ) {
+          return;
+        }
       }
 
       // Only listen in barcode mode
@@ -233,7 +336,10 @@ export function BarcodeReaderStatusBadge({ minimal = false }: Props) {
         clearTimeout(inactivityTimeoutRef.current);
       }
     };
-  }, [searchMode]);
+  }, [searchMode, isOnProductsPage]);
+
+  // Return empty if on products page
+  if (isOnProductsPage) return <></>;
 
   return (
     <Badge

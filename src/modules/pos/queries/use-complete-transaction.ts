@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useElectronAPI } from "@/hooks/use-electron-api";
 import { PaymentMethod } from "@/lib/zod/transactions.zod";
 import { usePosStore } from "@/lib/zustand/pos-store";
+import { usePrinterStore } from "@/lib/zustand/printer-store";
 
 export const useCompleteTransaction = () => {
   const queryClient = useQueryClient();
@@ -15,6 +16,8 @@ export const useCompleteTransaction = () => {
     setActiveTransaction,
     clearTransactionItems
   } = usePosStore();
+
+  const { setCurrentItem, setPrinterModalOpen } = usePrinterStore();
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -74,10 +77,14 @@ export const useCompleteTransaction = () => {
     onSuccess: () => {
       toast.success("Transaction Completed Successfully!", { id: toastId });
 
+      //   Execute bill printing mechanism
+      setCurrentItem({ transactionId: activeTransaction.id });
+      setPrinterModalOpen(true);
+
+      // Clear active transaction
+      // Todo: Move these to printer modal if needed
       setActiveTransaction(null);
       clearTransactionItems();
-
-      //   TODO: Execute bill printing function here
 
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
     },

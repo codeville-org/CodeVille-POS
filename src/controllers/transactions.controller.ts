@@ -9,7 +9,6 @@
 import { getDB } from "@/database";
 import { transactionItems, transactions } from "@/database/schema";
 import { generateUniqueId } from "@/lib/utils";
-import { UpdateCategoryResponse } from "@/lib/zod/categories.zod";
 import { TransactionsQueryParamsSchema } from "@/lib/zod/helpers";
 import {
   AddNewTransactionItemsResponse,
@@ -17,11 +16,13 @@ import {
   CreateTransactionSchema,
   DeleteTransactionResponse,
   GetAllTransactionsResponse,
+  GetTransactionResponse,
   InitializeTransactionResponse,
   PaymentMethod,
   PaymentStatus,
   SelectTransactionSchema,
   UninitializedTransactionItem,
+  UpdateTransactionResponse,
   UpdateTransactionSchema
 } from "@/lib/zod/transactions.zod";
 import { and, desc, eq, sql } from "drizzle-orm";
@@ -114,6 +115,50 @@ export async function getAllTransactionsController(
   }
 }
 
+// ========= Get Single Transaction Controller =========
+export async function getTransactionByIDController(
+  id: string
+): Promise<GetTransactionResponse> {
+  try {
+    const db = getDB();
+
+    // Build where conditions
+    const whereConditions: any[] = [];
+
+    whereConditions.push(eq(transactions.id, id));
+
+    const transactionQuery = db.query.transactions.findFirst({
+      where: whereConditions.length ? and(...whereConditions) : undefined,
+      with: {
+        customer: true,
+        items: true
+      }
+    });
+
+    const entry = await transactionQuery;
+
+    const formattedEntry: SelectTransactionSchema = {
+      ...entry,
+      status: entry.status as PaymentStatus,
+      paymentMethod: entry.paymentMethod as PaymentMethod,
+      customer: entry.customer,
+      items: entry.items
+    };
+
+    return {
+      data: formattedEntry,
+      success: true,
+      error: null
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      error: (error as Error).message
+    };
+  }
+}
+
 // ========= Initialize Transaction Controller =========
 export async function initializeTransactionController(
   body: CreateTransactionSchema
@@ -157,7 +202,7 @@ export async function initializeTransactionController(
 export async function updateTransactionController(
   id: string,
   body: UpdateTransactionSchema
-): Promise<UpdateCategoryResponse> {
+): Promise<UpdateTransactionResponse> {
   try {
     const db = getDB();
 

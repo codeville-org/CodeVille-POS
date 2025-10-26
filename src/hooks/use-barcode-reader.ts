@@ -121,15 +121,100 @@ export function useBarcodeReader(options: BarcodeReaderOptions = {}) {
         }
       }
 
-      // Ignore if user is typing in form elements
+      // Ignore if user is typing in form elements or interacting with UI controls
       const target = e.target as HTMLElement;
       if (
         target.tagName === "INPUT" ||
         target.tagName === "TEXTAREA" ||
         target.tagName === "SELECT" ||
-        target.isContentEditable
+        target.tagName === "BUTTON" ||
+        target.isContentEditable ||
+        // Check for form controls and interactive elements
+        target.closest('[role="combobox"]') ||
+        target.closest('[role="listbox"]') ||
+        target.closest('[role="option"]') ||
+        target.closest('[role="button"]') ||
+        target.closest("[data-radix-collection-item]") ||
+        target.closest("[data-radix-select-trigger]") ||
+        target.closest("[data-radix-select-content]") ||
+        target.closest("[data-radix-dropdown-menu]") ||
+        target.closest("[tabindex]") ||
+        // Check if target or any parent has focus/interactive attributes
+        target.hasAttribute("tabindex") ||
+        target.getAttribute("role") === "button" ||
+        target.getAttribute("role") === "combobox" ||
+        target.getAttribute("role") === "listbox"
       ) {
         return;
+      }
+
+      // Auto-blur buttons and focusable elements when barcode scanning starts
+      // This prevents buttons from remaining focused and interfering with scanning
+      const activeElement = document.activeElement as HTMLElement;
+      if (
+        activeElement &&
+        activeElement !== document.body &&
+        (activeElement.tagName === "BUTTON" ||
+          activeElement.hasAttribute("tabindex") ||
+          activeElement.getAttribute("role") === "button" ||
+          activeElement.closest('[role="button"]'))
+      ) {
+        // Blur the focused element to prevent interference with barcode scanning
+        activeElement.blur();
+        // Small delay to ensure blur takes effect before processing
+        setTimeout(() => {
+          // Continue with barcode processing after blur
+          if (
+            e.key.length === 1 &&
+            !e.ctrlKey &&
+            !e.altKey &&
+            !e.metaKey &&
+            e.key !== "Enter"
+          ) {
+            const now = Date.now();
+            const timeSinceLastKey = now - lastKeypressTimeRef.current;
+
+            if (timeSinceLastKey > 200) {
+              barcodeBufferRef.current = "";
+              setState((prev) => ({ ...prev, isScanning: true }));
+            }
+
+            lastKeypressTimeRef.current = now;
+
+            if (scanTimeoutRef.current) {
+              clearTimeout(scanTimeoutRef.current);
+            }
+
+            barcodeBufferRef.current += e.key;
+
+            scanTimeoutRef.current = setTimeout(() => {
+              const barcode = barcodeBufferRef.current;
+              if (barcode.length >= minLength) {
+                processScan(barcode);
+              } else {
+                setState((prev) => ({ ...prev, isScanning: false }));
+              }
+              barcodeBufferRef.current = "";
+            }, 50);
+          }
+        }, 10);
+        return;
+      }
+
+      // Special handling for space key - often used for UI interactions
+      if (e.key === " ") {
+        // If any focusable element is currently focused, ignore space key
+        if (
+          activeElement &&
+          (activeElement.tagName === "BUTTON" ||
+            activeElement.hasAttribute("tabindex") ||
+            activeElement.getAttribute("role") === "button" ||
+            activeElement.getAttribute("role") === "combobox" ||
+            activeElement.closest('[role="combobox"]') ||
+            activeElement.closest("[data-radix-select-trigger]"))
+        ) {
+          return;
+        }
       }
 
       // Ignore modifier keys and special keys

@@ -4,3 +4,8 @@ Initial Stage
 <!-- Build was success, But Database wasn't migrated properly in distribution packaged version. -->
 
 <!-- Defaut Password = 123456 -->
+
+<!-- Todos -->
+
+- Current implemented printer package doesn't supported for png image printing.
+- Find a new solution and implement it

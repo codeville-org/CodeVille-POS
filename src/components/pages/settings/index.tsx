@@ -3,6 +3,7 @@ import { AppPageShell } from "@/components/layouts/dashboard/page-shell";
 import { Separator } from "@/components/ui/separator";
 import { usePersistStore } from "@/lib/zustand/persist-store";
 import { PasswordSection } from "@/modules/settings/components/password-section";
+import { PrinterTest } from "@/modules/settings/components/printer-test";
 
 type Props = {};
 
@@ -21,6 +22,8 @@ export function SettingsPage({}: Props) {
         <Separator />
 
         <PasswordSection />
+
+        <PrinterTest />
       </div>
     </PageContainer>
   );

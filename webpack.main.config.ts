@@ -21,6 +21,7 @@ export const mainConfig: Configuration = {
       "@": path.resolve(__dirname, "src")
     }
   },
+  externals: {},
   // externals: ["better-sqlite3"]
   // Add this to copy migration files
   node: {

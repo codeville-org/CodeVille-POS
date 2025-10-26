@@ -47,8 +47,16 @@ export class ImageManager {
     return saveImageFromBufferController(imageBuffer, originalPath);
   }
 
-  async saveImageFromBase64(base64Data: string): Promise<string> {
-    return saveImageFromBase64Controller(base64Data);
+  async saveImageFromBase64(
+    base64Data: string,
+    billImage?: boolean,
+    transactionNumber?: string
+  ): Promise<string> {
+    return saveImageFromBase64Controller(
+      base64Data,
+      billImage,
+      transactionNumber
+    );
   }
 
   async getImageAsBase64(filename: string): Promise<string | null> {

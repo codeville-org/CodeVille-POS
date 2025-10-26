@@ -93,6 +93,7 @@ out/
 
 # Images Folder
 images/
+bills/
 
 # Sqlite3 Database files
 *.db

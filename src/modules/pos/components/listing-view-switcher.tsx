@@ -25,6 +25,7 @@ export function ListingViewSwitcher({}: Props) {
       variant="secondary"
       icon={listingView !== "billing" ? <ReceiptIcon /> : <ListIcon />}
       className="rounded-full"
+      autoBlur
     >
       {listingView === "listing"
         ? "Switch to Billing View"

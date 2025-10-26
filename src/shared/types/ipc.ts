@@ -32,6 +32,7 @@ import type {
   CreateTransactionSchema,
   DeleteTransactionResponse,
   GetAllTransactionsResponse,
+  GetTransactionResponse,
   InitializeTransactionResponse,
   UninitializedTransactionItem,
   UpdateTransactionResponse,
@@ -48,6 +49,11 @@ import {
   UpdateCustomerResponseSchema,
   UpdateCustomerSchema
 } from "@/lib/zod/customers.zod";
+import {
+  ListPrintersResponseT,
+  PrintReceiptResponseT,
+  TestPrintResponseT
+} from "@/lib/zod/printers.zod";
 import { GetSecurityResponseT } from "@/lib/zod/security.zod";
 import {
   AppSettingsMapInsertT,
@@ -85,7 +91,11 @@ export interface ProductsActions {
 
 export interface ImagesActions {
   getImagesDirectory: () => string;
-  saveImageFromBase64: (base64Data: string) => Promise<string>;
+  saveImageFromBase64: (
+    base64Data: string,
+    billImage?: boolean,
+    transactionNumber?: string
+  ) => Promise<string>;
   saveImageFromPath: (sourceImagePath: string) => Promise<string>;
   getImageAsBase64: (filename: string) => Promise<string | null>;
   deleteImage: (filename: string) => Promise<boolean>;
@@ -108,6 +118,7 @@ export interface TransactionsActions {
   getAll: (
     query: TransactionsQueryParamsSchema
   ) => Promise<GetAllTransactionsResponse>;
+  getByID: (id: string) => Promise<GetTransactionResponse>;
   initialize: (
     body: CreateTransactionSchema
   ) => Promise<InitializeTransactionResponse>;
@@ -131,6 +142,12 @@ export interface SecurityActions {
   login: (password: string) => Promise<GetSecurityResponseT>;
 }
 
+export interface PrinterActions {
+  listPrinters: () => Promise<ListPrintersResponseT>;
+  printReceipt: (imageName: string) => Promise<PrintReceiptResponseT>;
+  testPrint: (printerName: string) => Promise<TestPrintResponseT>;
+}
+
 // Main IPC API interface
 export interface ElectronAPI {
   window: WindowActions;
@@ -141,4 +158,5 @@ export interface ElectronAPI {
   transactions: TransactionsActions;
   settings: SettingsActions;
   security: SecurityActions;
+  print: PrinterActions;
 }
