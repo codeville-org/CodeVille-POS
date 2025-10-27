@@ -182,6 +182,11 @@ export const TEXTS = {
       si: "ඔබේ ගනුදෙනු මෙහි කළමනාකරණය කරන්න"
     }
   },
+  bill: {
+    quantity: { en: "Qty", si: "ප්‍රමාණය" },
+    unitPrice: { en: "Unit Price", si: "සදහන් මිල" },
+    total: { en: "Total", si: "එකතුව" }
+  },
   lockScreen: {
     placeholder: {
       en: "Enter your password here",
