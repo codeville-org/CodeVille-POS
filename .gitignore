@@ -99,3 +99,5 @@ bills/
 *.db
 *.db-shm
 *.db-wal
+
+electron-pos-printer-source-code

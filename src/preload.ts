@@ -66,7 +66,10 @@ const electronAPI: ElectronAPI = {
   print: {
     listPrinters: printInvoker("listPrinters"),
     printReceipt: printInvoker("printReceipt"),
-    testPrint: printInvoker("testPrint")
+    testPrint: printInvoker("testPrint"),
+    getAvailablePrinters: printInvoker("getAvailablePrinters"),
+    printPOSData: printInvoker("printPOSData"),
+    validatePrinter: printInvoker("validatePrinter")
   }
 };
 

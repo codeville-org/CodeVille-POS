@@ -78,6 +78,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       title: CONSTANTS.SIDEBAR.settings.text[language],
       url: "/settings",
       icon: Settings
+    },
+    {
+      key: "printer-test",
+      title: "Printer Test",
+      url: "/printer-test",
+      icon: Settings
     }
   ];
 

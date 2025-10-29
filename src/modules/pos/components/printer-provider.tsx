@@ -14,7 +14,6 @@ import {
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
 import { useElectronAPI } from "@/hooks/use-electron-api";
 import { SelectTransactionSchema } from "@/lib/zod/transactions.zod";
 import { usePrinterStore } from "@/lib/zustand/printer-store";
@@ -69,11 +68,15 @@ export function PrinterProvider({}: Props) {
 
       const dataUrl = await toPng(receiptRef.current, {
         quality: 1,
-        pixelRatio: 3,
+        pixelRatio: 2, // Reduced from 3 for better compatibility
         backgroundColor: "#ffffff",
         cacheBust: true,
-        width: 576,
-        height: receiptRef.current.scrollHeight
+        width: 560, // Optimized for 80mm thermal printer
+        height: receiptRef.current.scrollHeight,
+        style: {
+          transform: "scale(1)",
+          transformOrigin: "top left"
+        }
       });
 
       // Save bill image
@@ -121,7 +124,7 @@ export function PrinterProvider({}: Props) {
           <div className="w-full flex items-center justify-center">
             {isFetching ? (
               <Card
-                className={`w-[576px] h-80 flex items-center justify-center`}
+                className={`w-[560px] h-80 flex items-center justify-center`}
               >
                 <div className="p-2 rounded-full bg-primary/10 text-primary">
                   <Loader className="size-6 animate-spin" />
@@ -130,7 +133,7 @@ export function PrinterProvider({}: Props) {
             ) : transactionData ? (
               <div
                 className={
-                  "w-[576px] min-h-[300px] relative overflow-hidden rounded-md"
+                  "w-[560px] min-h-[300px] relative overflow-hidden rounded-md"
                 }
               >
                 {printerStatus === "printing" && (
@@ -149,39 +152,89 @@ export function PrinterProvider({}: Props) {
 
                 <div
                   ref={receiptRef}
-                  className="w-[576px] p-4 bg-white font-sinhala box-border text-black"
+                  className="w-[560px] p-6 bg-white font-sinhala box-border text-black"
+                  style={{
+                    fontSize: "15px",
+                    lineHeight: "1.3",
+                    fontFamily: "monospace"
+                  }}
                 >
                   {/* Store Header */}
                   <div className="text-center mb-6">
                     <div
                       style={{
-                        fontSize: "36px",
+                        fontSize: "28px",
                         fontWeight: "bold",
-                        marginBottom: "10px"
+                        marginBottom: "8px",
+                        letterSpacing: "1px"
                       }}
-                      className="text-xl font-black mb-3 font-sans"
+                      className="font-sans"
                     >
-                      {`Dewmali Super`}
+                      Dewmali Super
                     </div>
-                    <div className="text-xl">123 Main Street</div>
-                    <div className="text-xl">City, State 12576</div>
-                    <div className="text-xl mt-2">Tel: (555) 123-4567</div>
+                    <div style={{ fontSize: "16px", marginBottom: "4px" }}>
+                      123 Main Street
+                    </div>
+                    <div style={{ fontSize: "16px", marginBottom: "4px" }}>
+                      City, State 12576
+                    </div>
+                    <div style={{ fontSize: "16px", marginTop: "8px" }}>
+                      Tel: (555) 123-4567
+                    </div>
                   </div>
 
-                  <Separator />
+                  <div
+                    style={{
+                      borderTop: "2px solid #000",
+                      margin: "16px 0",
+                      width: "100%"
+                    }}
+                  ></div>
 
-                  <div className="mt-3 space-y-2">
+                  <div className="mt-4 space-y-3">
                     {transactionData?.items.map((item, index) => (
-                      <p className="text-sm" key={index}>
-                        {item.productName} - {item.quantity} x {item.unitPrice}{" "}
-                        = {item.totalAmount}
-                      </p>
+                      <div
+                        key={index}
+                        style={{
+                          fontSize: "14px",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "flex-start",
+                          marginBottom: "8px",
+                          flexWrap: "wrap"
+                        }}
+                      >
+                        <span style={{ flex: "1", marginRight: "8px" }}>
+                          {item.productName} - {item.quantity} x{" "}
+                          {item.unitPrice}
+                        </span>
+                        <span style={{ fontWeight: "bold" }}>
+                          {item.totalAmount}
+                        </span>
+                      </div>
                     ))}
                   </div>
 
-                  <Separator />
+                  <div
+                    style={{
+                      borderTop: "2px solid #000",
+                      margin: "16px 0",
+                      width: "100%"
+                    }}
+                  ></div>
 
-                  <h1 className="text-2xl font-semibold">එකතුව = රු.100.00</h1>
+                  <div className="text-center">
+                    <h1
+                      style={{
+                        fontSize: "24px",
+                        fontWeight: "bold",
+                        margin: "16px 0",
+                        letterSpacing: "1px"
+                      }}
+                    >
+                      එකතුව = රු.100.00
+                    </h1>
+                  </div>
                 </div>
               </div>
             ) : (

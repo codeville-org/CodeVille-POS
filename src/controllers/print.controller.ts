@@ -1,9 +1,12 @@
 import ESCPOSPrinter, { type PrinterInfo } from "@mixgeeker/node-escpos-win";
-import { BrowserWindow } from "electron";
-import * as fs from "fs/promises";
-import path from "path";
-import sharp from "sharp";
+import * as path from "path";
 
+import {
+  PosPrintData,
+  PosPrintOptions,
+  PrintJobStatus
+} from "@/lib/printer/models";
+import { PosPrinter } from "@/lib/printer/pos-printer";
 import {
   ListPrintersResponseT,
   PrintReceiptResponseT,
@@ -60,108 +63,7 @@ export async function printReceiptController(
     const billsPath = getBillsImageDirectory();
     const fullPath = path.join(billsPath, imageName);
 
-    // -------------------------------------------------
-    let printWindow: BrowserWindow | null = null;
-
-    printWindow = new BrowserWindow({
-      show: false, // Keep hidden
-      width: 800,
-      height: 600,
-      webPreferences: {
-        nodeIntegration: false,
-        contextIsolation: true,
-        offscreen: true
-      }
-    });
-
-    const imageData = await fs.readFile(fullPath, { encoding: "base64" });
-
-    // Get actual image dimensions for better quality
-    const imageBuffer = await fs.readFile(fullPath);
-    const metadata = await sharp(imageBuffer).metadata();
-    const imageHeight = metadata.height || 800;
-
-    const html = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <style>
-            @page {
-              size: 80mm ${imageHeight}px;
-              margin: 0mm;
-            }
-            * {
-              margin: 0;
-              padding: 0;
-              box-sizing: border-box;
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-            }
-            html, body {
-              width: 80mm;
-              margin: 0;
-              padding: 0;
-              background: white;
-            }
-            img {
-              width: 80mm;
-              height: auto;
-              display: block;
-              image-rendering: -webkit-optimize-contrast;
-              image-rendering: crisp-edges;
-              image-rendering: pixelated;
-            }
-          </style>
-        </head>
-        <body>
-          <img src="data:image/png;base64,${imageData}" alt="Receipt" />
-        </body>
-        </html>
-      `;
-
-    await printWindow.loadURL(
-      `data:text/html;charset=utf-8,${encodeURIComponent(html)}`
-    );
-
-    // Wait longer for content to fully load and render
-    await new Promise((r) => setTimeout(r, 1000));
-
-    // Print with high quality settings
-    await new Promise<void>((resolve, reject) => {
-      printWindow!.webContents.print(
-        {
-          silent: true,
-          printBackground: true,
-          color: false, // Black and white for thermal
-          deviceName: printerName,
-          margins: {
-            marginType: "none"
-          },
-          pageSize: {
-            width: 80000, // 80mm in microns
-            height: imageHeight * 264.58 // Convert pixels to microns (1px ≈ 264.58 microns at 96 DPI)
-          },
-          dpi: {
-            horizontal: 203, // Thermal printer DPI (203 or 300)
-            vertical: 203
-          },
-          scaleFactor: 100 // No scaling
-        },
-        (success, errorType) => {
-          if (printWindow) {
-            printWindow.close();
-            printWindow = null;
-          }
-
-          if (success) {
-            resolve();
-          } else {
-            console.error("Print failed:", errorType);
-            reject(new Error(`Print failed: ${errorType}`));
-          }
-        }
-      );
-    });
+    console.log({ fullPath });
 
     return {
       data: { message: "Receipt printed successfully" },
@@ -374,6 +276,76 @@ export async function testPrintController(
       data: null,
       error: (error as Error).message,
       success: false
+    };
+  }
+}
+
+// ================= New POS Printer Controller Functions =================
+
+/**
+ * Print POS data using the new POS printer implementation
+ */
+export async function printPOSDataController(
+  data: PosPrintData[],
+  options: PosPrintOptions
+): Promise<PrintJobStatus> {
+  try {
+    const result = await PosPrinter.print(data, options);
+    return result;
+  } catch (error) {
+    console.error("POS Print Error: ", error);
+    return {
+      success: false,
+      complete: false,
+      error: (error as Error).message
+    };
+  }
+}
+
+/**
+ * Validate if a printer is available and connected
+ */
+export async function validatePrinterController(printerName: string): Promise<{
+  success: boolean;
+  available: boolean;
+  error?: string;
+}> {
+  try {
+    const isAvailable = await PosPrinter.validatePrinterConnection(printerName);
+    return {
+      success: true,
+      available: isAvailable
+    };
+  } catch (error) {
+    console.error("Printer validation error: ", error);
+    return {
+      success: false,
+      available: false,
+      error: (error as Error).message
+    };
+  }
+}
+
+/**
+ * Get list of available printers for POS printing
+ */
+export async function getDefaultPrinterController(): Promise<{
+  success: boolean;
+  printers: any[];
+  error?: string;
+}> {
+  try {
+    const printers = await PosPrinter.getAvailablePrinters();
+    return {
+      success: true,
+      printers
+    };
+  } catch (error) {
+    console.error("Get printers error: ", error);
+    return {
+      success: false,
+      printers: [],
+      error: (error as Error).message
     };
   }
 }

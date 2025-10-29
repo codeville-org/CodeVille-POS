@@ -60,6 +60,13 @@ import {
   GetAppSettingsResponseT
 } from "@/lib/zod/settings.zod";
 
+// POS Printer Types
+import {
+  PosPrintData,
+  PosPrintOptions,
+  PrintJobStatus
+} from "@/lib/printer/models";
+
 // Window management types
 export interface WindowActions {
   minimize: () => Promise<void>;
@@ -146,6 +153,21 @@ export interface PrinterActions {
   listPrinters: () => Promise<ListPrintersResponseT>;
   printReceipt: (imageName: string) => Promise<PrintReceiptResponseT>;
   testPrint: (printerName: string) => Promise<TestPrintResponseT>;
+  // New POS Printer methods
+  printPOSData: (
+    data: PosPrintData[],
+    options: PosPrintOptions
+  ) => Promise<PrintJobStatus>;
+  validatePrinter: (printerName: string) => Promise<{
+    success: boolean;
+    available: boolean;
+    error?: string;
+  }>;
+  getAvailablePrinters: () => Promise<{
+    success: boolean;
+    printers: any[];
+    error?: string;
+  }>;
 }
 
 // Main IPC API interface

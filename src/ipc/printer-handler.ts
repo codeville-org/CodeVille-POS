@@ -1,7 +1,10 @@
 import {
+  getDefaultPrinterController,
   listPrintersController,
+  printPOSDataController,
   printReceiptController,
-  testPrintController
+  testPrintController,
+  validatePrinterController
 } from "@/controllers/print.controller";
 import { createHandler } from "./create-handler";
 
@@ -12,5 +15,8 @@ export const printerHandler = {
     handler.handle("listPrinters", listPrintersController);
     handler.handle("printReceipt", printReceiptController);
     handler.handle("testPrint", testPrintController);
+    handler.handle("printPOSData", printPOSDataController);
+    handler.handle("validatePrinter", validatePrinterController);
+    handler.handle("getAvailablePrinters", getDefaultPrinterController);
   }
 };
