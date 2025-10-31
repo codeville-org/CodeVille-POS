@@ -83,14 +83,27 @@ export function PrinterProvider({}: Props) {
         transactionData?.transactionNumber
       );
 
-      console.log(savedBillImage);
+      console.log("Saved bill image path:", savedBillImage);
 
       // Print bill image at full width (80mm thermal paper)
-      await electronAPI.print.printImageBill(savedBillImage, true);
+      console.log("Attempting to print bill image...");
+      const printResult = await electronAPI.print.printImageBill(
+        savedBillImage,
+        true
+      );
+      console.log("Print result:", printResult);
 
-      toast.success("Transaction Bill Printed Successfully  !");
+      if (printResult.success) {
+        toast.success("Transaction Bill Printed Successfully!");
+      } else {
+        console.error("Print failed:", printResult.error);
+        toast.error(`Print failed: ${printResult.error || "Unknown error"}`);
+      }
     } catch (error) {
-      console.error("Failed to generate receipt image:", error);
+      console.error("Failed to generate or print receipt image:", error);
+      toast.error(
+        `Print failed: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
     } finally {
       setPrinterStatus("idle");
     }

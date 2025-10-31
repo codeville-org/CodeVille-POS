@@ -85,7 +85,6 @@ export async function saveImageFromBase64Controller(
 
     const fullPath = path.join(imagesDirectory, filename);
     await fs.writeFile(fullPath, imageBuffer);
-    console.log(`Image saved from base64: ${filename}`);
     return filename;
   } catch (error) {
     console.error("Failed to save image from base64:", error);

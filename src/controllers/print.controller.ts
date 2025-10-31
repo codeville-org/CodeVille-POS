@@ -5,11 +5,16 @@ import {
   USBPrinter
 } from "@/modules/printer/services/printer-service";
 import { dialog } from "electron";
+import path from "path";
 
 import type {
   ListPrintersResponseT,
   VoidDataResponseT
 } from "@/lib/zod/printers.zod";
+import {
+  getBillsImageDirectory,
+  getImagesDirectory
+} from "./images.controller";
 import { getAppSettingsController } from "./settings.controller";
 
 let printerInstance: USBPrinter | null = null;
@@ -138,17 +143,13 @@ export async function getPlatformController(): Promise<string> {
 }
 
 // ---- Save printer settings controller
+// Not using currently
 export async function savePrinterSettingsController(
   settings: PrinterConfig
 ): Promise<VoidDataResponseT> {
   try {
     printerSettings = { ...printerSettings, ...settings };
     printerInstance = null; // Reset instance
-
-    // TODO: Persist settings to file using electron-store or similar
-    // const Store = require('electron-store');
-    // const store = new Store();
-    // store.set('printerSettings', printerSettings);
 
     return { success: true };
   } catch (error) {
@@ -170,7 +171,13 @@ export async function printImageController(
   try {
     const printer = await getPrinter();
 
-    await printer.printImage(imagePath, align || "center", useDithering);
+    // If imagePath is just a filename, resolve it to full path
+    let fullImagePath = imagePath;
+    if (!path.isAbsolute(imagePath)) {
+      fullImagePath = path.join(getImagesDirectory(), imagePath);
+    }
+
+    await printer.printImage(fullImagePath, align || "center", useDithering);
 
     return { success: true };
   } catch (error) {
@@ -191,10 +198,25 @@ export async function printImageBillController(
   try {
     const printer = await getPrinter();
 
-    await printer.printImageBill(imagePath, useDithering);
+    // If imagePath is just a filename, resolve it to full path
+    // For bill images, check bills directory first, then images directory
+    let fullImagePath = imagePath;
+    if (!path.isAbsolute(imagePath)) {
+      // Try bills directory first (for bill images)
+      const billPath = path.join(getBillsImageDirectory(), imagePath);
+      const imageDirPath = path.join(getImagesDirectory(), imagePath);
+
+      // Use bills directory if file starts with "bill_", otherwise use images directory
+      fullImagePath = imagePath.startsWith("bill_") ? billPath : imageDirPath;
+    }
+
+    console.log(`Attempting to print bill image from: ${fullImagePath}`);
+
+    await printer.printImageBill(fullImagePath, useDithering);
 
     return { success: true };
   } catch (error) {
+    console.error("Print image bill error:", error);
     return {
       error:
         (error as Error).message ||

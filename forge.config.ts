@@ -13,10 +13,14 @@ import { rendererConfig } from "./webpack.renderer.config";
 
 const config: ForgeConfig = {
   packagerConfig: {
-    asar: true,
+    asar: {
+      unpack: "*.{node,dll,dylib,so,so.*}" // Unpack native modules
+    },
     extraResource: ["src/database/migrations"]
   },
-  rebuildConfig: {},
+  rebuildConfig: {
+    force: true
+  },
   makers: [
     new MakerSquirrel({}),
     new MakerZIP({}, ["darwin"]),
@@ -42,8 +46,6 @@ const config: ForgeConfig = {
         ]
       }
     }),
-    // Fuses are used to enable/disable various Electron functionality
-    // at package time, before code signing the application
     new FusesPlugin({
       version: FuseVersion.V1,
       [FuseV1Options.RunAsNode]: false,

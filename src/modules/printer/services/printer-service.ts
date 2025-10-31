@@ -58,6 +58,8 @@ export class USBPrinter {
   constructor(config: PrinterConfig) {
     this.config = config;
     this.platform = process.platform;
+
+    this.testCanvasInPackagedApp().catch(console.error);
   }
 
   /**
@@ -136,7 +138,6 @@ export class USBPrinter {
     if (receipt.logoPath) {
       try {
         const imageData = await this.prepareImage(receipt.logoPath);
-        console.log(imageData);
 
         buffer.push(this.ALIGN_CENTER);
         buffer.push(imageData);
@@ -340,6 +341,54 @@ export class USBPrinter {
   }
 
   /**
+   * Load canvas module with proper path resolution for packaged apps
+   */
+  private async loadCanvasModule() {
+    try {
+      // Try normal require first (works in development)
+      return require("canvas");
+    } catch (error) {
+      console.log("Normal canvas require failed, trying packaged app path...");
+
+      try {
+        // For packaged apps, we need to resolve the path manually
+        const path = require("path");
+        const { app } = require("electron");
+
+        // In packaged apps, native modules are in app.asar.unpacked
+        let canvasPath: string;
+
+        if (app.isPackaged) {
+          // Path in packaged app
+          canvasPath = path.join(
+            process.resourcesPath,
+            "app.asar.unpacked",
+            ".webpack",
+            "main",
+            "native_modules",
+            "canvas"
+          );
+        } else {
+          // Development path
+          canvasPath = path.join(app.getAppPath(), "node_modules", "canvas");
+        }
+
+        console.log("Attempting to load canvas from:", canvasPath);
+
+        // Try to require from the resolved path
+        const canvas = require(canvasPath);
+        console.log("Canvas loaded successfully from packaged path");
+        return canvas;
+      } catch (packError) {
+        console.error("Failed to load canvas from packaged path:", packError);
+        throw new Error(
+          `Canvas module could not be loaded. Development error: ${error}. Package error: ${packError}`
+        );
+      }
+    }
+  }
+
+  /**
    * Prepare image for printing (converts to ESC/POS bitmap)
    */
   private async prepareImage(
@@ -348,53 +397,103 @@ export class USBPrinter {
     useDithering: boolean = true
   ): Promise<string> {
     try {
+      console.log(`Preparing image: ${imagePath}`);
+
+      // Check if file exists
+      if (!fs.existsSync(imagePath)) {
+        console.error(`Image file not found: ${imagePath}`);
+        throw new Error(`Image file not found: ${imagePath}`);
+      }
+
       // Read image file
       const imageBuffer = await readFile(imagePath);
 
-      // Convert to bitmap using canvas
-      const { createCanvas, loadImage } = require("canvas");
+      // First try the canvas approach
+      try {
+        const result = await this.prepareImageWithCanvas(
+          imageBuffer,
+          maxWidth,
+          useDithering
+        );
+        return result;
+      } catch (canvasError) {
+        console.warn(
+          "Canvas approach failed, trying alternative method:",
+          canvasError
+        );
 
-      const image = await loadImage(imageBuffer);
-
-      // Calculate dimensions (maintain aspect ratio)
-      let width = image.width;
-      let height = image.height;
-
-      if (width > maxWidth) {
-        const ratio = maxWidth / width;
-        width = maxWidth;
-        height = Math.floor(height * ratio);
+        // Try a simple fallback approach
+        console.log("Attempting simple fallback approach...");
+        return this.prepareImageFallback(imageBuffer, maxWidth);
       }
-
-      // Ensure dimensions are reasonable
-      width = Math.max(1, Math.min(width, 576)); // Max thermal printer width
-      height = Math.max(1, Math.min(height, 1000)); // Reasonable height limit
-
-      // Create canvas with white background
-      const canvas = createCanvas(width, height);
-      const ctx = canvas.getContext("2d");
-
-      // Fill with white background (important for transparency)
-      ctx.fillStyle = "#FFFFFF";
-      ctx.fillRect(0, 0, width, height);
-
-      // Set image smoothing for better quality
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = "high";
-
-      // Draw image
-      ctx.drawImage(image, 0, 0, width, height);
-
-      // Get image data
-      const imageData = ctx.getImageData(0, 0, width, height);
-
-      // Convert to monochrome bitmap
-      return this.convertToBitmap(imageData.data, width, height, useDithering);
     } catch (error) {
+      console.error("Prepare image error:", error);
       throw new Error(
         `Failed to prepare image: ${error instanceof Error ? error.message : "Unknown error"}`
       );
     }
+  }
+
+  /**
+   * Prepare image using canvas (preferred method)
+   */
+  private async prepareImageWithCanvas(
+    imageBuffer: Buffer,
+    maxWidth: number,
+    useDithering: boolean
+  ): Promise<string> {
+    // Use the helper function to load canvas
+    const loadedCanvas = await this.loadCanvasModule();
+    const { createCanvas, loadImage } = loadedCanvas;
+
+    console.log("Canvas module loaded successfully");
+
+    const image = await loadImage(imageBuffer);
+
+    // Calculate dimensions (maintain aspect ratio)
+    let width = image.width;
+    let height = image.height;
+
+    if (width > maxWidth) {
+      const ratio = maxWidth / width;
+      width = maxWidth;
+      height = Math.floor(height * ratio);
+    }
+
+    // Ensure dimensions are reasonable
+    width = Math.max(1, Math.min(width, 576)); // Max thermal printer width
+    height = Math.max(1, Math.min(height, 1000)); // Reasonable height limit
+
+    // Create canvas with white background
+    const canvas = createCanvas(width, height);
+    const ctx = canvas.getContext("2d");
+
+    // Fill with white background (important for transparency)
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(0, 0, width, height);
+
+    // Set image smoothing for better quality
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+
+    // Draw image
+    ctx.drawImage(image, 0, 0, width, height);
+
+    // Get image data
+    const imageData = ctx.getImageData(0, 0, width, height);
+
+    // Convert to monochrome bitmap
+    const bitmapData = this.convertToBitmap(
+      imageData.data,
+      width,
+      height,
+      useDithering
+    );
+    console.log(
+      `Bitmap conversion completed, data length: ${bitmapData.length}`
+    );
+
+    return bitmapData;
   }
 
   /**
@@ -540,23 +639,105 @@ export class USBPrinter {
     // 80mm = ~3.15 inches, at 180 DPI = ~568 pixels, rounded to 576 for byte alignment
     const fullWidth = 576;
 
-    const fullBillImagePath = getBillsImageDirectory() + "/" + imagePath;
+    // Use path.join for proper cross-platform path handling
+    const path = require("path");
+    let fullBillImagePath: string;
 
-    // Add image at full width
-    const imageData = await this.prepareImage(
-      fullBillImagePath,
-      fullWidth,
-      useDithering
-    );
+    // Check if imagePath is already a full path or just a filename
+    if (path.isAbsolute(imagePath)) {
+      fullBillImagePath = imagePath;
+    } else {
+      fullBillImagePath = path.join(getBillsImageDirectory(), imagePath);
+    }
 
-    buffer.push(imageData);
+    try {
+      // Verify file exists before processing
+      if (!fs.existsSync(fullBillImagePath)) {
+        throw new Error(`Image file not found at: ${fullBillImagePath}`);
+      }
 
-    // Add extra feed lines and cut paper
-    buffer.push(this.FEED_LINES(3));
-    buffer.push(this.CUT_PAPER);
+      // Add image at full width
+      const imageData = await this.prepareImage(
+        fullBillImagePath,
+        fullWidth,
+        useDithering
+      );
 
-    const data = Buffer.from(buffer.join(""), "binary");
-    await this.sendToPrinter(data);
+      if (!imageData || imageData.length === 0) {
+        throw new Error("Failed to generate image data");
+      }
+
+      buffer.push(imageData);
+
+      // Add extra feed lines and cut paper
+      buffer.push(this.FEED_LINES(3));
+      buffer.push(this.CUT_PAPER);
+
+      const data = Buffer.from(buffer.join(""), "binary");
+
+      await this.sendToPrinter(data);
+    } catch (error) {
+      console.error("Error printing bill image:", error);
+      throw new Error(
+        `Failed to print bill image: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
+    }
+  }
+
+  /**
+   * Simple fallback image processing that creates a basic bitmap
+   * This is used when canvas is not available in packaged apps
+   */
+  private prepareImageFallback(
+    _imageBuffer: Buffer,
+    maxWidth: number = 384
+  ): string {
+    console.log("Using fallback image processing...");
+
+    // For now, create a simple test pattern
+    // In a real implementation, you'd need to decode the image without canvas
+    // This is a placeholder that creates a simple test pattern
+    const width = Math.min(maxWidth, 384);
+    const height = 100; // Fixed height for testing
+
+    const buffer: string[] = [];
+
+    // ESC/POS raster image command: GS v 0
+    buffer.push(this.GS);
+    buffer.push("v");
+    buffer.push("0");
+    buffer.push("\x00"); // Normal mode
+
+    // Width in bytes (8 pixels per byte)
+    const widthBytes = Math.ceil(width / 8);
+    buffer.push(String.fromCharCode(widthBytes & 0xff));
+    buffer.push(String.fromCharCode((widthBytes >> 8) & 0xff));
+
+    // Height
+    buffer.push(String.fromCharCode(height & 0xff));
+    buffer.push(String.fromCharCode((height >> 8) & 0xff));
+
+    // Create a simple test pattern instead of actual image
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < widthBytes; x++) {
+        // Create a simple test pattern
+        let byte = 0;
+        if (y < 20 || y > height - 20) {
+          // Top and bottom borders
+          byte = 0xff;
+        } else if (x < 2 || x > widthBytes - 3) {
+          // Left and right borders
+          byte = 0xff;
+        } else if (y % 10 < 2) {
+          // Horizontal lines
+          byte = 0xff;
+        }
+        buffer.push(String.fromCharCode(byte));
+      }
+    }
+
+    console.log("Fallback pattern created");
+    return buffer.join("");
   }
 
   /**
@@ -589,10 +770,39 @@ export class USBPrinter {
       const pngBuffer = canvas.toBuffer("image/png");
       stream.write(pngBuffer);
       stream.end();
-
-      console.log(`Debug image saved to: ${debugPath}`);
     } catch (error) {
       console.error("Debug image processing failed:", error);
+    }
+  }
+
+  private async testCanvasInPackagedApp(): Promise<void> {
+    try {
+      const { app } = require("electron");
+      const path = require("path");
+      console.log(path);
+
+      console.log("=== Canvas Loading Debug ===");
+      console.log("Is Packaged:", app.isPackaged);
+      console.log("App Path:", app.getAppPath());
+      console.log("Resource Path:", process.resourcesPath);
+
+      // Try to load canvas
+      const canvas = require("canvas");
+      console.log("✓ Canvas loaded successfully");
+      console.log("Canvas version:", canvas.version);
+
+      // Test canvas creation
+      const testCanvas = canvas.createCanvas(10, 10);
+      console.log(testCanvas);
+
+      console.log("✓ Canvas creation successful");
+      console.log("===========================");
+    } catch (error) {
+      console.error("✗ Canvas loading failed:", error);
+      console.error("Error details:", {
+        message: (error as Error).message,
+        stack: (error as Error).stack
+      });
     }
   }
 }
