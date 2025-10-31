@@ -16,13 +16,17 @@ export async function getAppSettingsController(): Promise<GetAppSettingsResponse
     const allValues = await db.query.settings.findMany();
 
     let settingsMap: AppSettingsMapT = {
-      password: ""
+      password: "",
+      defaultPrinter: ""
     };
 
     for (const setting of allValues) {
       switch (setting.key) {
         case "password":
           settingsMap.password = (setting?.value as string) || "";
+          break;
+        case "defaultPrinter":
+          settingsMap.defaultPrinter = (setting?.value as string) || "";
           break;
       }
     }

@@ -51,14 +51,18 @@ import {
 } from "@/lib/zod/customers.zod";
 import {
   ListPrintersResponseT,
-  PrintReceiptResponseT,
-  TestPrintResponseT
+  VoidDataResponseT
 } from "@/lib/zod/printers.zod";
 import { GetSecurityResponseT } from "@/lib/zod/security.zod";
 import {
   AppSettingsMapInsertT,
   GetAppSettingsResponseT
 } from "@/lib/zod/settings.zod";
+import {
+  ALIGNMENT_OPTIONS,
+  PrinterConfig,
+  ReceiptData
+} from "@/modules/printer/services/printer-service";
 
 // Window management types
 export interface WindowActions {
@@ -143,9 +147,22 @@ export interface SecurityActions {
 }
 
 export interface PrinterActions {
-  listPrinters: () => Promise<ListPrintersResponseT>;
-  printReceipt: (imageName: string) => Promise<PrintReceiptResponseT>;
-  testPrint: (printerName: string) => Promise<TestPrintResponseT>;
+  printReceipt: (data: ReceiptData) => Promise<VoidDataResponseT>;
+  testPrinter: (config: PrinterConfig) => Promise<boolean>;
+  openCashDrawer: () => Promise<VoidDataResponseT>;
+  getAvailablePrinters: () => Promise<ListPrintersResponseT>;
+  getPlatform: () => Promise<string>;
+  savePrinterSettings: (settings: PrinterConfig) => Promise<VoidDataResponseT>;
+  printImage: (
+    imagePath: string,
+    align?: ALIGNMENT_OPTIONS,
+    useDithering?: boolean
+  ) => Promise<VoidDataResponseT>;
+  printImageBill: (
+    imagePath: string,
+    useDithering?: boolean
+  ) => Promise<VoidDataResponseT>;
+  selectImageFile: () => Promise<string | null>;
 }
 
 // Main IPC API interface

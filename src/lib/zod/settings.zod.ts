@@ -4,7 +4,8 @@ import { getBaseReturnSchema } from "./helpers";
 // Key-Value Mapper for App Settings
 export const appSettingsMap = z.object({
   // Security Settings
-  password: z.string().optional()
+  password: z.string().optional(),
+  defaultPrinter: z.string().optional()
 });
 
 export const appSettingsMapInsert = appSettingsMap.partial();

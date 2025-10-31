@@ -83,20 +83,12 @@ export function PrinterProvider({}: Props) {
         transactionData?.transactionNumber
       );
 
-      // Print Receipt
-      const res = await electronAPI.print.printReceipt(savedBillImage);
+      console.log(savedBillImage);
 
-      console.log(res);
+      // Print bill image at full width (80mm thermal paper)
+      await electronAPI.print.printImageBill(savedBillImage, true);
 
-      if (res?.error || !res.data)
-        throw new Error(res?.error || "Something went wrong");
-
-      if (res.data) {
-        toast.success(
-          (res.data as any)?.message ||
-            "Transaction Bill Printed Successfully  !"
-        );
-      }
+      toast.success("Transaction Bill Printed Successfully  !");
     } catch (error) {
       console.error("Failed to generate receipt image:", error);
     } finally {
