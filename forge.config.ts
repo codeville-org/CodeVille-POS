@@ -7,14 +7,26 @@ import { FusesPlugin } from "@electron-forge/plugin-fuses";
 import { WebpackPlugin } from "@electron-forge/plugin-webpack";
 import type { ForgeConfig } from "@electron-forge/shared-types";
 import { FuseV1Options, FuseVersion } from "@electron/fuses";
+import path from "path";
 
 import { mainConfig } from "./webpack.main.config";
 import { rendererConfig } from "./webpack.renderer.config";
 
 const config: ForgeConfig = {
   packagerConfig: {
-    asar: true,
-    extraResource: ["src/database/migrations"]
+    asar: { unpack: "**/node_modules/{sharp,@img}/**/*" },
+    extraResource: ["src/database/migrations"],
+    afterCopy: [
+      (buildPath, electronVersion, platform, arch, callback) => {
+        console.log("Build path:", buildPath);
+        console.log("asarUnpack paths exist:", {
+          sharp: require("fs").existsSync(
+            path.join(buildPath, "node_modules/sharp")
+          )
+        });
+        callback();
+      }
+    ]
   },
   rebuildConfig: {
     force: true
@@ -44,6 +56,13 @@ const config: ForgeConfig = {
         ]
       }
     }),
+    {
+      name: "@timfish/forge-externals-plugin",
+      config: {
+        externals: ["sharp"],
+        includeDeps: true
+      }
+    },
     new FusesPlugin({
       version: FuseVersion.V1,
       [FuseV1Options.RunAsNode]: false,
