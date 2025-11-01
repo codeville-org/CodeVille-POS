@@ -188,5 +188,20 @@ export const TEXTS = {
       si: "ඔබේ මුරපදය මෙහි ඇතුලත් කරන්න"
     },
     button: { en: "Login", si: "ඇතුල්වන්න" }
+  },
+  bill: {
+    qty: { en: "Qty.", si: "ප්‍රමාණය" },
+    unitPrice: { en: "Unit Price", si: "සදහන් මිල" },
+    total: { en: "Total", si: "එකතුව" },
+    subtotal: { en: "Sub Total", si: "එකතුව" },
+    discount: { en: "Discount", si: "වට්ටම" },
+    netTotal: { en: "Net Amount", si: "මුළු එකතුව" },
+    billNumber: { en: "Bill Number", si: "බිල්පත් අංකය" },
+    customer: { en: "Customer", si: "පාරිභෝගික නම" },
+    invoiceData: { en: "Invoice Date", si: "නිකුත් කල දිනය" },
+    greetings: {
+      en: "Thank you...!, Come Again ✨✨",
+      si: "ස්තූතියි...! නැවත එන්න ✨✨"
+    }
   }
 };

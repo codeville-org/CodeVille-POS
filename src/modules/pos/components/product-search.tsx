@@ -66,7 +66,7 @@ export function ProductSearchInput({ className }: Props) {
       return "Scanned product - start typing to search manually";
     }
     if (searchMode === "barcode") {
-      return "Scan barcode or press Ctrl+Shift+S to simulate";
+      return "Scan or Type product barcode here...";
     }
     return "Search by product name...";
   };

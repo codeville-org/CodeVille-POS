@@ -139,7 +139,7 @@ export function BillingTable({ className }: Props) {
           <div className="space-y-1">
             <Label className="text-xs text-foreground/80">Discount Price</Label>
             <Input
-              className="h-12"
+              className="h-12 bg-white"
               placeholder="Bill Discount"
               value={activeTransaction?.discountAmount || ""}
               onChange={(e) => {
@@ -150,7 +150,7 @@ export function BillingTable({ className }: Props) {
           <div className="space-y-1">
             <Label className="text-xs text-foreground/80">Tax Amount</Label>
             <Input
-              className="h-12"
+              className="h-12 bg-white"
               placeholder="Tax Amount"
               value={activeTransaction?.taxAmount || ""}
               onChange={(e) => {

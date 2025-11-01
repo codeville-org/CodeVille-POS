@@ -17,7 +17,11 @@ export async function getAppSettingsController(): Promise<GetAppSettingsResponse
 
     let settingsMap: AppSettingsMapT = {
       password: "",
-      defaultPrinter: ""
+      defaultPrinter: "",
+      storeLogo: "",
+      storeName: "",
+      address: "",
+      contactPhone: ""
     };
 
     for (const setting of allValues) {
@@ -27,6 +31,18 @@ export async function getAppSettingsController(): Promise<GetAppSettingsResponse
           break;
         case "defaultPrinter":
           settingsMap.defaultPrinter = (setting?.value as string) || "";
+          break;
+        case "storeLogo":
+          settingsMap.storeLogo = (setting?.value as string) || "";
+          break;
+        case "storeName":
+          settingsMap.storeName = (setting?.value as string) || "";
+          break;
+        case "address":
+          settingsMap.address = (setting?.value as string) || "";
+          break;
+        case "contactPhone":
+          settingsMap.contactPhone = (setting?.value as string) || "";
           break;
       }
     }

@@ -1,5 +1,14 @@
 import { toPng } from "html-to-image";
-import { Loader, Loader2, PrinterIcon } from "lucide-react";
+import {
+  Calendar,
+  Loader,
+  Loader2,
+  MapPinIcon,
+  PhoneIcon,
+  PrinterIcon,
+  ReceiptIcon,
+  UserIcon
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -14,15 +23,20 @@ import {
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useElectronAPI } from "@/hooks/use-electron-api";
+import { TEXTS } from "@/lib/language";
+import { cn, formatDate, formatPrice } from "@/lib/utils";
 import { SelectTransactionSchema } from "@/lib/zod/transactions.zod";
+import { usePersistStore } from "@/lib/zustand/persist-store";
 import { usePrinterStore } from "@/lib/zustand/printer-store";
+import ImageDisplay from "@/modules/image-manager/components/image-display";
 import { useGetTransactionByID } from "@/modules/transactions/query/use-get-by-id";
 
 type Props = {};
 
 export function PrinterProvider({}: Props) {
+  const { storeSettings, language } = usePersistStore();
   const electronAPI = useElectronAPI();
   const receiptRef = useRef<HTMLDivElement>(null);
 
@@ -69,11 +83,9 @@ export function PrinterProvider({}: Props) {
 
       const dataUrl = await toPng(receiptRef.current, {
         quality: 1,
-        pixelRatio: 3,
+        pixelRatio: 2,
         backgroundColor: "#ffffff",
-        cacheBust: true,
-        width: 576,
-        height: receiptRef.current.scrollHeight
+        cacheBust: true
       });
 
       // Save bill image
@@ -152,42 +164,175 @@ export function PrinterProvider({}: Props) {
                   </>
                 )}
 
-                <div
-                  ref={receiptRef}
-                  className="w-[576px] p-4 bg-white font-sinhala box-border text-black"
-                >
-                  {/* Store Header */}
-                  <div className="text-center mb-6">
-                    <div
-                      style={{
-                        fontSize: "36px",
-                        fontWeight: "bold",
-                        marginBottom: "10px"
-                      }}
-                      className="text-xl font-black mb-3 font-sans"
-                    >
-                      {`Dewmali Super`}
+                <ScrollArea className="h-[70vh] border border-foreground/80 rounded-xl overflow-hidden">
+                  <div
+                    ref={receiptRef}
+                    className={cn(
+                      "w-[576px] p-4 bg-white box-border text-black font-sans pb-8",
+                      {
+                        "font-sinhala": language === "si"
+                      }
+                    )}
+                  >
+                    {/* Store Logo */}
+                    <div className="w-full flex items-center justify-center h-fit">
+                      {storeSettings.storeLogo ? (
+                        <ImageDisplay
+                          filename={storeSettings.storeLogo}
+                          className="h-14 object-cover"
+                        />
+                      ) : (
+                        <h1 className="text-2xl font-black font-sans">
+                          CodeVille POS
+                        </h1>
+                      )}
                     </div>
-                    <div className="text-xl">123 Main Street</div>
-                    <div className="text-xl">City, State 12576</div>
-                    <div className="text-xl mt-2">Tel: (555) 123-4567</div>
-                  </div>
 
-                  <Separator />
+                    <div className="mt-5 text-center flex items-center justify-center flex-col">
+                      <h1 className="text-2xl font-black">
+                        {storeSettings?.storeName || "My Store"}
+                      </h1>
 
-                  <div className="mt-3 space-y-2">
-                    {transactionData?.items.map((item, index) => (
-                      <p className="text-sm" key={index}>
-                        {item.productName} - {item.quantity} x {item.unitPrice}{" "}
-                        = {item.totalAmount}
+                      <p className="text-xl font-semibold mt-2 flex items-center gap-2">
+                        <MapPinIcon className="size-5" />
+                        {storeSettings?.address || "Address Placeholder"}
                       </p>
-                    ))}
+
+                      <p className="text-xl font-semibold mt-1 flex items-center gap-2">
+                        <PhoneIcon className="size-5" />
+                        {storeSettings?.contactPhone || "Contact Number"}
+                      </p>
+                    </div>
+
+                    {/* Transactions Items Table */}
+                    <div className="my-5">
+                      {/* --- Table Header --- */}
+                      <div className="mb-0 bg-gray-300 border-b border-black p-4 space-y-2">
+                        <p className="text-base font-semibold mt-1 flex items-center gap-2">
+                          <ReceiptIcon className="size-5" />
+                          {TEXTS.bill.billNumber[language]}:{" "}
+                          <span className="font-normal">
+                            {transactionData.transactionNumber}
+                          </span>
+                        </p>
+
+                        <p className="text-base font-semibold mt-1 flex items-center gap-2">
+                          <Calendar className="size-5" />
+                          {TEXTS.bill.invoiceData[language]}:{" "}
+                          <span className="font-normal">
+                            {formatDate(new Date(transactionData.createdAt))}
+                          </span>
+                        </p>
+
+                        {transactionData.customer && (
+                          <p className="text-base font-semibold mt-1 flex items-center gap-2">
+                            <UserIcon className="size-5" />
+                            {TEXTS.bill.customer[language]}:{" "}
+                            <span className="font-normal">
+                              {transactionData.customer.name}
+                            </span>
+                          </p>
+                        )}
+                      </div>
+                      <div
+                        className={cn(
+                          "w-full h-12 mb-3 flex items-center justify-between bg-gray-300 text-black text-lg",
+                          {
+                            "font-semibold": language === "en"
+                          }
+                        )}
+                      >
+                        <div className="flex-1 w-full px-6 text-center">
+                          {TEXTS.bill.qty[language]}
+                        </div>
+                        <div className="flex-1 w-full px-6 text-center border-x-2 border-black">
+                          {TEXTS.bill.unitPrice[language]}
+                        </div>
+                        <div className="flex-1 w-full px-6 text-right">
+                          {TEXTS.bill.total[language]}
+                        </div>
+                      </div>
+
+                      {/* Table Body */}
+                      {transactionData.items.map((item, index) => (
+                        <div
+                          key={index}
+                          className={
+                            "space-y-2 pb-1 border-b border-gray-400 mb-3"
+                          }
+                        >
+                          <p className="w-full line-clamp-1 text-xl font-semibold text-black">
+                            {`${index + 1}. `} {item.productName}
+                          </p>
+
+                          <div
+                            className={cn(
+                              "w-full h-fit flex items-center justify-between text-lg text-black"
+                            )}
+                          >
+                            <div className="flex-1 w-full px-6 text-center">
+                              {item.quantity} {item.unit}
+                            </div>
+                            <div className="flex-1 w-full px-6 text-center border-x-2 border-gray-400">
+                              {formatPrice(item.unitPrice, language)}
+                            </div>
+                            <div className="flex-1 w-full px-6 text-right">
+                              {formatPrice(item.totalAmount, language)}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Total Amount Section */}
+                    <div className="my-3 py-3 border-y-2 border-black flex flex-col gap-3">
+                      {transactionData.discountAmount > 0 && (
+                        <>
+                          <div className="flex items-center justify-between">
+                            <p className="text-xl font-semibold">
+                              {TEXTS.bill.subtotal[language]}:{" "}
+                            </p>
+                            <span className="font-normal text-xl">
+                              {formatPrice(
+                                transactionData.subtotalAmount,
+                                language
+                              )}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <p className="text-xl font-semibold">
+                              {TEXTS.bill.discount[language]}:{" "}
+                            </p>
+                            <span className="font-normal text-xl">
+                              {`-`}{" "}
+                              {formatPrice(
+                                transactionData.discountAmount,
+                                language
+                              )}
+                            </span>
+                          </div>
+                        </>
+                      )}
+
+                      <div className="flex items-center justify-between">
+                        <p className="text-3xl font-semibold">
+                          {TEXTS.bill.netTotal[language]}:{" "}
+                        </p>
+                        <p className="text-4xl font-black">
+                          {formatPrice(transactionData.totalAmount, language)}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Footer Section */}
+                    <div className="mt-4 mb-2">
+                      <p className="text-center text-lg">
+                        {TEXTS.bill.greetings[language]}
+                      </p>
+                    </div>
                   </div>
-
-                  <Separator />
-
-                  <h1 className="text-2xl font-semibold">එකතුව = රු.100.00</h1>
-                </div>
+                </ScrollArea>
               </div>
             ) : (
               <>

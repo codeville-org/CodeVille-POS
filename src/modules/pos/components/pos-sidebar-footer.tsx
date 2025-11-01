@@ -166,6 +166,7 @@ export function PosSidebarFooter({ className }: Props) {
                 <Input
                   type="number"
                   placeholder="Cash Given"
+                  className="h-12 bg-white"
                   value={cashGiven ?? ""}
                   onChange={(e) =>
                     handleCashGivenChange(Number(e.target.value))
@@ -185,6 +186,7 @@ export function PosSidebarFooter({ className }: Props) {
                 <Input
                   type="number"
                   placeholder="Change"
+                  className="h-12 bg-white"
                   value={change ?? ""}
                   disabled
                 />
