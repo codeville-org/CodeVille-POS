@@ -7,13 +7,13 @@ export const useListPrinters = () => {
     queryFn: async () => {
       const api = useElectronAPI();
 
-      const response = await api.print.listPrinters();
+      const response = await api.print.getAvailablePrinters();
 
-      if (!response.data || response.error) {
-        throw new Error(response.error || "Failed to fetch printers");
+      if (!response?.data && response.error) {
+        throw new Error(response.error);
       }
 
-      return response.data;
+      return response.data.printers;
     }
   });
 

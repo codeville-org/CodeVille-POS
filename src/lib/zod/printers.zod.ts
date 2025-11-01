@@ -3,9 +3,7 @@ import { getBaseReturnSchema } from "./helpers";
 
 export const printerInfoSchema = z.object({
   name: z.string(),
-  description: z.string(),
-  displayName: z.string(),
-  isDefault: z.boolean()
+  isDefault: z.boolean().optional()
 });
 
 export type PrinterInfo = z.infer<typeof printerInfoSchema>;
@@ -19,6 +17,10 @@ export const printReceiptSchema = z.object({
 });
 
 // End-to-end Schema
+export const voidDataResponseSchema = getBaseReturnSchema(null);
+
+export type VoidDataResponseT = z.infer<typeof voidDataResponseSchema>;
+
 export const listPrintersResponseSchema =
   getBaseReturnSchema(listPrintersSchema);
 

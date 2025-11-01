@@ -64,9 +64,15 @@ const electronAPI: ElectronAPI = {
     login: securityInvoker("login")
   },
   print: {
-    listPrinters: printInvoker("listPrinters"),
     printReceipt: printInvoker("printReceipt"),
-    testPrint: printInvoker("testPrint")
+    testPrinter: printInvoker("testPrinter"),
+    openCashDrawer: printInvoker("openCashDrawer"),
+    getAvailablePrinters: printInvoker("getAvailablePrinters"),
+    getPlatform: printInvoker("getPlatform"),
+    savePrinterSettings: printInvoker("savePrinterSettings"),
+    printImage: printInvoker("printImage"),
+    printImageBill: printInvoker("printImageBill"),
+    selectImageFile: printInvoker("selectImageFile")
   }
 };
 

@@ -3,7 +3,7 @@ import { AppPageShell } from "@/components/layouts/dashboard/page-shell";
 import { Separator } from "@/components/ui/separator";
 import { usePersistStore } from "@/lib/zustand/persist-store";
 import { PasswordSection } from "@/modules/settings/components/password-section";
-import { PrinterTest } from "@/modules/settings/components/printer-test";
+import { PrinterManagement } from "@/modules/settings/components/printer-management";
 
 type Props = {};
 
@@ -11,7 +11,7 @@ export function SettingsPage({}: Props) {
   const {} = usePersistStore();
 
   return (
-    <PageContainer scrollable={false}>
+    <PageContainer scrollable={true}>
       <div className="flex flex-col w-full h-full gap-4">
         <AppPageShell
           title={"Settings"}
@@ -23,7 +23,10 @@ export function SettingsPage({}: Props) {
 
         <PasswordSection />
 
-        <PrinterTest />
+        <PrinterManagement />
+
+        {/* NOTE: Uncomment only for debug purposes */}
+        {/* <PrinterManager /> */}
       </div>
     </PageContainer>
   );

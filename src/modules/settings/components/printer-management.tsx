@@ -1,5 +1,5 @@
 import { Loader } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,25 +19,37 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import { useElectronAPI } from "@/hooks/use-electron-api";
 import { PrinterInfo } from "@/lib/zod/printers.zod";
-import { useListPrinters } from "@/modules/print/queries/use-list-printers";
+import { useListPrinters } from "@/modules/printer/queries/use-list-printers";
+import { toast } from "sonner";
+import { useUpsertSettings } from "../query/use-upsert";
 
-export function PrinterTest() {
-  const api = useElectronAPI();
+export function PrinterManagement() {
+  const [defaultPrinterName, setDefaultPrinterName] = useState<string | null>(
+    null
+  );
+  const { data, error, isPending } = useListPrinters();
+  const { mutate: upsertSettings, isPending: updatingSettings } =
+    useUpsertSettings();
 
   const [selectedPrinter, setSelectedPrinter] = useState<PrinterInfo | null>(
     null
   );
 
-  const { data, error, isPending } = useListPrinters();
+  useEffect(() => {
+    if (data) {
+      const defaultP = data.filter((p) => p.isDefault);
 
-  const onClickPrintTest = async () => {
-    if (!selectedPrinter) return;
+      if (defaultP.length > 0) setDefaultPrinterName(defaultP[0].name);
+    }
+  }, [data]);
 
-    const result = await api.print.testPrint(selectedPrinter.name);
+  const handleSetDefault = () => {
+    if (selectedPrinter) {
+      upsertSettings({ defaultPrinter: selectedPrinter.name });
 
-    console.log("Test Print Result:", result);
+      toast.success("Default printer updated !");
+    }
   };
 
   return (
@@ -60,12 +72,13 @@ export function PrinterTest() {
       ) : (
         <CardContent>
           <Select
-            value={selectedPrinter?.name || ""}
+            defaultValue={defaultPrinterName}
+            value={selectedPrinter?.name || defaultPrinterName || ""}
             onValueChange={(value) => {
-              const printer =
-                data?.printers.find((p) => p.name === value) || null;
+              const printer = data?.find((p) => p.name === value) || null;
               setSelectedPrinter(printer);
             }}
+            disabled={updatingSettings}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select POS Printer" />
@@ -73,9 +86,9 @@ export function PrinterTest() {
             <SelectContent>
               <SelectGroup>
                 <SelectLabel>Available Printers</SelectLabel>
-                {data?.printers.map((printer) => (
+                {data?.map((printer) => (
                   <SelectItem value={printer.name} key={printer.name}>
-                    {printer.displayName}
+                    {printer.name}
                   </SelectItem>
                 ))}
               </SelectGroup>
@@ -85,13 +98,12 @@ export function PrinterTest() {
       )}
 
       <CardFooter className="flex items-center gap-3">
-        <Button disabled={!selectedPrinter}>Set as Default</Button>
         <Button
-          // disabled={!selectedPrinter}
-          variant="secondary"
-          onClick={onClickPrintTest}
+          disabled={!selectedPrinter || updatingSettings}
+          onClick={handleSetDefault}
+          loading={updatingSettings}
         >
-          Test Print
+          Set as Default
         </Button>
       </CardFooter>
     </Card>
