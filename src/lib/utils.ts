@@ -14,7 +14,14 @@ export function formatDate(date: Date) {
   }).format(date);
 }
 
-export function formatPrice(price: number) {
+export function formatPrice(price: number, lang?: string) {
+  if (lang === "si") {
+    return `රු. ${new Intl.NumberFormat("si-LK", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(price)}`;
+  }
+
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "LKR"
