@@ -326,10 +326,20 @@ export function PrinterProvider({}: Props) {
                     </div>
 
                     {/* Footer Section */}
-                    <div className="mt-4 mb-2">
-                      <p className="text-center text-lg">
+                    <div className="mt-6 mb-2">
+                      <p className="text-center text-2xl">
                         {TEXTS.bill.greetings[language]}
                       </p>
+
+                      <div className="py-8 text-center flex items-center flex-col justify-center space-y-3">
+                        <h1 className="text-xl">
+                          Software Developed by. CodeVille
+                        </h1>
+                        <p className="text-lg font-semibold flex items-center gap-2">
+                          <PhoneIcon className="size-5" />
+                          {"+9470 584 8028 / +9472 798 2280"}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </ScrollArea>
