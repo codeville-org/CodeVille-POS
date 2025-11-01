@@ -83,11 +83,9 @@ export function PrinterProvider({}: Props) {
 
       const dataUrl = await toPng(receiptRef.current, {
         quality: 1,
-        pixelRatio: 3,
+        pixelRatio: 2,
         backgroundColor: "#ffffff",
-        cacheBust: true,
-        width: 576,
-        height: receiptRef.current.scrollHeight
+        cacheBust: true
       });
 
       // Save bill image
@@ -170,7 +168,7 @@ export function PrinterProvider({}: Props) {
                   <div
                     ref={receiptRef}
                     className={cn(
-                      "w-[576px] p-4 bg-white box-border text-black font-sans",
+                      "w-[576px] p-4 bg-white box-border text-black font-sans pb-8",
                       {
                         "font-sinhala": language === "si"
                       }

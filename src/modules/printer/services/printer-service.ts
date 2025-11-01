@@ -263,6 +263,79 @@ export class USBPrinter {
   }
 
   /**
+   * Prepare bill image for printing using Sharp (converts to ESC/POS bitmap)
+   * Specialized for bill printing to avoid horizontal padding
+   */
+  private async prepareBillImage(
+    imagePath: string,
+    maxWidth: number = 576,
+    useDithering: boolean = true
+  ): Promise<string> {
+    try {
+      console.log(`Preparing image with Sharp: ${imagePath}`);
+
+      if (!fs.existsSync(imagePath)) {
+        console.error(`Image file not found: ${imagePath}`);
+        throw new Error(`Image file not found: ${imagePath}`);
+      }
+
+      // Load and process image with Sharp
+      const image = sharp(imagePath);
+      const metadata = await image.metadata();
+
+      console.log(`Original image: ${metadata.width}x${metadata.height}`);
+
+      // For bills, maintain width at maxWidth and scale height proportionally
+      let width = maxWidth;
+      let height = metadata.height || 100;
+
+      if (metadata.width && metadata.width !== maxWidth) {
+        const ratio = maxWidth / metadata.width;
+        height = Math.floor(height * ratio);
+      }
+
+      // Ensure dimensions are reasonable for thermal printer
+      width = Math.max(1, Math.min(width, 576));
+      height = Math.max(1, height); // No height limit for bills
+
+      console.log(`Processing image at: ${width}x${height}`);
+
+      // Process image: resize without fit constraints to avoid padding
+      const processedImage = await image
+        .resize(width, height, {
+          kernel: sharp.kernel.lanczos3,
+          withoutEnlargement: false
+        })
+        .grayscale()
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+
+      const { data: pixelData, info } = processedImage;
+
+      console.log(`Sharp processing complete: ${info.width}x${info.height}`);
+
+      // Convert to monochrome bitmap
+      const bitmapData = this.convertToBitmap(
+        pixelData,
+        info.width,
+        info.height,
+        useDithering
+      );
+
+      console.log(
+        `✓ Bitmap conversion completed, data length: ${bitmapData.length}`
+      );
+
+      return bitmapData;
+    } catch (error) {
+      console.error("Error preparing bill image:", error);
+      throw new Error(
+        `Failed to prepare bill image: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
+    }
+  }
+
+  /**
    * Prepare image for printing using Sharp (converts to ESC/POS bitmap)
    */
   private async prepareImage(
@@ -478,7 +551,7 @@ export class USBPrinter {
 
       console.log(`Printing bill image: ${fullBillImagePath}`);
 
-      const imageData = await this.prepareImage(
+      const imageData = await this.prepareBillImage(
         fullBillImagePath,
         fullWidth,
         useDithering
