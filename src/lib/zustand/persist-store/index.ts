@@ -1,8 +1,8 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-import { applyTheme, electronStorage } from "./actions";
 import type { Language, Theme } from "@/shared/types/global";
+import { applyTheme, electronStorage } from "./actions";
 import type { PersistStoreState } from "./types";
 
 export const usePersistStore = create<PersistStoreState>()(
@@ -31,6 +31,16 @@ export const usePersistStore = create<PersistStoreState>()(
       initializeLanguage: () => {
         const { language } = get();
         set({ language });
+      },
+
+      storeSettings: {
+        storeName: "",
+        storeLogo: "",
+        contactPhone: "",
+        address: ""
+      },
+      setStoreSettings: (settings) => {
+        set({ storeSettings: settings });
       }
     }),
     {

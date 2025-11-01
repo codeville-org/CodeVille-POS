@@ -4,18 +4,28 @@ import {
   SidebarProvider,
   SidebarTrigger
 } from "@/components/ui/sidebar";
+import { useEffect } from "react";
 
 import { cn } from "@/lib/utils";
 import { usePersistStore } from "@/lib/zustand/persist-store";
 import { LockSwitch } from "@/modules/auth/lock-switch";
 import { RealtimeClock } from "@/modules/pos/components/clock";
+import { useGetSettings } from "@/modules/settings/query/use-get";
 import { LanguageSelector } from "../elements/language-selector";
 import { AppSidebar } from "./dashboard/app-sidebar";
 import { WindowActions } from "./dashboard/window-actions";
 import { AppRouter } from "./router";
 
 export function Wrapper() {
-  const { language } = usePersistStore();
+  const { data, error } = useGetSettings();
+  const { language, setStoreSettings } = usePersistStore();
+
+  // Update persisted store settings from database
+  useEffect(() => {
+    if (data && !error) {
+      setStoreSettings({ ...data });
+    }
+  }, [data, error]);
 
   return (
     <main

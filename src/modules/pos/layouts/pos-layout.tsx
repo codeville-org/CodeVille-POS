@@ -1,7 +1,9 @@
 import { BarcodeReaderStatusBadge } from "@/components/elements/barcode-reader-status-badge";
 import { PrinterStatusBadge } from "@/components/elements/printer-status-badge";
 import { Separator } from "@/components/ui/separator";
+import { usePersistStore } from "@/lib/zustand/persist-store";
 import { usePosStore } from "@/lib/zustand/pos-store";
+import ImageDisplay from "@/modules/image-manager/components/image-display";
 import { BillingTable } from "../components/billing-table";
 import { CategoriesBar } from "../components/categories-bar";
 import { InitializeTransaction } from "../components/initialize-transaction";
@@ -14,6 +16,7 @@ import { PosSidebar } from "./pos-sidebar";
 type Props = {};
 
 export function PosScreenLayout({}: Props) {
+  const { storeSettings } = usePersistStore();
   const { listingView, activeTransaction } = usePosStore();
 
   return (
@@ -26,10 +29,21 @@ export function PosScreenLayout({}: Props) {
         <div className="flex-shrink-0 p-4 pb-2 shadow-none">
           <div className="flex items-center justify-between mb-6">
             {/* Store Name / Logo */}
-            <div>
-              <h1 className="font-black font-sans text-primary text-2xl">
-                Dewmali Super
-              </h1>
+            <div className={`flex items-center gap-2`}>
+              {storeSettings.storeLogo ? (
+                <ImageDisplay
+                  filename={storeSettings.storeLogo}
+                  className="h-10 object-cover"
+                />
+              ) : storeSettings.storeName ? (
+                <h1 className="font-black font-sans text-primary text-2xl">
+                  {storeSettings.storeName}
+                </h1>
+              ) : (
+                <h1 className="font-black uppercase font-sans text-foreground text-2xl">
+                  {`CodeVille POS`}
+                </h1>
+              )}
             </div>
 
             <div className="flex items-center gap-3">
