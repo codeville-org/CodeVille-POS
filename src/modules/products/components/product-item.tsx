@@ -71,7 +71,7 @@ export function ProductItem({
   if (view === "grid") {
     return (
       <Link to={{ pathname: `/products/${product.id}` }}>
-        <Card className="p-3 rounded-xl shadow-xs hover:shadow-md transition-shadow group bg-secondary dark:bg-sidebar border-sidebar-border/60">
+        <Card className="p-3 rounded-xl shadow-xs hover:shadow-md transition-shadow group bg-secondary/80 dark:bg-sidebar border-sidebar-border/60">
           <div className="flex flex-col gap-3">
             <div className="relative">
               <ImageDisplay

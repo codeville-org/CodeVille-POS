@@ -33,9 +33,10 @@ export function PasswordSection({}: Props) {
       <CardContent className="space-y-3">
         <PasswordInput
           placeholder="Enter new password"
+          className="h-12"
           onChange={(e) => setPassword(e.target.value)}
         />
-        <PasswordInput placeholder="Confirm new password" />
+        <PasswordInput className="h-12" placeholder="Confirm new password" />
       </CardContent>
 
       <CardFooter>

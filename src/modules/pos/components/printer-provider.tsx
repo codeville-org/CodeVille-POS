@@ -14,7 +14,6 @@ import {
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
 import { useElectronAPI } from "@/hooks/use-electron-api";
 import { SelectTransactionSchema } from "@/lib/zod/transactions.zod";
 import { usePrinterStore } from "@/lib/zustand/printer-store";
@@ -157,7 +156,7 @@ export function PrinterProvider({}: Props) {
                   className="w-[576px] p-4 bg-white font-sinhala box-border text-black"
                 >
                   {/* Store Header */}
-                  <div className="text-center mb-6">
+                  {/* <div className="text-center mb-6">
                     <div
                       style={{
                         fontSize: "36px",
@@ -186,7 +185,23 @@ export function PrinterProvider({}: Props) {
 
                   <Separator />
 
-                  <h1 className="text-2xl font-semibold">එකතුව = රු.100.00</h1>
+                  <h1 className="text-2xl font-semibold">එකතුව = රු.100.00</h1> */}
+
+                  {/* Store Logo */}
+                  <div className="w-full flex items-center justify-center h-fit">
+                    <img
+                      src={"./assets/store_logo.png"}
+                      alt="Store Logo"
+                      className="size-8 object-cover"
+                    />
+
+                    <div className="text-center">
+                      <h1 className="text-lg font-semibold">
+                        Dewmali Super |{" "}
+                        <span className="font-sinhala">දෙව්මාලි සුපර්</span>
+                      </h1>
+                    </div>
+                  </div>
                 </div>
               </div>
             ) : (
