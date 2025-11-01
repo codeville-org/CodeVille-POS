@@ -179,7 +179,7 @@ export function PrinterProvider({}: Props) {
                       {storeSettings.storeLogo ? (
                         <ImageDisplay
                           filename={storeSettings.storeLogo}
-                          className="h-14 object-cover"
+                          className="w-full max-w-[420px] object-cover"
                         />
                       ) : (
                         <h1 className="text-2xl font-black font-sans">
@@ -188,10 +188,10 @@ export function PrinterProvider({}: Props) {
                       )}
                     </div>
 
-                    <div className="mt-5 text-center flex items-center justify-center flex-col">
-                      <h1 className="text-2xl font-black">
+                    <div className="text-center flex items-center justify-center flex-col">
+                      {/* <h1 className="text-2xl font-black">
                         {storeSettings?.storeName || "My Store"}
-                      </h1>
+                      </h1> */}
 
                       <p className="text-xl font-semibold mt-2 flex items-center gap-2">
                         <MapPinIcon className="size-5" />
