@@ -1,4 +1,3 @@
-import CopyWebpackPlugin from "copy-webpack-plugin";
 import path from "path";
 import type { Configuration } from "webpack";
 
@@ -10,33 +9,12 @@ export const mainConfig: Configuration = {
   module: {
     rules
   },
-  plugins: [
-    ...plugins,
-    new CopyWebpackPlugin({
-      patterns: [
-        {
-          // Copy the entire canvas build directory
-          from: "node_modules/canvas/build/Release",
-          to: "native_modules/canvas/build/Release",
-          noErrorOnMissing: false
-        },
-        {
-          // Also copy the package.json for canvas
-          from: "node_modules/canvas/package.json",
-          to: "native_modules/canvas/package.json",
-          noErrorOnMissing: false
-        }
-      ]
-    })
-  ],
+  plugins: [...plugins],
   resolve: {
     extensions: [".js", ".ts", ".jsx", ".tsx", ".css", ".json"],
     alias: {
       "@": path.resolve(__dirname, "src")
     }
-  },
-  externals: {
-    canvas: "commonjs canvas"
   },
   node: {
     __dirname: false,

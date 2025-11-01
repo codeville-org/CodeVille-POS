@@ -1,28 +1,29 @@
 import { getBillsImageDirectory } from "@/controllers/images.controller";
 import * as fs from "fs";
+import sharp from "sharp";
 import { promisify } from "util";
 
 const writeFile = promisify(fs.writeFile);
-const readFile = promisify(fs.readFile);
+// const readFile = promisify(fs.readFile);
 
 type ALIGNMENT_OPTIONS = "left" | "center" | "right";
 
 interface PrinterConfig {
-  devicePath?: string; // e.g., '/dev/usb/lp0' on Linux, 'LPT1' on Windows
-  printerName?: string; // Windows printer name
+  devicePath?: string;
+  printerName?: string;
 }
 
 interface ReceiptItem {
   name: string;
   quantity: number;
   price: number;
-  unit?: string; // e.g., 'ml', 'pcs', 'g', 'kg'
+  unit?: string;
 }
 
 interface ReceiptData {
   storeName?: string;
   storeAddress?: string;
-  logoPath?: string; // Path to logo image file
+  logoPath?: string;
   items: ReceiptItem[];
   subtotal: number;
   tax: number;
@@ -39,7 +40,7 @@ export class USBPrinter {
   private readonly GS = "\x1D";
 
   // Text formatting
-  private readonly INIT = `${this.ESC}@`; // Initialize printer
+  private readonly INIT = `${this.ESC}@`;
   private readonly BOLD_ON = `${this.ESC}E1`;
   private readonly BOLD_OFF = `${this.ESC}E0`;
   private readonly ALIGN_LEFT = `${this.ESC}a0`;
@@ -50,7 +51,7 @@ export class USBPrinter {
   private readonly FONT_SMALL = `${this.ESC}!1`;
 
   // Paper control
-  private readonly CUT_PAPER = `${this.GS}V1`; // Partial cut
+  private readonly CUT_PAPER = `${this.GS}V1`;
   private readonly FEED_LINE = "\n";
   private readonly FEED_LINES = (lines: number) =>
     `${this.ESC}d${String.fromCharCode(lines)}`;
@@ -59,12 +60,9 @@ export class USBPrinter {
     this.config = config;
     this.platform = process.platform;
 
-    this.testCanvasInPackagedApp().catch(console.error);
+    console.log("Printer initialized with Sharp image processing");
   }
 
-  /**
-   * Send raw data to USB printer
-   */
   private async sendToPrinter(data: Buffer): Promise<void> {
     if (this.platform === "win32") {
       return this.sendToWindowsPrinter(data);
@@ -73,9 +71,6 @@ export class USBPrinter {
     }
   }
 
-  /**
-   * Windows: Use printer name with raw printing
-   */
   private async sendToWindowsPrinter(data: Buffer): Promise<void> {
     const { exec } = require("child_process");
     const { promisify } = require("util");
@@ -83,23 +78,15 @@ export class USBPrinter {
     const os = require("os");
     const path = require("path");
 
-    // Create temp file
     const tempFile = path.join(os.tmpdir(), `receipt_${Date.now()}.bin`);
 
     try {
-      // Write data to temp file
       await writeFile(tempFile, data);
-
-      // Print using Windows copy command to raw printer
-      const printerName = this.config.printerName || "XP-80C"; // Default name
+      const printerName = this.config.printerName || "XP-80C";
       const command = `copy /B "${tempFile}" "\\\\localhost\\${printerName}"`;
-
       await execAsync(command);
-
-      // Clean up
       fs.unlinkSync(tempFile);
     } catch (error) {
-      // Clean up on error
       if (fs.existsSync(tempFile)) {
         fs.unlinkSync(tempFile);
       }
@@ -109,14 +96,10 @@ export class USBPrinter {
     }
   }
 
-  /**
-   * Linux/Mac: Write directly to device path
-   */
   private async sendToUnixPrinter(data: Buffer): Promise<void> {
     const devicePath = this.config.devicePath || "/dev/usb/lp0";
 
     try {
-      // Write directly to device
       await writeFile(devicePath, data);
     } catch (error) {
       throw new Error(
@@ -125,30 +108,22 @@ export class USBPrinter {
     }
   }
 
-  /**
-   * Print a formatted receipt
-   */
   async printReceipt(receipt: ReceiptData): Promise<void> {
     const buffer: string[] = [];
 
-    // Initialize printer
     buffer.push(this.INIT);
 
-    // Print logo if provided
     if (receipt.logoPath) {
       try {
         const imageData = await this.prepareImage(receipt.logoPath);
-
         buffer.push(this.ALIGN_CENTER);
         buffer.push(imageData);
         buffer.push(this.FEED_LINE);
       } catch (error) {
         console.error("Failed to print logo:", error);
-        // Continue without logo
       }
     }
 
-    // Header
     if (receipt.storeName) {
       buffer.push(this.ALIGN_CENTER);
       buffer.push(this.FONT_LARGE);
@@ -167,12 +142,6 @@ export class USBPrinter {
       buffer.push(this.FONT_NORMAL);
     }
 
-    // // Separator
-    // buffer.push(this.ALIGN_LEFT);
-    // buffer.push("-".repeat(48));
-    // buffer.push(this.FEED_LINE);
-
-    // Timestamp
     const timestamp = receipt.timestamp || new Date();
     buffer.push(`Date: ${timestamp.toLocaleDateString()}`);
     buffer.push(this.FEED_LINE);
@@ -181,7 +150,6 @@ export class USBPrinter {
     buffer.push("-".repeat(48));
     buffer.push(this.FEED_LINE);
 
-    // Table Header
     buffer.push(this.BOLD_ON);
     buffer.push(this.formatTableHeader());
     buffer.push(this.FEED_LINE);
@@ -189,15 +157,12 @@ export class USBPrinter {
     buffer.push("-".repeat(48));
     buffer.push(this.FEED_LINE);
 
-    // Items in table format
     receipt.items.forEach((item, index) => {
-      // Item name row (full width with index)
       buffer.push(this.BOLD_ON);
       buffer.push(`${index + 1}. ${item.name}`);
       buffer.push(this.BOLD_OFF);
       buffer.push(this.FEED_LINE);
 
-      // Details row (qty, unit price, total)
       const detailsLine = this.formatItemDetailsRow(
         item.quantity,
         item.unit || "",
@@ -208,40 +173,18 @@ export class USBPrinter {
       buffer.push(this.FEED_LINE);
     });
 
-    // Separator
-    // buffer.push("-".repeat(48));
-    // buffer.push(this.FEED_LINE);
-
-    // Totals
-    // buffer.push(this.formatTotalLine("Subtotal:", receipt.subtotal));
-    // buffer.push(this.FEED_LINE);
-    // buffer.push(this.formatTotalLine("Tax:", receipt.tax));
-    // buffer.push(this.FEED_LINE);
-    // buffer.push(this.BOLD_ON);
-    // buffer.push(this.FONT_LARGE);
-    // buffer.push(this.formatTotalLine("TOTAL:", receipt.total));
-    // buffer.push(this.BOLD_OFF);
-    // buffer.push(this.FONT_NORMAL);
-    // buffer.push(this.FEED_LINE);
-
-    // Footer
     buffer.push(this.ALIGN_CENTER);
     buffer.push(this.FEED_LINE);
     buffer.push("Thank you for your business!");
     buffer.push(this.FEED_LINE);
 
-    // Feed and cut
     buffer.push(this.FEED_LINES(5));
     buffer.push(this.CUT_PAPER);
 
-    // Convert to buffer and send
     const data = Buffer.from(buffer.join(""), "binary");
     await this.sendToPrinter(data);
   }
 
-  /**
-   * Print raw text
-   */
   async printText(text: string, cut: boolean = true): Promise<void> {
     const buffer: string[] = [];
 
@@ -258,9 +201,6 @@ export class USBPrinter {
     await this.sendToPrinter(data);
   }
 
-  /**
-   * Test printer connection
-   */
   async testConnection(): Promise<boolean> {
     try {
       await this.printText("Test Print - Connection OK", true);
@@ -271,9 +211,6 @@ export class USBPrinter {
     }
   }
 
-  /**
-   * Get list of available printers (Windows only)
-   */
   static async getAvailablePrinters(): Promise<string[]> {
     if (process.platform !== "win32") {
       return [];
@@ -300,96 +237,33 @@ export class USBPrinter {
     }
   }
 
-  /**
-   * Format table header (Quantity | Unit Price | Total)
-   */
   private formatTableHeader(): string {
-    // Adjust column widths: 16 chars | 16 chars | 16 chars = 48 total
     const col1 = "Quantity".padEnd(16);
     const col2 = "Unit Price".padEnd(16);
     const col3 = "Total".padEnd(16);
-
     return `${col1}${col2}${col3}`;
   }
 
-  /**
-   * Format item details row (quantity with unit, unit price, total)
-   */
   private formatItemDetailsRow(
     qty: number,
     unit: string,
     unitPrice: number,
     total: number
   ): string {
-    // Format: "2 kg" or "1 pcs" etc.
     const qtyStr = `${qty} ${unit}`.padEnd(16);
-
-    // Format prices with Rs. or currency symbol
     const priceStr = `Rs. ${unitPrice.toFixed(2)}`.padEnd(16);
     const totalStr = `Rs. ${total.toFixed(2)}`.padEnd(16);
-
     return `${qtyStr}${priceStr}${totalStr}`;
   }
 
-  /**
-   * Open cash drawer (if supported)
-   */
   async openCashDrawer(): Promise<void> {
-    const OPEN_DRAWER = `${this.ESC}p0\x19\xFA`; // Standard cash drawer command
+    const OPEN_DRAWER = `${this.ESC}p0\x19\xFA`;
     const data = Buffer.from(OPEN_DRAWER, "binary");
     await this.sendToPrinter(data);
   }
 
   /**
-   * Load canvas module with proper path resolution for packaged apps
-   */
-  private async loadCanvasModule() {
-    try {
-      // Try normal require first (works in development)
-      return require("canvas");
-    } catch (error) {
-      console.log("Normal canvas require failed, trying packaged app path...");
-
-      try {
-        // For packaged apps, we need to resolve the path manually
-        const path = require("path");
-        const { app } = require("electron");
-
-        // In packaged apps, native modules are in app.asar.unpacked
-        let canvasPath: string;
-
-        if (app.isPackaged) {
-          // Path in packaged app
-          canvasPath = path.join(
-            process.resourcesPath,
-            "app.asar.unpacked",
-            ".webpack",
-            "main",
-            "native_modules",
-            "canvas"
-          );
-        } else {
-          // Development path
-          canvasPath = path.join(app.getAppPath(), "node_modules", "canvas");
-        }
-
-        console.log("Attempting to load canvas from:", canvasPath);
-
-        // Try to require from the resolved path
-        const canvas = require(canvasPath);
-        console.log("Canvas loaded successfully from packaged path");
-        return canvas;
-      } catch (packError) {
-        console.error("Failed to load canvas from packaged path:", packError);
-        throw new Error(
-          `Canvas module could not be loaded. Development error: ${error}. Package error: ${packError}`
-        );
-      }
-    }
-  }
-
-  /**
-   * Prepare image for printing (converts to ESC/POS bitmap)
+   * Prepare image for printing using Sharp (converts to ESC/POS bitmap)
    */
   private async prepareImage(
     imagePath: string,
@@ -397,35 +271,62 @@ export class USBPrinter {
     useDithering: boolean = true
   ): Promise<string> {
     try {
-      console.log(`Preparing image: ${imagePath}`);
+      console.log(`Preparing image with Sharp: ${imagePath}`);
 
-      // Check if file exists
       if (!fs.existsSync(imagePath)) {
         console.error(`Image file not found: ${imagePath}`);
         throw new Error(`Image file not found: ${imagePath}`);
       }
 
-      // Read image file
-      const imageBuffer = await readFile(imagePath);
+      // Load and process image with Sharp
+      const image = sharp(imagePath);
+      const metadata = await image.metadata();
 
-      // First try the canvas approach
-      try {
-        const result = await this.prepareImageWithCanvas(
-          imageBuffer,
-          maxWidth,
-          useDithering
-        );
-        return result;
-      } catch (canvasError) {
-        console.warn(
-          "Canvas approach failed, trying alternative method:",
-          canvasError
-        );
+      console.log(`Original image: ${metadata.width}x${metadata.height}`);
 
-        // Try a simple fallback approach
-        console.log("Attempting simple fallback approach...");
-        return this.prepareImageFallback(imageBuffer, maxWidth);
+      // Calculate dimensions (maintain aspect ratio)
+      let width = metadata.width || maxWidth;
+      let height = metadata.height || 100;
+
+      if (width > maxWidth) {
+        const ratio = maxWidth / width;
+        width = maxWidth;
+        height = Math.floor(height * ratio);
       }
+
+      // Ensure dimensions are reasonable
+      width = Math.max(1, Math.min(width, 576));
+      height = Math.max(1, Math.min(height, 1000));
+
+      console.log(`Processing image at: ${width}x${height}`);
+
+      // Process image: resize, convert to grayscale, and get raw pixel data
+      const processedImage = await image
+        .resize(width, height, {
+          fit: "contain",
+          background: { r: 255, g: 255, b: 255, alpha: 1 }
+        })
+        .grayscale()
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+
+      const { data: pixelData, info } = processedImage;
+
+      console.log(`Sharp processing complete: ${info.width}x${info.height}`);
+
+      // Convert to monochrome bitmap
+      const bitmapData = this.convertToBitmap(
+        pixelData,
+        info.width,
+        info.height,
+        useDithering
+      );
+
+      console.log(
+        `✓ Bitmap conversion completed, data length: ${bitmapData.length}`
+      );
+
+      return bitmapData;
     } catch (error) {
       console.error("Prepare image error:", error);
       throw new Error(
@@ -435,72 +336,10 @@ export class USBPrinter {
   }
 
   /**
-   * Prepare image using canvas (preferred method)
-   */
-  private async prepareImageWithCanvas(
-    imageBuffer: Buffer,
-    maxWidth: number,
-    useDithering: boolean
-  ): Promise<string> {
-    // Use the helper function to load canvas
-    const loadedCanvas = await this.loadCanvasModule();
-    const { createCanvas, loadImage } = loadedCanvas;
-
-    console.log("Canvas module loaded successfully");
-
-    const image = await loadImage(imageBuffer);
-
-    // Calculate dimensions (maintain aspect ratio)
-    let width = image.width;
-    let height = image.height;
-
-    if (width > maxWidth) {
-      const ratio = maxWidth / width;
-      width = maxWidth;
-      height = Math.floor(height * ratio);
-    }
-
-    // Ensure dimensions are reasonable
-    width = Math.max(1, Math.min(width, 576)); // Max thermal printer width
-    height = Math.max(1, Math.min(height, 1000)); // Reasonable height limit
-
-    // Create canvas with white background
-    const canvas = createCanvas(width, height);
-    const ctx = canvas.getContext("2d");
-
-    // Fill with white background (important for transparency)
-    ctx.fillStyle = "#FFFFFF";
-    ctx.fillRect(0, 0, width, height);
-
-    // Set image smoothing for better quality
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
-
-    // Draw image
-    ctx.drawImage(image, 0, 0, width, height);
-
-    // Get image data
-    const imageData = ctx.getImageData(0, 0, width, height);
-
-    // Convert to monochrome bitmap
-    const bitmapData = this.convertToBitmap(
-      imageData.data,
-      width,
-      height,
-      useDithering
-    );
-    console.log(
-      `Bitmap conversion completed, data length: ${bitmapData.length}`
-    );
-
-    return bitmapData;
-  }
-
-  /**
-   * Convert image data to ESC/POS bitmap format with optional dithering
+   * Convert grayscale image data to ESC/POS bitmap format with optional dithering
    */
   private convertToBitmap(
-    imageData: Uint8ClampedArray,
+    imageData: Buffer,
     width: number,
     height: number,
     useDithering: boolean = true
@@ -508,7 +347,6 @@ export class USBPrinter {
     const buffer: string[] = [];
 
     // ESC/POS raster image command: GS v 0
-    // Format: GS v 0 m xL xH yL yH d1...dk
     buffer.push(this.GS);
     buffer.push("v");
     buffer.push("0");
@@ -524,21 +362,12 @@ export class USBPrinter {
     buffer.push(String.fromCharCode((height >> 8) & 0xff));
 
     // Create a copy of image data for dithering
+    // Sharp gives us grayscale values (1 byte per pixel)
     const pixels = new Float32Array(width * height);
 
-    // Convert to grayscale with alpha blending
+    // Copy grayscale values to float array
     for (let i = 0; i < width * height; i++) {
-      const index = i * 4;
-      const r = imageData[index];
-      const g = imageData[index + 1];
-      const b = imageData[index + 2];
-      const a = imageData[index + 3];
-
-      // Convert to grayscale
-      const gray = r * 0.299 + g * 0.587 + b * 0.114;
-
-      // Apply alpha blending with white background
-      pixels[i] = gray * (a / 255) + 255 * (1 - a / 255);
+      pixels[i] = imageData[i];
     }
 
     // Apply Floyd-Steinberg dithering if enabled
@@ -567,6 +396,11 @@ export class USBPrinter {
           }
         }
       }
+    } else {
+      // Simple thresholding without dithering
+      for (let i = 0; i < pixels.length; i++) {
+        pixels[i] = pixels[i] < 128 ? 0 : 255;
+      }
     }
 
     // Convert pixels to bitmap
@@ -577,7 +411,7 @@ export class USBPrinter {
           const pixelX = x * 8 + bit;
           if (pixelX < width) {
             const index = y * width + pixelX;
-            const pixelValue = useDithering ? pixels[index] : pixels[index];
+            const pixelValue = pixels[index];
 
             // If pixel is dark (< 128), set bit to 1 (print black)
             if (pixelValue < 128) {
@@ -592,9 +426,6 @@ export class USBPrinter {
     return buffer.join("");
   }
 
-  /**
-   * Print an image file
-   */
   async printImage(
     imagePath: string,
     align: ALIGNMENT_OPTIONS = "center",
@@ -604,7 +435,6 @@ export class USBPrinter {
 
     buffer.push(this.INIT);
 
-    // Set alignment
     if (align === "center") {
       buffer.push(this.ALIGN_CENTER);
     } else if (align === "right") {
@@ -613,7 +443,6 @@ export class USBPrinter {
       buffer.push(this.ALIGN_LEFT);
     }
 
-    // Add image
     const imageData = await this.prepareImage(imagePath, 384, useDithering);
     buffer.push(imageData);
     buffer.push(this.FEED_LINE);
@@ -622,10 +451,6 @@ export class USBPrinter {
     await this.sendToPrinter(data);
   }
 
-  /**
-   * Print a complete bill image at full paper width (80mm thermal paper)
-   * This function is specifically designed for printing full-width receipt images
-   */
   async printImageBill(
     imagePath: string,
     useDithering: boolean = true
@@ -633,17 +458,13 @@ export class USBPrinter {
     const buffer: string[] = [];
 
     buffer.push(this.INIT);
-    buffer.push(this.ALIGN_LEFT); // Left align for full-width printing
+    buffer.push(this.ALIGN_LEFT);
 
-    // Use full thermal printer width (576 pixels for 80mm paper at 180 DPI)
-    // 80mm = ~3.15 inches, at 180 DPI = ~568 pixels, rounded to 576 for byte alignment
     const fullWidth = 576;
 
-    // Use path.join for proper cross-platform path handling
     const path = require("path");
     let fullBillImagePath: string;
 
-    // Check if imagePath is already a full path or just a filename
     if (path.isAbsolute(imagePath)) {
       fullBillImagePath = imagePath;
     } else {
@@ -651,12 +472,12 @@ export class USBPrinter {
     }
 
     try {
-      // Verify file exists before processing
       if (!fs.existsSync(fullBillImagePath)) {
         throw new Error(`Image file not found at: ${fullBillImagePath}`);
       }
 
-      // Add image at full width
+      console.log(`Printing bill image: ${fullBillImagePath}`);
+
       const imageData = await this.prepareImage(
         fullBillImagePath,
         fullWidth,
@@ -668,14 +489,14 @@ export class USBPrinter {
       }
 
       buffer.push(imageData);
-
-      // Add extra feed lines and cut paper
       buffer.push(this.FEED_LINES(3));
       buffer.push(this.CUT_PAPER);
 
       const data = Buffer.from(buffer.join(""), "binary");
 
       await this.sendToPrinter(data);
+
+      console.log("✓ Bill printed successfully");
     } catch (error) {
       console.error("Error printing bill image:", error);
       throw new Error(
@@ -684,128 +505,28 @@ export class USBPrinter {
     }
   }
 
-  /**
-   * Simple fallback image processing that creates a basic bitmap
-   * This is used when canvas is not available in packaged apps
-   */
-  private prepareImageFallback(
-    _imageBuffer: Buffer,
-    maxWidth: number = 384
-  ): string {
-    console.log("Using fallback image processing...");
-
-    // For now, create a simple test pattern
-    // In a real implementation, you'd need to decode the image without canvas
-    // This is a placeholder that creates a simple test pattern
-    const width = Math.min(maxWidth, 384);
-    const height = 100; // Fixed height for testing
-
-    const buffer: string[] = [];
-
-    // ESC/POS raster image command: GS v 0
-    buffer.push(this.GS);
-    buffer.push("v");
-    buffer.push("0");
-    buffer.push("\x00"); // Normal mode
-
-    // Width in bytes (8 pixels per byte)
-    const widthBytes = Math.ceil(width / 8);
-    buffer.push(String.fromCharCode(widthBytes & 0xff));
-    buffer.push(String.fromCharCode((widthBytes >> 8) & 0xff));
-
-    // Height
-    buffer.push(String.fromCharCode(height & 0xff));
-    buffer.push(String.fromCharCode((height >> 8) & 0xff));
-
-    // Create a simple test pattern instead of actual image
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < widthBytes; x++) {
-        // Create a simple test pattern
-        let byte = 0;
-        if (y < 20 || y > height - 20) {
-          // Top and bottom borders
-          byte = 0xff;
-        } else if (x < 2 || x > widthBytes - 3) {
-          // Left and right borders
-          byte = 0xff;
-        } else if (y % 10 < 2) {
-          // Horizontal lines
-          byte = 0xff;
-        }
-        buffer.push(String.fromCharCode(byte));
-      }
-    }
-
-    console.log("Fallback pattern created");
-    return buffer.join("");
-  }
-
-  /**
-   * Debug method to save processed image data as a test file
-   */
   async debugImageProcessing(imagePath: string): Promise<void> {
     try {
-      const imageBuffer = await readFile(imagePath);
-      const { createCanvas, loadImage } = require("canvas");
-      const image = await loadImage(imageBuffer);
+      console.log("Debug: Processing image with Sharp");
 
-      // Create debug canvas
-      const canvas = createCanvas(
-        384,
-        Math.floor(image.height * (384 / image.width))
-      );
-      const ctx = canvas.getContext("2d");
+      const image = sharp(imagePath);
+      const metadata = await image.metadata();
 
-      // Fill with white background
-      ctx.fillStyle = "#FFFFFF";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      console.log("Image metadata:", metadata);
 
-      // Draw image
-      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-
-      // Save debug image
+      // Save a debug version
       const debugPath = imagePath.replace(/\.[^/.]+$/, "_debug.png");
-      const fs = require("fs");
-      const stream = fs.createWriteStream(debugPath);
-      const pngBuffer = canvas.toBuffer("image/png");
-      stream.write(pngBuffer);
-      stream.end();
+
+      await image
+        .resize(384, null, { fit: "contain" })
+        .grayscale()
+        .toFile(debugPath);
+
+      console.log(`Debug image saved to: ${debugPath}`);
     } catch (error) {
       console.error("Debug image processing failed:", error);
     }
   }
-
-  private async testCanvasInPackagedApp(): Promise<void> {
-    try {
-      const { app } = require("electron");
-      const path = require("path");
-      console.log(path);
-
-      console.log("=== Canvas Loading Debug ===");
-      console.log("Is Packaged:", app.isPackaged);
-      console.log("App Path:", app.getAppPath());
-      console.log("Resource Path:", process.resourcesPath);
-
-      // Try to load canvas
-      const canvas = require("canvas");
-      console.log("✓ Canvas loaded successfully");
-      console.log("Canvas version:", canvas.version);
-
-      // Test canvas creation
-      const testCanvas = canvas.createCanvas(10, 10);
-      console.log(testCanvas);
-
-      console.log("✓ Canvas creation successful");
-      console.log("===========================");
-    } catch (error) {
-      console.error("✗ Canvas loading failed:", error);
-      console.error("Error details:", {
-        message: (error as Error).message,
-        stack: (error as Error).stack
-      });
-    }
-  }
 }
 
-// Export types
 export type { ALIGNMENT_OPTIONS, PrinterConfig, ReceiptData, ReceiptItem };

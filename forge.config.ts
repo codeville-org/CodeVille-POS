@@ -13,9 +13,7 @@ import { rendererConfig } from "./webpack.renderer.config";
 
 const config: ForgeConfig = {
   packagerConfig: {
-    asar: {
-      unpack: "*.{node,dll,dylib,so,so.*}" // Unpack native modules
-    },
+    asar: true,
     extraResource: ["src/database/migrations"]
   },
   rebuildConfig: {
